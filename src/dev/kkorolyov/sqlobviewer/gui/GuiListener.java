@@ -5,7 +5,7 @@ package dev.kkorolyov.sqlobviewer.gui;
  */
 public interface GuiListener {
 	/**
-	 * Called when the observed application window has its log in button pressed.
+	 * Called when the the log in button pressed.
 	 * @param host input host
 	 * @param database input database
 	 * @param user input user
@@ -13,4 +13,10 @@ public interface GuiListener {
 	 * @param context window calling this event
 	 */
 	void logInButtonPressed(String host, String database, String user, String password, MainWindow context);
+	
+	/**
+	 * Called when a table is selected.
+	 * @param table name of selected table
+	 */
+	void tableSelected(String table);
 }

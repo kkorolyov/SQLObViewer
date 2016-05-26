@@ -3,6 +3,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 import java.sql.SQLException;
 
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
+import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
 
 /**
@@ -18,6 +19,13 @@ public class Controller implements GuiListener {
 	 */
 	public Controller(MainWindow window) {
 		setWindow(window);
+		
+		String 	startHost = Assets.host(),
+						startDatabase = Assets.database(),
+						startUser = Assets.user(),
+						startPassword = Assets.password();
+		
+		this.window.showLoginPanel(startHost, startDatabase, startUser, startPassword);
 	}
 	
 	@Override
@@ -33,7 +41,18 @@ public class Controller implements GuiListener {
 			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
 		} catch (SQLException e) {
 			context.displayError(e.getMessage());
+			
+			return;
 		}
+		String[] dbTables = dbConn.getTables();
+		
+		window.showViewPanel(dbTables);
+	}
+	@Override
+	public void tableSelected(String table) {
+		TableConnection selectedTable = dbConn.connect(table);
+		
+		window.setViewedTable(selectedTable);
 	}
 	
 	/** @param newDatabaseConnection new database connection */

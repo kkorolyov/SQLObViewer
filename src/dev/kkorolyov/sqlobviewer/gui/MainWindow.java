@@ -1,5 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -9,7 +10,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlob.connection.TableConnection;
 
 /**
  * Main SQLObViewer application window.
@@ -23,19 +24,18 @@ public class MainWindow {
 	private static final Dimension LOGIN_DIMENSION = new Dimension(240, 160);
 	
 	private JFrame frame;
+	private JPanel viewPanel;
 	private List<GuiListener> listeners = new LinkedList<>(),
 														listenersToRemove = new LinkedList<>();
 	
 	/**
-	 * Constructs a new frontend.
+	 * Constructs a new main application window.
 	 * @param title frame title
 	 * @param width initial width
 	 * @param height initial height
 	 */
 	public MainWindow(String title, int width, int height) {
-		buildFrame(title, width, height);
-		
-		showPanel(buildLoginPanel(), true);
+		buildFrame(title, width, height);		
 	}
 	private void buildFrame(String title, int width, int height) {
 		frame = new JFrame();
@@ -43,6 +43,32 @@ public class MainWindow {
 		setSize(width, height);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	/**
+	 * Displays the login panel in this window.
+	 */
+	public void showLoginPanel(String startHost, String startDatabase, String startUser, String startPassword) {
+		showPanel(buildLoginPanel(startHost, startDatabase, startUser, startPassword), true);
+	}
+	/**
+	 * Displays the viewer panel in this window.
+	 * @param tables all viewable tables
+	 */
+	public void showViewPanel(String[] tables) {
+		showPanel(buildViewPanel(tables), false);
+		
+		if (tables.length > 0)
+			notifySelectedTable(tables[0]);
+	}
+	
+	/**
+	 * Sets the currently-viewed table.
+	 * @param newTable table to set view to
+	 */
+	public void setViewedTable(TableConnection newTable) {
+		// TODO STUB
+		JOptionPane.showMessageDialog(frame, "Called on " + newTable);
 	}
 	
 	private void showPanel(JPanel toShow, boolean matchPanelSize) {
@@ -59,21 +85,16 @@ public class MainWindow {
 		frame.setVisible(true);
 	}
 	
-	private JPanel buildLoginPanel() {		
-		String 	savedHost = Assets.host(),
-						savedDatabase = Assets.database(),
-						savedUser = Assets.user(),
-						savedPassword = Assets.password();
-		
+	private JPanel buildLoginPanel(String startHost, String startDatabase, String startUser, String startPassword) {		
 		JLabel 	hostLabel = new JLabel(HOST_LABEL),
 						databaseLabel = new JLabel(DATABASE_LABEL),
 						userLabel = new JLabel(USER_LABEL),
 						passwordLabel = new JLabel(PASSWORD_LABEL);
 		
-		JTextField 	hostField = new JTextField(savedHost),
-								databaseField = new JTextField(savedDatabase),
-								userField = new JTextField(savedUser),
-								passwordField = new JPasswordField(savedPassword);
+		JTextField 	hostField = new JTextField(startHost),
+								databaseField = new JTextField(startDatabase),
+								userField = new JTextField(startUser),
+								passwordField = new JPasswordField(startPassword);
 		
 		JButton loginButton = new JButton(LOGIN_BUTTON);
 		loginButton.addActionListener(new ActionListener() {
@@ -83,7 +104,6 @@ public class MainWindow {
 				notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText());
 			}
 		});
-				
 		JPanel loginDataPanel = new JPanel();
 		GridLayout loginDataLayout = new GridLayout(4, 2);
 		loginDataPanel.setLayout(loginDataLayout);
@@ -112,6 +132,40 @@ public class MainWindow {
 		
 		for (GuiListener listener : listeners)
 			listener.logInButtonPressed(host, database, user, password, this);
+	}
+	
+	private JPanel buildViewPanel(String[] tables) {
+		JComboBox<String> tableComboBox = new JComboBox<>(tables);
+		tableComboBox.setSelectedIndex(tables.length > 0 ? 0 : -1);
+		tableComboBox.addActionListener(new ActionListener() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				String selection = (String) ((JComboBox<String>) e.getSource()).getSelectedItem();
+				
+				notifySelectedTable(selection);
+			}
+		});
+		
+		JPanel tableViewPanel = new JPanel();
+		BoxLayout tableViewLayout = new BoxLayout(tableViewPanel, BoxLayout.Y_AXIS);
+		tableViewPanel.setLayout(tableViewLayout);
+		
+		JPanel viewPanel = new JPanel();
+		BorderLayout viewLayout = new BorderLayout();
+		viewPanel.setLayout(viewLayout);
+		
+		viewPanel.add(tableComboBox, BorderLayout.NORTH);
+		viewPanel.add(tableViewPanel, BorderLayout.CENTER);
+		
+		return viewPanel;
+	}
+	private void notifySelectedTable(String table) {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.tableSelected(table);
 	}
 	
 	/**
