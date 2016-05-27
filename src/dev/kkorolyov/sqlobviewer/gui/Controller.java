@@ -25,7 +25,8 @@ public class Controller implements GuiListener {
 						startUser = Assets.user(),
 						startPassword = Assets.password();
 		
-		this.window.showLoginPanel(startHost, startDatabase, startUser, startPassword);
+		this.window.setLoginScreen(new LoginScreen(startHost, startDatabase, startUser, startPassword));
+		this.window.showLoginScreen();
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ package dev.kkorolyov.sqlobviewer.gui;
  */
 public interface GuiListener {
 	/**
-	 * Called when the the log in button pressed.
+	 * Called when the the log in button is pressed.
 	 * @param host input host
 	 * @param database input database
 	 * @param user input user
