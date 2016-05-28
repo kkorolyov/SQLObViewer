@@ -1,10 +1,15 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer;
 
 import java.sql.SQLException;
 
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
+import dev.kkorolyov.sqlobviewer.gui.MainWindow;
+import dev.kkorolyov.sqlobviewer.gui.ViewScreen;
+import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
+import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /**
  * Centralized SQLObViewer application control.
@@ -30,7 +35,7 @@ public class Controller implements GuiListener {
 	}
 	
 	@Override
-	public void logInButtonPressed(String host, String database, String user, String password, MainWindow context) {
+	public void logInButtonPressed(String host, String database, String user, String password, GuiSubject context) {
 		Assets.setHost(host);
 		Assets.setDatabase(database);
 		Assets.setUser(user);
@@ -41,13 +46,14 @@ public class Controller implements GuiListener {
 		try {
 			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
 		} catch (SQLException e) {
-			context.displayError(e.getMessage());
+			window.displayError(e.getMessage());
 			
 			return;
 		}
 		String[] dbTables = dbConn.getTables();
 		
-		window.showViewPanel(dbTables);
+		window.setViewScreen(new ViewScreen(dbTables));
+		window.showViewPanel();
 	}
 	@Override
 	public void tableSelected(String table) {

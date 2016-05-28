@@ -1,4 +1,4 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.event;
 
 /**
  * Listens for GUI events.
@@ -10,9 +10,9 @@ public interface GuiListener {
 	 * @param database input database
 	 * @param user input user
 	 * @param password input password
-	 * @param context window calling this event
+	 * @param GUI component calling this event
 	 */
-	void logInButtonPressed(String host, String database, String user, String password, MainWindow context);
+	void logInButtonPressed(String host, String database, String user, String password, GuiSubject context);
 	
 	/**
 	 * Called when a table is selected.

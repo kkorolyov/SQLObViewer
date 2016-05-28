@@ -1,24 +1,26 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import dev.kkorolyov.sqlob.connection.TableConnection;
+import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
+import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /**
  * Main SQLObViewer application window.
  */
-public class MainWindow implements LoginScreenListener {
+public class MainWindow implements GuiSubject {
 	private static final Dimension LOGIN_DIMENSION = new Dimension(240, 160);
 	
 	private JFrame frame;
 	private LoginScreen loginScreen;
+	private ViewScreen viewScreen;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
@@ -47,13 +49,9 @@ public class MainWindow implements LoginScreenListener {
 	}
 	/**
 	 * Displays the viewer panel in this window.
-	 * @param tables all viewable tables
 	 */
-	public void showViewPanel(String[] tables) {
-		showPanel(buildViewPanel(tables), null);
-		
-		if (tables.length > 0)
-			notifySelectedTable(tables[0]);
+	public void showViewPanel() {
+		showPanel(viewScreen, null);
 	}
 	
 	private void showPanel(JPanel toShow, Dimension size) {
@@ -70,57 +68,12 @@ public class MainWindow implements LoginScreenListener {
 		frame.setVisible(true);
 	}
 	
-	@Override
-	public void logInPressed(String host, String database, String user,	String password, LoginScreen context) {
-		notifyLogInButtonPressed(host, database, user, password);
-	}
-	private void notifyLogInButtonPressed(String host, String database, String user, String password) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.logInButtonPressed(host, database, user, password, this);
-	}
-	
-	private JPanel buildViewPanel(String[] tables) {	// TODO Extract into ViewScreen class
-		JComboBox<String> tableComboBox = new JComboBox<>(tables);
-		tableComboBox.setSelectedIndex(tables.length > 0 ? 0 : -1);
-		tableComboBox.addActionListener(new ActionListener() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				String selection = (String) ((JComboBox<String>) e.getSource()).getSelectedItem();
-				
-				notifySelectedTable(selection);
-			}
-		});
-		
-		JPanel tableViewPanel = new JPanel();
-		BoxLayout tableViewLayout = new BoxLayout(tableViewPanel, BoxLayout.Y_AXIS);
-		tableViewPanel.setLayout(tableViewLayout);
-		
-		JPanel viewPanel = new JPanel();
-		BorderLayout viewLayout = new BorderLayout();
-		viewPanel.setLayout(viewLayout);
-		
-		viewPanel.add(tableComboBox, BorderLayout.NORTH);
-		viewPanel.add(tableViewPanel, BorderLayout.CENTER);
-		
-		return viewPanel;
-	}
-	private void notifySelectedTable(String table) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.tableSelected(table);
-	}
 	/**
 	 * Sets the currently-viewed table.
 	 * @param newTable table to set view to
 	 */
 	public void setViewedTable(TableConnection newTable) {
-		// TODO STUB
-		JOptionPane.showMessageDialog(frame, "Called on " + newTable);
+		viewScreen.setViewedTable(newTable);
 	}
 	
 	/**
@@ -131,19 +84,13 @@ public class MainWindow implements LoginScreenListener {
 		JOptionPane.showMessageDialog(frame, message, frame.getTitle(), JOptionPane.ERROR_MESSAGE);
 	}
 	
-	/** @param listener listener to add */
+	@Override
 	public void addListener(GuiListener listener) {
 		listeners.add(listener);
 	}
-	/** @param listener listener to remove */
+	@Override
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
-	}
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
 	}
 	
 	/** @param newTitle new title */
@@ -161,6 +108,18 @@ public class MainWindow implements LoginScreenListener {
 	/** @param newLoginScreen login screen */
 	public void setLoginScreen(LoginScreen newLoginScreen) {
 		loginScreen = newLoginScreen;
-		loginScreen.addListener(this);
+		
+		forwardListeners(loginScreen);
+	}
+	/** @param newViewScreen database view screen */
+	public void setViewScreen(ViewScreen newViewScreen) {
+		viewScreen = newViewScreen;
+		
+		forwardListeners(viewScreen);
+	}
+	
+	private void forwardListeners(GuiSubject subject) {
+		for (GuiListener listener : listeners)
+			subject.addListener(listener);
 	}
 }

@@ -8,16 +8,20 @@ import java.util.Set;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
+import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+
 /**
  * A prebuilt login screen.
  */
-public class LoginScreen extends JPanel {
+public class LoginScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7337254975219769022L;
 	private static final String HOST_LABEL_NAME = "Host",
 															DATABASE_LABEL_NAME = "Database",
 															USER_LABEL_NAME = "User",
 															PASSWORD_LABEL_NAME = "Password",
 															LOGIN_BUTTON_NAME = "Log In";
+	
 	private JPanel dataPanel;
 	private JLabel 	hostLabel,
 									databaseLabel,
@@ -28,8 +32,8 @@ public class LoginScreen extends JPanel {
 											userField,
 											passwordField;
 	private JButton loginButton;
-	private Set<LoginScreenListener> 	listeners = new HashSet<>(),
-																		listenersToRemove = new HashSet<>();
+	private Set<GuiListener> 	listeners = new HashSet<>(),
+														listenersToRemove = new HashSet<>();
 	
 	/**
 	 * Constructs a new login screen.
@@ -43,7 +47,11 @@ public class LoginScreen extends JPanel {
 	}
 	
 	/**
-	 * Rebuilds this panel using the specified strings.
+	 * Rebuilds this screen using the specified properties.
+	 * @param startHost pre-filled host value
+	 * @param startDatabase pre-filled database value
+	 * @param startUser pre-filled user value
+	 * @param startPassword pre-filled password value
 	 */
 	public void rebuild(String startHost, String startDatabase, String startUser, String startPassword) {
 		removeAll();
@@ -97,20 +105,20 @@ public class LoginScreen extends JPanel {
 	private void notifyLogInButtonPressed(String host, String database, String user, String password) {
 		removeQueuedListeners();
 		
-		for (LoginScreenListener listener : listeners)
-			listener.logInPressed(host, database, user, password, this);
+		for (GuiListener listener : listeners)
+			listener.logInButtonPressed(host, database, user, password, this);
 	}
 	
-	/** @param listener listener to add */
-	public void addListener(LoginScreenListener listener) {
+	@Override
+	public void addListener(GuiListener listener) {
 		listeners.add(listener);
 	}
-	/** @param listener listener to remove */
-	public void removeListener(LoginScreenListener listener) {
+	@Override
+	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
 	}
 	private void removeQueuedListeners() {
-		for (LoginScreenListener listener : listenersToRemove)
+		for (GuiListener listener : listenersToRemove)
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();

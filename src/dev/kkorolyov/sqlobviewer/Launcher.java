@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import javax.swing.SwingUtilities;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets;
-import dev.kkorolyov.sqlobviewer.gui.Controller;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 
 /**
@@ -28,7 +27,8 @@ public class Launcher {
 			@Override
 			public void run() {
 				MainWindow window = new MainWindow(TITLE, WIDTH, HEIGHT);
-				Controller controller = new Controller(window);
+				
+				new Controller(window);
 			}
 		});
 	}
