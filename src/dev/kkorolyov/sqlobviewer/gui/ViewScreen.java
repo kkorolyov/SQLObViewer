@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
@@ -14,12 +15,14 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /**
- * A prebuilt view of a database.
+ * A prebuilt database view screen.
  */
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
+	private static final String NEW_TABLE_BUTTON_TEXT = "+";
 
 	private JComboBox<String> tableComboBox;
+	private JButton newTableButton;
 	private TableViewScreen tableViewScreen;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
@@ -42,16 +45,27 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		removeAll();
 		
 		setTables(tables);
+		setNewTableButton(NEW_TABLE_BUTTON_TEXT);
 		setViewedTable(null);
-		
-		add(tableComboBox, BorderLayout.NORTH);
+						
+		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(tableViewScreen, BorderLayout.CENTER);
 		
 		if (tables.length > 0)
-			notifyTableSelected(tables[0]);
+			notifyTableSelected();
 		
 		revalidate();
 		repaint();
+	}
+	private JPanel buildTablesPanel() {
+		JPanel tablesPanel = new JPanel();
+		BorderLayout tablesLayout = new BorderLayout();
+		tablesPanel.setLayout(tablesLayout);
+		
+		tablesPanel.add(tableComboBox, BorderLayout.CENTER);
+		tablesPanel.add(newTableButton, BorderLayout.EAST);
+		
+		return tablesPanel;
 	}
 	
 	/** @param tables table names to display */
@@ -67,13 +81,27 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				String selection = (String) ((JComboBox<String>) e.getSource()).getSelectedItem();
-				
-				notifyTableSelected(selection);
+				notifyTableSelected();
 			}
 		});
 	}
+	
+	/** @param text text of new table button */
+	public void setNewTableButton(String text) {
+		if (newTableButton == null)
+			newTableButton = new JButton();
+		
+		newTableButton.setText(text);
+		
+		newTableButton.addActionListener(new ActionListener() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				notifyNewTableButtonPressed();
+			}
+		});
+	}
+	
 	/** @param newTable table to view */
 	public void setViewedTable(TableConnection newTable) {
 		if (tableViewScreen == null)
@@ -83,11 +111,17 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			tableViewScreen.rebuild(newTable);
 	}
 	
-	private void notifyTableSelected(String table) {
+	private void notifyTableSelected() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
-			listener.tableSelected(table);
+			listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
+	}
+	private void notifyNewTableButtonPressed() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.newTableButtonPressed(this);
 	}
 	
 	@Override

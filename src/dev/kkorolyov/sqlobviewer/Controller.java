@@ -53,10 +53,14 @@ public class Controller implements GuiListener {
 		String[] dbTables = dbConn.getTables();
 		
 		window.setViewScreen(new ViewScreen(dbTables));
-		window.showViewPanel();
+		window.showViewScreen();
 	}
 	@Override
-	public void tableSelected(String table) {
+	public void newTableButtonPressed(GuiSubject context) {
+		window.showCreateTableScreen();
+	}
+	@Override
+	public void tableSelected(String table, GuiSubject context) {
 		TableConnection selectedTable = dbConn.connect(table);
 		
 		window.setViewedTable(selectedTable);

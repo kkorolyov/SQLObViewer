@@ -21,6 +21,7 @@ public class MainWindow implements GuiSubject {
 	private JFrame frame;
 	private LoginScreen loginScreen;
 	private ViewScreen viewScreen;
+	private CreateTableScreen createTableScreen;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
@@ -42,19 +43,25 @@ public class MainWindow implements GuiSubject {
 	}
 	
 	/**
-	 * Displays the login panel in this window.
+	 * Displays the login screen in this window.
 	 */
 	public void showLoginScreen() {
-		showPanel(loginScreen, LOGIN_DIMENSION);
+		showScreen(loginScreen, LOGIN_DIMENSION);
 	}
 	/**
-	 * Displays the viewer panel in this window.
+	 * Displays the database view screen in this window.
 	 */
-	public void showViewPanel() {
-		showPanel(viewScreen, null);
+	public void showViewScreen() {
+		showScreen(viewScreen, null);
+	}
+	/**
+	 * Displays the create table screen in this window.
+	 */
+	public void showCreateTableScreen() {
+		showScreen(createTableScreen, null);
 	}
 	
-	private void showPanel(JPanel toShow, Dimension size) {
+	private void showScreen(JPanel toShow, Dimension size) {
 		frame.getContentPane().removeAll();
 		frame.add(toShow);
 		frame.revalidate();
@@ -105,6 +112,7 @@ public class MainWindow implements GuiSubject {
 		frame.setPreferredSize(new Dimension(newWidth, newHeight));
 		frame.pack();
 	}
+	
 	/** @param newLoginScreen login screen */
 	public void setLoginScreen(LoginScreen newLoginScreen) {
 		loginScreen = newLoginScreen;
@@ -116,6 +124,12 @@ public class MainWindow implements GuiSubject {
 		viewScreen = newViewScreen;
 		
 		forwardListeners(viewScreen);
+	}
+	/**	@param newCreateTableScreen create table screen */
+	public void setCreateTableScreen(CreateTableScreen newCreateTableScreen) {
+		createTableScreen = newCreateTableScreen;
+		
+		forwardListeners(createTableScreen);
 	}
 	
 	private void forwardListeners(GuiSubject subject) {

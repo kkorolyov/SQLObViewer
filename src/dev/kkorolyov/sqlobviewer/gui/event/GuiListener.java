@@ -15,8 +15,15 @@ public interface GuiListener {
 	void logInButtonPressed(String host, String database, String user, String password, GuiSubject context);
 	
 	/**
+	 * Called when the new table button is pressed.
+	 * @param context GUI component calling this event
+	 */
+	void newTableButtonPressed(GuiSubject context);
+	
+	/**
 	 * Called when a table is selected.
 	 * @param table name of selected table
+	 * @param context GUI component calling this event
 	 */
-	void tableSelected(String table);
+	void tableSelected(String table, GuiSubject context);
 }
