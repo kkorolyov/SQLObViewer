@@ -1,6 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.Dimension;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,6 +42,37 @@ public class MainWindow implements GuiSubject {
 		setSize(width, height);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.addWindowListener(new WindowListener() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void windowClosing(WindowEvent e) {
+				notifyClosed();
+			}
+			@Override
+			public void windowClosed(WindowEvent e) {
+				//
+			}
+			@Override
+			public void windowOpened(WindowEvent e) {
+				//
+			}
+			@Override
+			public void windowIconified(WindowEvent e) {
+				//
+			}
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				//
+			}
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				//
+			}
+			@Override
+			public void windowActivated(WindowEvent e) {
+				//
+			}
+		});
 	}
 	
 	/**
@@ -91,15 +124,6 @@ public class MainWindow implements GuiSubject {
 		JOptionPane.showMessageDialog(frame, message, frame.getTitle(), JOptionPane.ERROR_MESSAGE);
 	}
 	
-	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
-	}
-	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
-	}
-	
 	/** @param newTitle new title */
 	public void setTitle(String newTitle) {
 		frame.setTitle(newTitle);
@@ -130,6 +154,28 @@ public class MainWindow implements GuiSubject {
 		createTableScreen = newCreateTableScreen;
 		
 		forwardListeners(createTableScreen);
+	}
+	
+	private void notifyClosed() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.closed(this);
+	}
+	
+	@Override
+	public void addListener(GuiListener listener) {
+		listeners.add(listener);
+	}
+	@Override
+	public void removeListener(GuiListener listener) {
+		listenersToRemove.add(listener);
+	}
+	private void removeQueuedListeners() {
+		for (GuiListener listener : listenersToRemove)
+			listeners.remove(listener);
+		
+		listenersToRemove.clear();
 	}
 	
 	private void forwardListeners(GuiSubject subject) {

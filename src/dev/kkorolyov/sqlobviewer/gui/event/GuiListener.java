@@ -32,4 +32,10 @@ public interface GuiListener {
 	 * @param context GUI component calling this event
 	 */
 	void tableSelected(String table, GuiSubject context);
+	
+	/**
+	 * Called when a GUI component is close.
+	 * @param context GUI component calling this event
+	 */
+	void closed(GuiSubject context);
 }

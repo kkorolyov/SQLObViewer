@@ -70,9 +70,18 @@ public class Controller implements GuiListener {
 		
 		window.setViewedTable(selectedTable);
 	}
+	@Override
+	public void closed(GuiSubject context) {
+		setDatabaseConnection(null);
+	}
 	
 	/** @param newDatabaseConnection new database connection */
 	public void setDatabaseConnection(DatabaseConnection newDatabaseConnection) {
+		System.out.println("Setting dbConn to " + newDatabaseConnection);
+		if (dbConn != null) {
+			dbConn.close();
+			System.out.println("Closed old dbConn " + dbConn);
+		}
 		dbConn = newDatabaseConnection;
 	}
 	/** @param newWindow new application window */

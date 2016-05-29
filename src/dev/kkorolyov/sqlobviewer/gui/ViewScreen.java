@@ -55,9 +55,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		add(tableViewScreen, BorderLayout.CENTER);
 		add(backButton, BorderLayout.SOUTH);
 		
-		if (tables.length > 0)
-			notifyTableSelected();
-		
 		revalidate();
 		repaint();
 	}
