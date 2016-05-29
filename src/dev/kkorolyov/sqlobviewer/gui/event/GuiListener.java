@@ -21,6 +21,12 @@ public interface GuiListener {
 	void newTableButtonPressed(GuiSubject context);
 	
 	/**
+	 * Called when the back button is pressed.
+	 * @param context GUI component calling this event
+	 */
+	void backButtonPressed(GuiSubject context);
+	
+	/**
 	 * Called when a table is selected.
 	 * @param table name of selected table
 	 * @param context GUI component calling this event

@@ -19,10 +19,12 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
  */
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
-	private static final String NEW_TABLE_BUTTON_TEXT = "+";
+	private static final String NEW_TABLE_BUTTON_TEXT = "+",
+															BACK_BUTTON_TEXT = "Back";
 
 	private JComboBox<String> tableComboBox;
-	private JButton newTableButton;
+	private JButton newTableButton,
+									backButton;
 	private TableViewScreen tableViewScreen;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
@@ -45,11 +47,13 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		removeAll();
 		
 		setTables(tables);
-		setNewTableButton(NEW_TABLE_BUTTON_TEXT);
+		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
+		setBackButtonText(BACK_BUTTON_TEXT);
 		setViewedTable(null);
 						
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(tableViewScreen, BorderLayout.CENTER);
+		add(backButton, BorderLayout.SOUTH);
 		
 		if (tables.length > 0)
 			notifyTableSelected();
@@ -86,20 +90,35 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		});
 	}
 	
-	/** @param text text of new table button */
-	public void setNewTableButton(String text) {
-		if (newTableButton == null)
+	/** @param text new new table button text */
+	public void setNewTableButtonText(String text) {
+		if (newTableButton == null) {
 			newTableButton = new JButton();
-		
+			
+			newTableButton.addActionListener(new ActionListener() {
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					notifyNewTableButtonPressed();
+				}
+			});
+		}
 		newTableButton.setText(text);
-		
-		newTableButton.addActionListener(new ActionListener() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				notifyNewTableButtonPressed();
-			}
-		});
+	}
+	/** @param text new back button text */
+	public void setBackButtonText(String text) {
+		if (backButton == null) {
+			backButton = new JButton();
+			
+			backButton.addActionListener(new ActionListener() {
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					notifyBackButtonPressed();
+				}
+			});
+		}
+		backButton.setText(text);
 	}
 	
 	/** @param newTable table to view */
@@ -111,17 +130,23 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			tableViewScreen.rebuild(newTable);
 	}
 	
-	private void notifyTableSelected() {
+	private void notifyBackButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
-			listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
+			listener.backButtonPressed(this);
 	}
 	private void notifyNewTableButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
 			listener.newTableButtonPressed(this);
+	}
+	private void notifyTableSelected() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
 	}
 	
 	@Override

@@ -60,6 +60,11 @@ public class Controller implements GuiListener {
 		window.showCreateTableScreen();
 	}
 	@Override
+	public void backButtonPressed(GuiSubject context) {
+		if (context instanceof ViewScreen)
+			window.showLoginScreen();
+	}
+	@Override
 	public void tableSelected(String table, GuiSubject context) {
 		TableConnection selectedTable = dbConn.connect(table);
 		
