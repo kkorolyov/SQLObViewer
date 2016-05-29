@@ -130,6 +130,8 @@ public class TableViewScreen extends JPanel implements GuiSubject {
 				
 				for (int i = 0; i < currentRowData.length; i++)
 					currentRowData[i] = currentRow[i].getValue();
+				
+				data.add(currentRowData);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer;
 
 import java.sql.SQLException;
 
+import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
@@ -15,6 +16,8 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
  * Centralized SQLObViewer application control.
  */
 public class Controller implements GuiListener {
+	private static final Logger log = Logger.getLogger(Controller.class.getName());
+	
 	private DatabaseConnection dbConn;	// Model
 	private MainWindow window;	// View
 	
@@ -77,12 +80,14 @@ public class Controller implements GuiListener {
 	
 	/** @param newDatabaseConnection new database connection */
 	public void setDatabaseConnection(DatabaseConnection newDatabaseConnection) {
-		System.out.println("Setting dbConn to " + newDatabaseConnection);
 		if (dbConn != null) {
 			dbConn.close();
-			System.out.println("Closed old dbConn " + dbConn);
+			
+			log.debug("Closed old dbConn=" + dbConn);
 		}
 		dbConn = newDatabaseConnection;
+		
+		log.debug("Set dbConn=" + dbConn);
 	}
 	/** @param newWindow new application window */
 	public void setWindow(MainWindow newWindow) {

@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 import javax.swing.SwingUtilities;
 
+import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 
@@ -21,6 +23,7 @@ public class Launcher {
 	 * @throws SQLException if a database connection error occurs
 	 */
 	public static void main(String[] args) throws SQLException {
+		Logger.setGlobalLevel(Level.DEBUG);
 		Assets.init();
 		
 		SwingUtilities.invokeLater(new Runnable() {
