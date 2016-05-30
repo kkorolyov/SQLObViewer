@@ -5,7 +5,7 @@ package dev.kkorolyov.sqlobviewer.gui.event;
  */
 public interface GuiListener {
 	/**
-	 * Called when the the log in button is pressed.
+	 * Invoked when the the log in button is pressed.
 	 * @param host input host
 	 * @param database input database
 	 * @param user input user
@@ -13,28 +13,27 @@ public interface GuiListener {
 	 * @param GUI component calling this event
 	 */
 	void logInButtonPressed(String host, String database, String user, String password, GuiSubject context);
+	/**
+	 * Invoked when the log out button is pressed.
+	 * @param context GUI component calling this event
+	 */
+	void logOutButtonPressed(GuiSubject context);
 	
 	/**
-	 * Called when the new table button is pressed.
+	 * Invoked when the new table button is pressed.
 	 * @param context GUI component calling this event
 	 */
 	void newTableButtonPressed(GuiSubject context);
 	
 	/**
-	 * Called when the back button is pressed.
-	 * @param context GUI component calling this event
-	 */
-	void backButtonPressed(GuiSubject context);
-	
-	/**
-	 * Called when a table is selected.
+	 * Invoked when a table is selected.
 	 * @param table name of selected table
 	 * @param context GUI component calling this event
 	 */
 	void tableSelected(String table, GuiSubject context);
 	
 	/**
-	 * Called when a GUI component is close.
+	 * Invoked when a GUI component is closed.
 	 * @param context GUI component calling this event
 	 */
 	void closed(GuiSubject context);
