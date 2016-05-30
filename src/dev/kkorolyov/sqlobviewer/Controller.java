@@ -64,8 +64,11 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void backButtonPressed(GuiSubject context) {
-		if (context instanceof ViewScreen)
+		if (context instanceof ViewScreen) {
+			setDatabaseConnection(null);
+			
 			window.showLoginScreen();
+		}
 	}
 	@Override
 	public void tableSelected(String table, GuiSubject context) {
