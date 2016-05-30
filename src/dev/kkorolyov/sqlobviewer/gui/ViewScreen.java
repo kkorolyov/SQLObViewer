@@ -7,9 +7,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
+import dev.kkorolyov.sqlob.construct.Column;
+import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlob.construct.SqlType;
+import dev.kkorolyov.sqlob.exceptions.MismatchedTypeException;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -136,7 +142,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (columnNames == null || data == null)
 			return;
 		
-		TableModel resultsModel = new AbstractTableModel() {
+		TableModel databaseTableModel = new AbstractTableModel() {
 			private static final long serialVersionUID = 5281540525032945988L;
 			
 			private String[] modelColumnNames = columnNames;
@@ -163,13 +169,24 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			public Object getValueAt(int rowIndex, int columnIndex) {
 				return modelRowData[rowIndex][columnIndex];
 			}
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void setValueAt(Object value, int rowIndex, int columnIndex) {
+				RowEntry[] criteria = buildCriteria(rowIndex);	// Build criteria before updating table value
+				
+				modelRowData[rowIndex][columnIndex] = value;
+				
+				RowEntry[] newValues = buildValues(rowIndex, columnIndex);	// Build new values after updating table value
+				
+				notifyUpdateRows(newValues, criteria);
+			}
 			
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
 				return true;
 			}
-		};
-		databaseTable.setModel(resultsModel);
+		};		
+		databaseTable.setModel(databaseTableModel);
 	}
 	
 	private void notifyBackButtonPressed() {
@@ -184,11 +201,64 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		for (GuiListener listener : listeners)
 			listener.newTableButtonPressed(this);
 	}
+	
 	private void notifyTableSelected() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
 			listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
+	}
+	
+	private void notifyInsertRow(RowEntry[] rowValues) {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.insertRow(rowValues, this);
+	}
+	private void notifyUpdateRows(RowEntry[] newValues, RowEntry[] criteria) {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.updateRows(newValues, criteria, this);
+	}
+	private void notifyDeleteRows(RowEntry[] criteria) {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.deleteRows(criteria, this);
+	}
+	
+	private RowEntry[] buildValues(int row, int column) {
+		TableModel model = databaseTable.getModel();
+		Column currentColumn = new Column(model.getColumnName(column), selectType(model.getColumnClass(column)));
+		RowEntry currentEntry;
+		try {
+			currentEntry = new RowEntry(currentColumn, model.getValueAt(row, column));
+		} catch (MismatchedTypeException e) {
+			throw new RuntimeException(e);
+		}
+		return new RowEntry[]{currentEntry}; 
+	}
+	private RowEntry[] buildCriteria(int row) {	// Criteria for entrie changed row
+		TableModel model = databaseTable.getModel();
+		RowEntry[] entries = new RowEntry[model.getColumnCount()];
+		
+		for (int i = 0; i < entries.length; i++) {
+			Column currentColumn = new Column(model.getColumnName(i), selectType(model.getColumnClass(i)));
+			try {
+				entries[i] = new RowEntry(currentColumn, model.getValueAt(row, i));
+			} catch (MismatchedTypeException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return entries;
+	}
+	private static SqlType selectType(Class<?> c) {
+		for (SqlType type : SqlType.values()) {
+			if (type.getTypeClass() == c)
+				return type;
+		}
+		return null;
 	}
 	
 	@Override

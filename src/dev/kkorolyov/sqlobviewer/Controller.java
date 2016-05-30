@@ -78,12 +78,41 @@ public class Controller implements GuiListener {
 			window.showLoginScreen();
 		}
 	}
+	
 	@Override
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
 		window.setViewedTable(extractColumnNames(), extractData());
 	}
+	
+	@Override
+	public void insertRow(RowEntry[] rowValues, GuiSubject context) {
+		try {
+			tableConn.insert(rowValues);
+		} catch (SQLException e) {
+			window.displayError(e.getMessage());
+		}
+		window.setViewedTable(extractColumnNames(), extractData());
+	}
+	@Override
+	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
+		try {
+			tableConn.update(newValues, criteria);
+		} catch (SQLException e) {
+			window.displayError(e.getMessage());
+		}
+	}
+	@Override
+	public void deleteRows(RowEntry[] criteria, GuiSubject context) {
+		try {
+			tableConn.delete(criteria);
+		} catch (SQLException e) {
+			window.displayError(e.getMessage());
+		}
+		window.setViewedTable(extractColumnNames(), extractData());
+	}
+	
 	@Override
 	public void closed(GuiSubject context) {
 		setDatabaseConnection(null);
