@@ -26,11 +26,11 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 	private static final String NEW_TABLE_BUTTON_TEXT = "+",
-															LOG_OUT_BUTTON_TEXT = "Log Out";
+															BACK_BUTTON_TEXT = "Log Out";
 
 	private JComboBox<String> tableComboBox;
 	private JButton newTableButton,
-									logOutButton;
+									backButton;
 	private JTable databaseTable;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
@@ -54,12 +54,12 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		setTables(tables);
 		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
-		setLogOutButtonText(LOG_OUT_BUTTON_TEXT);
+		setBackButtonText(BACK_BUTTON_TEXT);
 		setViewedTable(null);
 						
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
-		add(logOutButton, BorderLayout.SOUTH);
+		add(backButton, BorderLayout.SOUTH);
 		
 		revalidate();
 		repaint();
@@ -114,19 +114,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		newTableButton.setText(text);
 	}
 	/** @param text new back button text */
-	public void setLogOutButtonText(String text) {
-		if (logOutButton == null) {
-			logOutButton = new JButton();
+	public void setBackButtonText(String text) {
+		if (backButton == null) {
+			backButton = new JButton();
 			
-			logOutButton.addActionListener(new ActionListener() {
+			backButton.addActionListener(new ActionListener() {
 				@SuppressWarnings("synthetic-access")
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					notifyLogOutButtonPressed();
+					notifyBackButtonPressed();
 				}
 			});
 		}
-		logOutButton.setText(text);
+		backButton.setText(text);
 	}
 	
 	/** @param newTable table to view */
@@ -206,11 +206,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		return data.toArray(new Object[data.size()][]);
 	}
 	
-	private void notifyLogOutButtonPressed() {
+	private void notifyBackButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
-			listener.logOutButtonPressed(this);
+			listener.backButtonPressed(this);
 	}
 	private void notifyNewTableButtonPressed() {
 		removeQueuedListeners();

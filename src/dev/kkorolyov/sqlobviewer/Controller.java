@@ -63,7 +63,7 @@ public class Controller implements GuiListener {
 		window.showCreateTableScreen();
 	}
 	@Override
-	public void logOutButtonPressed(GuiSubject context) {
+	public void backButtonPressed(GuiSubject context) {
 		if (context instanceof ViewScreen)
 			window.showLoginScreen();
 	}

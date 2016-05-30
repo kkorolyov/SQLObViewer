@@ -17,7 +17,7 @@ public interface GuiListener {
 	 * Invoked when the log out button is pressed.
 	 * @param context GUI component calling this event
 	 */
-	void logOutButtonPressed(GuiSubject context);
+	void backButtonPressed(GuiSubject context);
 	
 	/**
 	 * Invoked when the new table button is pressed.
