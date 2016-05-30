@@ -1,10 +1,15 @@
 package dev.kkorolyov.sqlobviewer;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.TableConnection;
+import dev.kkorolyov.sqlob.construct.Column;
+import dev.kkorolyov.sqlob.construct.Results;
+import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
@@ -19,6 +24,7 @@ public class Controller implements GuiListener {
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
 	private DatabaseConnection dbConn;	// Model
+	private TableConnection tableConn;
 	private MainWindow window;	// View
 	
 	/**
@@ -55,7 +61,9 @@ public class Controller implements GuiListener {
 		}
 		String[] dbTables = dbConn.getTables();
 		
-		window.setViewScreen(new ViewScreen(dbTables));
+		setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
+		
+		window.setViewScreen(new ViewScreen(dbTables, extractColumnNames(), extractData()));
 		window.showViewScreen();
 	}
 	@Override
@@ -72,9 +80,9 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void tableSelected(String table, GuiSubject context) {
-		TableConnection selectedTable = dbConn.connect(table);
+		setTableConnection(dbConn.connect(table));
 		
-		window.setViewedTable(selectedTable);
+		window.setViewedTable(extractColumnNames(), extractData());
 	}
 	@Override
 	public void closed(GuiSubject context) {
@@ -92,6 +100,46 @@ public class Controller implements GuiListener {
 		
 		log.debug("Set dbConn=" + dbConn);
 	}
+	/** @param newTableConnection new table connection */
+	public void setTableConnection(TableConnection newTableConnection) {
+		tableConn = newTableConnection;
+	}
+	private String[] extractColumnNames() {
+		if (tableConn == null)
+			return null;
+		
+		Column[] columns = tableConn.getColumns();
+		String[] columnNames = new String[columns.length];
+		
+		for (int i = 0; i < columnNames.length; i++)
+			columnNames[i] = columns[i].getName();
+		
+		return columnNames;
+	}
+	private Object[][] extractData() {
+		if (tableConn == null)
+			return null;
+		
+		List<Object[]> data = new LinkedList<>();
+
+		try {
+			Results allResults = tableConn.select(null);
+			
+			RowEntry[] currentRow;
+			while ((currentRow = allResults.getNextRow()) != null) {
+				Object[] currentRowData = new Object[currentRow.length];
+				
+				for (int i = 0; i < currentRowData.length; i++)
+					currentRowData[i] = currentRow[i].getValue();
+				
+				data.add(currentRowData);
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return data.toArray(new Object[data.size()][]);
+	}
+	
 	/** @param newWindow new application window */
 	public void setWindow(MainWindow newWindow) {
 		window = newWindow;

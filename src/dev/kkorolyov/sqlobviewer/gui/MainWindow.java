@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -110,10 +109,11 @@ public class MainWindow implements GuiSubject {
 	
 	/**
 	 * Sets the currently-viewed table.
-	 * @param newTable table to set view to
+	 * @param columnNames table column names
+	 * @param data table data
 	 */
-	public void setViewedTable(TableConnection newTable) {
-		viewScreen.setViewedTable(newTable);
+	public void setViewedTable(String[] columnNames, Object[][] data) {
+		viewScreen.setViewedTable(columnNames, data);
 	}
 	
 	/**

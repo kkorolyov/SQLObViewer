@@ -3,20 +3,13 @@ package dev.kkorolyov.sqlobviewer.gui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import dev.kkorolyov.sqlob.connection.TableConnection;
-import dev.kkorolyov.sqlob.construct.Column;
-import dev.kkorolyov.sqlob.construct.Results;
-import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -37,25 +30,27 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/**
 	 * Constructs a new view screen.
-	 * @see #rebuild(String[])
+	 * @see #rebuild(String[], String[], Object[][])
 	 */
-	public ViewScreen(String[] tables) {
+	public ViewScreen(String[] tables, String[] columnNames, Object[][] data) {
 		BorderLayout viewLayout = new BorderLayout();
 		setLayout(viewLayout);
 		
-		rebuild(tables);
+		rebuild(tables, columnNames, data);
 	}
 	/**
 	 * Rebuilds this screen using specified properties.
 	 * @param tables table names to display
+	 * @param columnNames displayed table's column names
+	 * @param data displayed table's data
 	 */
-	public void rebuild(String[] tables) {
+	public void rebuild(String[] tables, String[] columnNames, Object[][] data) {
 		removeAll();
 		
 		setTables(tables);
 		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
 		setBackButtonText(BACK_BUTTON_TEXT);
-		setViewedTable(null);
+		setViewedTable(columnNames, data);
 						
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
@@ -129,17 +124,17 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		backButton.setText(text);
 	}
 	
-	/** @param newTable table to view */
-	public void setViewedTable(TableConnection newTable) {					
+	/**
+	 * @param columnNames table column names
+	 * @param data table data
+	 */
+	public void setViewedTable(String[] columnNames, Object[][] data) {					
 		if (databaseTable == null) {
 			databaseTable = new JTable();
 			databaseTable.setFillsViewportHeight(true);
 		}
-		if (newTable == null)
+		if (columnNames == null || data == null)
 			return;
-		
-		String[] columnNames = extractColumnNames(newTable);
-		Object[][] data = extractData(newTable);
 		
 		TableModel resultsModel = new AbstractTableModel() {
 			private static final long serialVersionUID = 5281540525032945988L;
@@ -175,35 +170,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			}
 		};
 		databaseTable.setModel(resultsModel);
-	}
-	private static String[] extractColumnNames(TableConnection table) {
-		Column[] columns = table.getColumns();
-		String[] columnNames = new String[columns.length];
-		
-		for (int i = 0; i < columnNames.length; i++)
-			columnNames[i] = columns[i].getName();
-		
-		return columnNames;
-	}
-	private static Object[][] extractData(TableConnection table) {
-		List<Object[]> data = new LinkedList<>();
-
-		try {
-			Results allResults = table.select(null);
-			
-			RowEntry[] currentRow;
-			while ((currentRow = allResults.getNextRow()) != null) {
-				Object[] currentRowData = new Object[currentRow.length];
-				
-				for (int i = 0; i < currentRowData.length; i++)
-					currentRowData[i] = currentRow[i].getValue();
-				
-				data.add(currentRowData);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return data.toArray(new Object[data.size()][]);
 	}
 	
 	private void notifyBackButtonPressed() {
