@@ -1,14 +1,13 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -24,11 +23,14 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
  */
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
+	private static final String ADD_ROW_TITLE = "Add Row";
 	private static final String NEW_TABLE_BUTTON_TEXT = "+",
+															ADD_ROW_BUTTON_TEXT = "+",
 															BACK_BUTTON_TEXT = "Log Out";
 
 	private JComboBox<String> tableComboBox;
 	private JButton newTableButton,
+									addRowButton,
 									backButton;
 	private JTable databaseTable;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
@@ -55,11 +57,13 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		setTables(tables);
 		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
+		setAddRowButtonText(ADD_ROW_BUTTON_TEXT);
 		setBackButtonText(BACK_BUTTON_TEXT);
 		setViewedTable(columnNames, data);
 						
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
+		add(addRowButton, BorderLayout.EAST);
 		add(backButton, BorderLayout.SOUTH);
 		
 		revalidate();
@@ -113,6 +117,21 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			});
 		}
 		newTableButton.setText(text);
+	}
+	/** @param text new add row button text */
+	public void setAddRowButtonText(String text) {
+		if (addRowButton == null) {
+			addRowButton = new JButton();
+			
+			addRowButton.addActionListener(new ActionListener() {
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					displayAddRowDialog();
+				}
+			});
+		}
+		addRowButton.setText(text);
 	}
 	/** @param text new back button text */
 	public void setBackButtonText(String text) {
@@ -172,11 +191,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void setValueAt(Object value, int rowIndex, int columnIndex) {
-				RowEntry[] criteria = buildCriteria(rowIndex);	// Build criteria before updating table value
+				RowEntry[] criteria = buildCriteria(rowIndex, databaseTable);	// Build criteria before updating table value
 				
 				modelRowData[rowIndex][columnIndex] = value;
 				
-				RowEntry[] newValues = buildValues(rowIndex, columnIndex);	// Build new values after updating table value
+				RowEntry[] newValues = buildValues(rowIndex, columnIndex, databaseTable);	// Build new values after updating table value
 				
 				notifyUpdateRows(newValues, criteria);
 			}
@@ -187,6 +206,103 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			}
 		};		
 		databaseTable.setModel(databaseTableModel);
+	}
+	
+	private void displayAddRowDialog() {
+		JTable addRowTable = buildAddRowTable(buildColumnNames(), buildEmptyData());
+		JPanel addRowPanel = buildAddRowPanel(addRowTable);
+		
+		int selectedOption = JOptionPane.showOptionDialog(this, addRowPanel, ADD_ROW_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		
+		if (selectedOption == JOptionPane.OK_OPTION)
+			notifyInsertRow(buildCriteria(0, addRowTable));
+	}
+	private static JPanel buildAddRowPanel(JTable addRowTable) {		
+		JPanel addRowPanel = new JPanel();
+		BoxLayout addRowLayout = new BoxLayout(addRowPanel, BoxLayout.Y_AXIS);
+		addRowPanel.setLayout(addRowLayout);
+		
+		JScrollPane tableScrollPane = new JScrollPane(addRowTable);
+		tableScrollPane.setPreferredSize(new Dimension((int) addRowTable.getPreferredSize().getWidth(), addRowTable.getRowHeight() + 23));
+		
+		addRowPanel.add(tableScrollPane);
+		
+		return addRowPanel;
+	}
+	private static JTable buildAddRowTable(String[] columnNames, Object[][] data) {
+		TableModel databaseTableModel = new AbstractTableModel() {
+			private static final long serialVersionUID = 5281540525032945988L;
+			
+			private String[] modelColumnNames = columnNames;
+			private Object[][] modelRowData = data;
+			
+			@Override
+			public int getColumnCount() {
+				return modelColumnNames.length;
+			}
+			@Override
+			public int getRowCount() {
+				return modelRowData.length;
+			}
+			
+			@Override
+			public String getColumnName(int column) {
+				return modelColumnNames[column];
+			}
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				return getValueAt(0, columnIndex).getClass();
+			}
+			@Override
+			public Object getValueAt(int rowIndex, int columnIndex) {
+				return modelRowData[rowIndex][columnIndex];
+			}
+			@Override
+			public void setValueAt(Object value, int rowIndex, int columnIndex) {				
+				modelRowData[rowIndex][columnIndex] = value;
+			}
+			
+			@Override
+			public boolean isCellEditable(int rowIndex, int columnIndex) {
+				return true;
+			}
+		};
+		JTable addRowTable = new JTable(databaseTableModel);
+		addRowTable.setFillsViewportHeight(true);
+		
+		return addRowTable;
+	}
+	
+	private String[] buildColumnNames() {
+		TableModel model = databaseTable.getModel();
+		String[] columnNames = new String[model.getColumnCount()];
+		
+		for (int i = 0; i < columnNames.length; i++)
+			columnNames[i] = model.getColumnName(i);
+		
+		return columnNames;
+	}
+	private Object[][] buildEmptyData() {
+		TableModel model = databaseTable.getModel();
+		int numColumns = model.getColumnCount();
+		Object[][] emptyData = new Object[1][numColumns];
+		
+		for (int i = 0; i < numColumns; i++) {
+			Class<?> currentColumnClass = model.getColumnClass(i);
+			Object currentEmptyData = null;
+			
+			if (currentColumnClass == Boolean.class)
+				currentEmptyData = false;
+			else if (currentColumnClass == Short.class || currentColumnClass == Integer.class || currentColumnClass == Long.class || currentColumnClass == Float.class || currentColumnClass == Double.class)
+				currentEmptyData = 0;
+			else if (currentColumnClass == Character.class)
+				currentEmptyData = ' ';
+			else
+				currentEmptyData = "";
+			
+			emptyData[0][i] = currentEmptyData;
+		}
+		return emptyData;
 	}
 	
 	private void notifyBackButtonPressed() {
@@ -228,8 +344,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			listener.deleteRows(criteria, this);
 	}
 	
-	private RowEntry[] buildValues(int row, int column) {
-		TableModel model = databaseTable.getModel();
+	private static RowEntry[] buildValues(int row, int column, JTable table) {
+		TableModel model = table.getModel();
 		Column currentColumn = new Column(model.getColumnName(column), selectType(model.getColumnClass(column)));
 		RowEntry currentEntry;
 		try {
@@ -239,8 +355,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		}
 		return new RowEntry[]{currentEntry}; 
 	}
-	private RowEntry[] buildCriteria(int row) {	// Criteria for entrie changed row
-		TableModel model = databaseTable.getModel();
+	private static RowEntry[] buildCriteria(int row, JTable table) {	// Criteria for entire changed row
+		TableModel model = table.getModel();
 		RowEntry[] entries = new RowEntry[model.getColumnCount()];
 		
 		for (int i = 0; i < entries.length; i++) {
