@@ -108,15 +108,6 @@ public class MainWindow implements GuiSubject {
 	}
 	
 	/**
-	 * Sets the currently-viewed table.
-	 * @param columnNames table column names
-	 * @param data table data
-	 */
-	public void setViewedTable(String[] columnNames, Object[][] data) {
-		viewScreen.setViewedTable(columnNames, data);
-	}
-	
-	/**
 	 * Displays an error message in this application window.
 	 * @param message error message to display
 	 */

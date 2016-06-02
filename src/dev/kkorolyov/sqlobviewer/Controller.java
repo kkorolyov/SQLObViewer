@@ -26,6 +26,7 @@ public class Controller implements GuiListener {
 	private DatabaseConnection dbConn;	// Model
 	private TableConnection tableConn;
 	private MainWindow window;	// View
+	private ViewScreen viewScreen;
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -63,7 +64,8 @@ public class Controller implements GuiListener {
 		
 		setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
 		
-		window.setViewScreen(new ViewScreen(dbTables, extractColumnNames(), extractData()));
+		setViewScreen(new ViewScreen(dbTables, extractColumnNames(), extractData()));
+		
 		window.showViewScreen();
 	}
 	@Override
@@ -83,7 +85,7 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
-		window.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(extractColumnNames(), extractData());
 	}
 	
 	@Override
@@ -93,12 +95,13 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		window.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(extractColumnNames(), extractData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
 		try {
-			tableConn.update(newValues, criteria);
+			if (tableConn.update(newValues, criteria) > 1)
+				viewScreen.setViewedTable(extractColumnNames(), extractData());	// Reset table to match database
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
@@ -110,7 +113,7 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		window.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(extractColumnNames(), extractData());
 	}
 	
 	@Override
@@ -123,7 +126,7 @@ public class Controller implements GuiListener {
 		if (dbConn != null) {
 			dbConn.close();
 			
-			log.debug("Closed old dbConn=" + dbConn);
+			log.debug("Closed old dbConn: " + dbConn);
 		}
 		dbConn = newDatabaseConnection;
 		
@@ -173,5 +176,12 @@ public class Controller implements GuiListener {
 	public void setWindow(MainWindow newWindow) {
 		window = newWindow;
 		window.addListener(this);
+	}
+	/** @param newViewScreen new view screen */
+	public void setViewScreen(ViewScreen newViewScreen) {
+		viewScreen = newViewScreen;
+		viewScreen.addListener(this);
+		
+		window.setViewScreen(viewScreen);
 	}
 }
