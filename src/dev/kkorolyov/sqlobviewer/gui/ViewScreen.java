@@ -24,15 +24,20 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 	private static final String ADD_ROW_TITLE = "Add Row";
-	private static final String NEW_TABLE_BUTTON_TEXT = "+",
+	private static final String REFRESH_TABLE_BUTTON_TEXT = "R",
+															NEW_TABLE_BUTTON_TEXT = "+",
 															ADD_ROW_BUTTON_TEXT = "+",
+															UNDO_STATEMENT_BUTTON_TEXT = "Undo",
 															BACK_BUTTON_TEXT = "Log Out";
 
 	private JComboBox<String> tableComboBox;
-	private JButton newTableButton,
+	private JButton refreshTableButton,
+									newTableButton,
 									addRowButton,
+									undoStatementButton,
 									backButton;
 	private JTable databaseTable;
+	private JLabel lastStatementLabel;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
@@ -56,15 +61,18 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		removeAll();
 		
 		setTables(tables);
+		setRefreshTableButtonText(REFRESH_TABLE_BUTTON_TEXT);
 		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
 		setAddRowButtonText(ADD_ROW_BUTTON_TEXT);
+		setUndoStatementButtonText(UNDO_STATEMENT_BUTTON_TEXT);
 		setBackButtonText(BACK_BUTTON_TEXT);
 		setViewedTable(columnNames, data);
-						
+		setLastStatement("LAST STATEMENT GOES HERE");
+		
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
 		add(addRowButton, BorderLayout.EAST);
-		add(backButton, BorderLayout.SOUTH);
+		add(buildStatementPanel(), BorderLayout.SOUTH);
 		
 		revalidate();
 		repaint();
@@ -74,6 +82,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		BorderLayout tablesLayout = new BorderLayout();
 		tablesPanel.setLayout(tablesLayout);
 		
+		tablesPanel.add(refreshTableButton, BorderLayout.WEST);
 		tablesPanel.add(tableComboBox, BorderLayout.CENTER);
 		tablesPanel.add(newTableButton, BorderLayout.EAST);
 		
@@ -83,6 +92,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		JScrollPane databaseTableScrollPane = new JScrollPane(databaseTable);
 		
 		return databaseTableScrollPane;
+	}
+	private JPanel buildStatementPanel() {
+		JPanel statementPanel = new JPanel();
+		BorderLayout statementLayout = new BorderLayout();
+		statementPanel.setLayout(statementLayout);
+		
+		statementPanel.add(lastStatementLabel, BorderLayout.CENTER);
+		statementPanel.add(undoStatementButton, BorderLayout.EAST);
+		
+		// TODO Placeholder location for back button
+		statementPanel.add(backButton, BorderLayout.SOUTH);
+		
+		return statementPanel;
 	}
 	
 	/** @param tables table names to display */
@@ -103,6 +125,21 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		});
 	}
 	
+	/** @param text new refresh table button text */
+	public void setRefreshTableButtonText(String text) {
+		if (refreshTableButton == null) {
+			refreshTableButton = new JButton();
+			
+			refreshTableButton.addActionListener(new ActionListener() {
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					notifyRefreshTableButtonPressed();
+				}
+			});
+		}
+		refreshTableButton.setText(text);
+	}
 	/** @param text new new table button text */
 	public void setNewTableButtonText(String text) {
 		if (newTableButton == null) {
@@ -132,6 +169,21 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			});
 		}
 		addRowButton.setText(text);
+	}
+	/** @param text new undo statement button text */
+	public void setUndoStatementButtonText(String text) {
+		if (undoStatementButton == null) {
+			undoStatementButton = new JButton();
+			
+			undoStatementButton.addActionListener(new ActionListener() {
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					notifyUndoStatementButtonPressed();
+				}
+			});
+		}
+		undoStatementButton.setText(text);
 	}
 	/** @param text new back button text */
 	public void setBackButtonText(String text) {
@@ -206,6 +258,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			}
 		};		
 		databaseTable.setModel(databaseTableModel);
+	}
+	
+	/** @param statement new statement to display */
+	public void setLastStatement(String statement) {
+		if (lastStatementLabel == null)
+			lastStatementLabel = new JLabel();
+		
+		lastStatementLabel.setText(statement);
 	}
 	
 	private void displayAddRowDialog() {
@@ -311,11 +371,23 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		for (GuiListener listener : listeners)
 			listener.backButtonPressed(this);
 	}
+	private void notifyRefreshTableButtonPressed() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.refreshTableButtonPressed(this);
+	}
 	private void notifyNewTableButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
 			listener.newTableButtonPressed(this);
+	}
+	private void notifyUndoStatementButtonPressed() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.undoStatementButtonPressed(this);
 	}
 	
 	private void notifyTableSelected() {
