@@ -47,7 +47,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/**
 	 * Constructs a new view screen.
-	 * @see #rebuild(String[], String[], Object[][])
+	 * @see #rebuild(String[], Column[], Object[][])
 	 */
 	public ViewScreen(String[] tables, Column[] columnNames, Object[][] data) {
 		BorderLayout viewLayout = new BorderLayout();
@@ -341,8 +341,16 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			
 			if (currentColumnClass == Boolean.class)
 				currentEmptyData = false;
-			else if (currentColumnClass == Short.class || currentColumnClass == Integer.class || currentColumnClass == Long.class || currentColumnClass == Float.class || currentColumnClass == Double.class)
-				currentEmptyData = 0;
+			else if (currentColumnClass == Short.class)
+				currentEmptyData = (short) 0;
+			else if (currentColumnClass == Integer.class)
+				currentEmptyData = (int) 0;
+			else if (currentColumnClass == Long.class)
+				currentEmptyData = (long) 0;
+			else if (currentColumnClass == Float.class)
+				currentEmptyData = (float) 0;
+			else if (currentColumnClass == Double.class)
+				currentEmptyData = (double) 0;
 			else if (currentColumnClass == Character.class)
 				currentEmptyData = ' ';
 			else
