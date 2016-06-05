@@ -2,8 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -116,13 +114,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		for (String table : tables)
 			tableComboBox.addItem(table);
 		
-		tableComboBox.addActionListener(new ActionListener() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				notifyTableSelected();
-			}
-		});
+		tableComboBox.addActionListener(e -> notifyTableSelected());
 	}
 	
 	/** @param text new refresh table button text */
@@ -130,13 +122,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (refreshTableButton == null) {
 			refreshTableButton = new JButton();
 			
-			refreshTableButton.addActionListener(new ActionListener() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					notifyRefreshTableButtonPressed();
-				}
-			});
+			refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
 		}
 		refreshTableButton.setText(text);
 	}
@@ -145,13 +131,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (newTableButton == null) {
 			newTableButton = new JButton();
 			
-			newTableButton.addActionListener(new ActionListener() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					notifyNewTableButtonPressed();
-				}
-			});
+			newTableButton.addActionListener(e -> notifyNewTableButtonPressed());
 		}
 		newTableButton.setText(text);
 	}
@@ -160,13 +140,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (addRowButton == null) {
 			addRowButton = new JButton();
 			
-			addRowButton.addActionListener(new ActionListener() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					displayAddRowDialog();
-				}
-			});
+			addRowButton.addActionListener(e -> displayAddRowDialog());
 		}
 		addRowButton.setText(text);
 	}
@@ -175,13 +149,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (undoStatementButton == null) {
 			undoStatementButton = new JButton();
 			
-			undoStatementButton.addActionListener(new ActionListener() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					notifyUndoStatementButtonPressed();
-				}
-			});
+			undoStatementButton.addActionListener(e -> notifyUndoStatementButtonPressed());
 		}
 		undoStatementButton.setText(text);
 	}
@@ -190,13 +158,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		if (backButton == null) {
 			backButton = new JButton();
 			
-			backButton.addActionListener(new ActionListener() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					notifyBackButtonPressed();
-				}
-			});
+			backButton.addActionListener(e -> notifyBackButtonPressed());
 		}
 		backButton.setText(text);
 	}

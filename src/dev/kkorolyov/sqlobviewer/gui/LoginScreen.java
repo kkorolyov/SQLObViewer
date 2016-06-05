@@ -1,8 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -93,13 +91,7 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	}
 	private void setButton() {
 		loginButton = new JButton(LOGIN_BUTTON_NAME);
-		loginButton.addActionListener(new ActionListener() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText());
-			}
-		});
+		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
 	}
 	
 	private void notifyLogInButtonPressed(String host, String database, String user, String password) {
