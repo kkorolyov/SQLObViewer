@@ -25,6 +25,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private static final String REFRESH_TABLE_BUTTON_TEXT = "R",
 															NEW_TABLE_BUTTON_TEXT = "+",
 															ADD_ROW_BUTTON_TEXT = "+",
+															DELETE_ROW_BUTTON_TEXT = "-",
 															UNDO_STATEMENT_BUTTON_TEXT = "Undo",
 															BACK_BUTTON_TEXT = "Log Out";
 
@@ -32,9 +33,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private JButton refreshTableButton,
 									newTableButton,
 									addRowButton,
+									deleteRowButton,
 									undoStatementButton,
 									backButton;
+	
+	private Column[] columns;
+	private RowEntry[][] data;
 	private JTable databaseTable;
+	
 	private JLabel lastStatementLabel;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
@@ -43,7 +49,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	 * Constructs a new view screen.
 	 * @see #rebuild(String[], String[], Object[][])
 	 */
-	public ViewScreen(String[] tables, String[] columnNames, Object[][] data) {
+	public ViewScreen(String[] tables, Column[] columnNames, Object[][] data) {
 		BorderLayout viewLayout = new BorderLayout();
 		setLayout(viewLayout);
 		
@@ -55,13 +61,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	 * @param columnNames displayed table's column names
 	 * @param data displayed table's data
 	 */
-	public void rebuild(String[] tables, String[] columnNames, Object[][] data) {
+	public void rebuild(String[] tables, Column[] columnNames, Object[][] data) {
 		removeAll();
 		
 		setTables(tables);
 		setRefreshTableButtonText(REFRESH_TABLE_BUTTON_TEXT);
 		setNewTableButtonText(NEW_TABLE_BUTTON_TEXT);
 		setAddRowButtonText(ADD_ROW_BUTTON_TEXT);
+		setDeleteRowButtonText(DELETE_ROW_BUTTON_TEXT);
 		setUndoStatementButtonText(UNDO_STATEMENT_BUTTON_TEXT);
 		setBackButtonText(BACK_BUTTON_TEXT);
 		setViewedTable(columnNames, data);
@@ -69,7 +76,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		add(buildTablesPanel(), BorderLayout.NORTH);
 		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
-		add(addRowButton, BorderLayout.EAST);
+		add(buildAddDeletePanel(), BorderLayout.EAST);
 		add(buildStatementPanel(), BorderLayout.SOUTH);
 		
 		revalidate();
@@ -90,6 +97,16 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		JScrollPane databaseTableScrollPane = new JScrollPane(databaseTable);
 		
 		return databaseTableScrollPane;
+	}
+	private JPanel buildAddDeletePanel() {
+		JPanel addDeletePanel = new JPanel();
+		BoxLayout addDeleteLayout = new BoxLayout(addDeletePanel, BoxLayout.Y_AXIS);
+		addDeletePanel.setLayout(addDeleteLayout);
+		
+		addDeletePanel.add(addRowButton);
+		addDeletePanel.add(deleteRowButton);
+		
+		return addDeletePanel;
 	}
 	private JPanel buildStatementPanel() {
 		JPanel statementPanel = new JPanel();
@@ -144,6 +161,15 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		}
 		addRowButton.setText(text);
 	}
+	/** @param text new delete row button text */
+	public void setDeleteRowButtonText(String text) {
+		if (deleteRowButton == null) {
+			deleteRowButton = new JButton();
+			
+			deleteRowButton.addActionListener(e -> deleteSelected());
+		}
+		deleteRowButton.setText(text);
+	}
 	/** @param text new undo statement button text */
 	public void setUndoStatementButtonText(String text) {
 		if (undoStatementButton == null) {
@@ -167,7 +193,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	 * @param columnNames table column names
 	 * @param data table data
 	 */
-	public void setViewedTable(String[] columnNames, Object[][] data) {					
+	public void setViewedTable(Column[] columnNames, Object[][] data) {					
 		if (databaseTable == null) {
 			databaseTable = new JTable();
 			databaseTable.setFillsViewportHeight(true);
@@ -178,7 +204,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		TableModel databaseTableModel = new AbstractTableModel() {
 			private static final long serialVersionUID = 5281540525032945988L;
 			
-			private String[] modelColumnNames = columnNames;
+			private Column[] modelColumnNames = columnNames;
 			private Object[][] modelRowData = data;
 			
 			@Override
@@ -192,11 +218,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			
 			@Override
 			public String getColumnName(int column) {
-				return modelColumnNames[column];
+				return modelColumnNames[column].getName();
 			}
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
-				return getValueAt(0, columnIndex).getClass();
+				return modelColumnNames[columnIndex].getType().getTypeClass();
 			}
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
@@ -409,6 +435,17 @@ public class ViewScreen extends JPanel implements GuiSubject {
 				return type;
 		}
 		return null;
+	}
+	
+	private void deleteSelected() {
+		int[] selectedRows = databaseTable.getSelectedRows();
+		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
+		
+		for (int i = 0; i < toDelete.length; i++)
+			toDelete[i] = buildCriteria(selectedRows[i], databaseTable);
+		
+		for (RowEntry[] toDel : toDelete)
+			notifyDeleteRows(toDel);
 	}
 	
 	@Override

@@ -68,7 +68,7 @@ public class Controller implements GuiListener {
 		
 		setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
 		
-		setViewScreen(new ViewScreen(dbTables, extractColumnNames(), extractData()));
+		setViewScreen(new ViewScreen(dbTables, getTableColumns(), extractData()));
 		
 		window.showViewScreen();
 	}
@@ -82,7 +82,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
-		viewScreen.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(getTableColumns(), extractData());
 	}
 	@Override
 	public void newTableButtonPressed(GuiSubject context) {
@@ -97,7 +97,7 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
-		viewScreen.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(getTableColumns(), extractData());
 	}
 	
 	@Override
@@ -107,13 +107,13 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		viewScreen.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(getTableColumns(), extractData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
 		try {
 			if (tableConn.update(newValues, criteria) > 1)
-				viewScreen.setViewedTable(extractColumnNames(), extractData());	// Reset table to match database
+				viewScreen.setViewedTable(getTableColumns(), extractData());	// Reset table to match database
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
@@ -125,7 +125,7 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		viewScreen.setViewedTable(extractColumnNames(), extractData());
+		viewScreen.setViewedTable(getTableColumns(), extractData());
 	}
 	
 	@Override
@@ -179,17 +179,8 @@ public class Controller implements GuiListener {
 		tableConn = newTableConnection;
 	}
 	
-	private String[] extractColumnNames() {
-		if (tableConn == null)
-			return null;
-		
-		Column[] columns = tableConn.getColumns();
-		String[] columnNames = new String[columns.length];
-		
-		for (int i = 0; i < columnNames.length; i++)
-			columnNames[i] = columns[i].getName();
-		
-		return columnNames;
+	private Column[] getTableColumns() {
+		return tableConn != null ? tableConn.getColumns() : null;
 	}
 	private Object[][] extractData() {
 		if (tableConn == null)
