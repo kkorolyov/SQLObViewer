@@ -8,4 +8,9 @@ public interface GuiSubject {
 	void addListener(GuiListener listener);
 	/** @param listener listener to remove */
 	void removeListener(GuiListener listener);
+	
+	/**
+	 * Removes all listeners
+	 */
+	void clearListeners();
 }

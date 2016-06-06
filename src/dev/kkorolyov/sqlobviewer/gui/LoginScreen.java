@@ -109,6 +109,12 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
 	}
+	
+	@Override
+	public void clearListeners() {
+		listeners.clear();
+	}
+	
 	private void removeQueuedListeners() {
 		for (GuiListener listener : listenersToRemove)
 			listeners.remove(listener);

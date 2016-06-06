@@ -12,6 +12,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlobviewer.gui.DatabaseTable;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 import dev.kkorolyov.sqlobviewer.gui.ViewScreen;
@@ -31,6 +32,7 @@ public class Controller implements GuiListener {
 	private Stack<UndoStatement> undoStatements;
 	private MainWindow window;	// View
 	private ViewScreen viewScreen;
+	private DatabaseTable databaseTable;
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -68,8 +70,11 @@ public class Controller implements GuiListener {
 		
 		setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
 		
-		setViewScreen(new ViewScreen(dbTables, getTableColumns(), extractData()));
+		setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
 		
+		setViewScreen(new ViewScreen(dbTables, databaseTable));
+		
+		window.setViewScreen(viewScreen);
 		window.showViewScreen();
 	}
 	@Override
@@ -82,7 +87,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
-		viewScreen.setViewedTable(getTableColumns(), extractData());
+		databaseTable.rebuild(getTableColumns(), getTableData());
 	}
 	@Override
 	public void newTableButtonPressed(GuiSubject context) {
@@ -97,7 +102,7 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
-		viewScreen.setViewedTable(getTableColumns(), extractData());
+		databaseTable.rebuild(getTableColumns(), getTableData());
 	}
 	
 	@Override
@@ -107,13 +112,13 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		viewScreen.setViewedTable(getTableColumns(), extractData());
+		databaseTable.rebuild(getTableColumns(), getTableData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
 		try {
 			if (tableConn.update(newValues, criteria) > 1)
-				viewScreen.setViewedTable(getTableColumns(), extractData());	// Reset table to match database
+				databaseTable.rebuild(getTableColumns(), getTableData());	// Rebuild table to match database
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
@@ -125,7 +130,7 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		viewScreen.setViewedTable(getTableColumns(), extractData());
+		databaseTable.rebuild(getTableColumns(), getTableData());
 	}
 	
 	@Override
@@ -182,28 +187,23 @@ public class Controller implements GuiListener {
 	private Column[] getTableColumns() {
 		return tableConn != null ? tableConn.getColumns() : null;
 	}
-	private Object[][] extractData() {
+	private RowEntry[][] getTableData() {
 		if (tableConn == null)
 			return null;
 		
-		List<Object[]> data = new LinkedList<>();
+		List<RowEntry[]> data = new LinkedList<>();
 
 		try {
 			Results allResults = tableConn.select(null);
 			
 			RowEntry[] currentRow;
-			while ((currentRow = allResults.getNextRow()) != null) {
-				Object[] currentRowData = new Object[currentRow.length];
-				
-				for (int i = 0; i < currentRowData.length; i++)
-					currentRowData[i] = currentRow[i].getValue();
-				
-				data.add(currentRowData);
-			}
+			while ((currentRow = allResults.getNextRow()) != null)				
+				data.add(currentRow);
+			
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return data.toArray(new Object[data.size()][]);
+		return data.toArray(new RowEntry[data.size()][]);
 	}
 	
 	/** @param newWindow new application window */
@@ -214,8 +214,11 @@ public class Controller implements GuiListener {
 	/** @param newViewScreen new view screen */
 	public void setViewScreen(ViewScreen newViewScreen) {
 		viewScreen = newViewScreen;
-		viewScreen.addListener(this);
-		
-		window.setViewScreen(viewScreen);
+		viewScreen.addListener(this);		
+	}
+	/** @parama newDatabaseTable new database table */
+	public void setDatabaseTable(DatabaseTable newDatabaseTable) {
+		databaseTable = newDatabaseTable;
+		databaseTable.addListener(this);
 	}
 }

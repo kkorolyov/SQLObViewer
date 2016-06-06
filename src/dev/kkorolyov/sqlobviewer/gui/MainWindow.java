@@ -130,12 +130,18 @@ public class MainWindow implements GuiSubject {
 	
 	/** @param newLoginScreen login screen */
 	public void setLoginScreen(LoginScreen newLoginScreen) {
+		if (loginScreen != null)
+			loginScreen.clearListeners();
+		
 		loginScreen = newLoginScreen;
 		
 		forwardListeners(loginScreen);
 	}
 	/** @param newViewScreen database view screen */
 	public void setViewScreen(ViewScreen newViewScreen) {
+		if (viewScreen != null)
+			viewScreen.clearListeners();
+		
 		viewScreen = newViewScreen;
 		
 		forwardListeners(viewScreen);
@@ -162,6 +168,12 @@ public class MainWindow implements GuiSubject {
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
 	}
+	
+	@Override
+	public void clearListeners() {
+		listeners.clear();
+	}
+	
 	private void removeQueuedListeners() {
 		for (GuiListener listener : listenersToRemove)
 			listeners.remove(listener);

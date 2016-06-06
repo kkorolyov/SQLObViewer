@@ -36,10 +36,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 									deleteRowButton,
 									undoStatementButton,
 									backButton;
-	
-	private Column[] columns;
-	private RowEntry[][] data;
-	private JTable databaseTable;
+	private DatabaseTable databaseTable;
 	
 	private JLabel lastStatementLabel;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
@@ -47,21 +44,20 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/**
 	 * Constructs a new view screen.
-	 * @see #rebuild(String[], Column[], Object[][])
+	 * @see #rebuild(String[], DatabaseTable)
 	 */
-	public ViewScreen(String[] tables, Column[] columnNames, Object[][] data) {
+	public ViewScreen(String[] tables, DatabaseTable table) {
 		BorderLayout viewLayout = new BorderLayout();
 		setLayout(viewLayout);
 		
-		rebuild(tables, columnNames, data);
+		rebuild(tables, table);
 	}
 	/**
 	 * Rebuilds this screen using specified properties.
 	 * @param tables table names to display
-	 * @param columnNames displayed table's column names
-	 * @param data displayed table's data
+	 * @param table database table to display
 	 */
-	public void rebuild(String[] tables, Column[] columnNames, Object[][] data) {
+	public void rebuild(String[] tables, DatabaseTable table) {
 		removeAll();
 		
 		setTables(tables);
@@ -71,7 +67,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		setDeleteRowButtonText(DELETE_ROW_BUTTON_TEXT);
 		setUndoStatementButtonText(UNDO_STATEMENT_BUTTON_TEXT);
 		setBackButtonText(BACK_BUTTON_TEXT);
-		setViewedTable(columnNames, data);
+		setViewedTable(table);
 		setLastStatement("LAST STATEMENT GOES HERE");
 		
 		add(buildTablesPanel(), BorderLayout.NORTH);
@@ -189,63 +185,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		backButton.setText(text);
 	}
 	
-	/**
-	 * @param columnNames table column names
-	 * @param data table data
-	 */
-	public void setViewedTable(Column[] columnNames, Object[][] data) {					
-		if (databaseTable == null) {
-			databaseTable = new JTable();
-			databaseTable.setFillsViewportHeight(true);
-		}
-		if (columnNames == null || data == null)
-			return;
+	/** @param newTable new database table */
+	public void setViewedTable(DatabaseTable newTable) {
+		if (databaseTable != null)
+			databaseTable.clearListeners();
 		
-		TableModel databaseTableModel = new AbstractTableModel() {
-			private static final long serialVersionUID = 5281540525032945988L;
-			
-			private Column[] modelColumnNames = columnNames;
-			private Object[][] modelRowData = data;
-			
-			@Override
-			public int getColumnCount() {
-				return modelColumnNames.length;
-			}
-			@Override
-			public int getRowCount() {
-				return modelRowData.length;
-			}
-			
-			@Override
-			public String getColumnName(int column) {
-				return modelColumnNames[column].getName();
-			}
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				return modelColumnNames[columnIndex].getType().getTypeClass();
-			}
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex) {
-				return modelRowData[rowIndex][columnIndex];
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void setValueAt(Object value, int rowIndex, int columnIndex) {
-				RowEntry[] criteria = buildCriteria(rowIndex, databaseTable);	// Build criteria before updating table value
-				
-				modelRowData[rowIndex][columnIndex] = value;
-				
-				RowEntry[] newValues = buildValues(rowIndex, columnIndex, databaseTable);	// Build new values after updating table value
-				
-				notifyUpdateRows(newValues, criteria);
-			}
-			
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return true;
-			}
-		};		
-		databaseTable.setModel(databaseTableModel);
+		databaseTable = newTable;
+		
+		forwardListeners(databaseTable);
 	}
 	
 	/** @param statement new statement to display */
@@ -399,12 +346,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		for (GuiListener listener : listeners)
 			listener.insertRow(rowValues, this);
 	}
-	private void notifyUpdateRows(RowEntry[] newValues, RowEntry[] criteria) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.updateRows(newValues, criteria, this);
-	}
 	private void notifyDeleteRows(RowEntry[] criteria) {
 		removeQueuedListeners();
 		
@@ -464,10 +405,21 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
 	}
+	
+	@Override
+	public void clearListeners() {
+		listeners.clear();
+	}
+	
 	private void removeQueuedListeners() {
 		for (GuiListener listener : listenersToRemove)
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();
+	}
+	
+	private void forwardListeners(GuiSubject subject) {
+		for (GuiListener listener : listeners)
+			subject.addListener(listener);
 	}
 }
