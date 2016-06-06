@@ -263,7 +263,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
 		
 		for (int i = 0; i < toDelete.length; i++)
-			toDelete[i] = databaseTable.getRow(selectedRows[i]);
+			toDelete[i] = databaseTable.getSelectedRow(selectedRows[i]);
 		
 		for (RowEntry[] toDel : toDelete)
 			notifyDeleteRows(toDel);

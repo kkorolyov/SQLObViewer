@@ -26,6 +26,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	 */
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
 		setFillsViewportHeight(true);
+		setAutoCreateRowSorter(true);
+		
 		rebuild(columns, data);
 	}
 	
@@ -77,7 +79,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void setValueAt(Object value, int rowIndex, int columnIndex) {
-				RowEntry[] criteria = data[rowIndex];	// Criteria before updating table value
+				RowEntry[] criteria = saveRow(rowIndex);
 				
 				try {
 					data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
@@ -95,10 +97,22 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			}
 		};
 	}
+	private RowEntry[] saveRow(int rowIndex) {
+		RowEntry[] savedRow = new RowEntry[data[rowIndex].length];
+		
+		for (int i = 0; i < savedRow.length; i++)
+			savedRow[i] = data[rowIndex][i];
+		
+		return savedRow;
+	}
 	
-	/** @return row at the specified index */
+	/** @return row at the specified model index */
 	public RowEntry[] getRow(int rowIndex) {
 		return data[rowIndex];
+	}
+	/** @return row at the specified view index */
+	public RowEntry[] getSelectedRow(int rowIndex) {
+		return getRow(convertRowIndexToModel(rowIndex));
 	}
 	
 	/** @return	an empty row of data reflective of this table's data */
