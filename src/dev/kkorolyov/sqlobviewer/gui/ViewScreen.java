@@ -6,13 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 
-import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
-import dev.kkorolyov.sqlob.construct.SqlType;
-import dev.kkorolyov.sqlob.exceptions.MismatchedTypeException;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -204,108 +199,18 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void displayAddRowDialog() {
-		JTable addRowTable = buildAddRowTable(buildColumnNames(), buildEmptyData());
-		JPanel addRowPanel = buildAddRowPanel(addRowTable);
+		DatabaseTable addRowTable = databaseTable.getEmptyTable();
 		
-		int selectedOption = JOptionPane.showOptionDialog(this, addRowPanel, ADD_ROW_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), ADD_ROW_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
 		if (selectedOption == JOptionPane.OK_OPTION)
-			notifyInsertRow(buildCriteria(0, addRowTable));
+			notifyInsertRow(addRowTable.getRow(0));
 	}
-	private static JPanel buildAddRowPanel(JTable addRowTable) {		
-		JPanel addRowPanel = new JPanel();
-		BoxLayout addRowLayout = new BoxLayout(addRowPanel, BoxLayout.Y_AXIS);
-		addRowPanel.setLayout(addRowLayout);
-		
-		JScrollPane tableScrollPane = new JScrollPane(addRowTable);
-		tableScrollPane.setPreferredSize(new Dimension((int) addRowTable.getPreferredSize().getWidth(), addRowTable.getRowHeight() + 23));
-		
-		addRowPanel.add(tableScrollPane);
-		
-		return addRowPanel;
-	}
-	private static JTable buildAddRowTable(String[] columnNames, Object[][] data) {
-		TableModel databaseTableModel = new AbstractTableModel() {
-			private static final long serialVersionUID = 5281540525032945988L;
-			
-			private String[] modelColumnNames = columnNames;
-			private Object[][] modelRowData = data;
-			
-			@Override
-			public int getColumnCount() {
-				return modelColumnNames.length;
-			}
-			@Override
-			public int getRowCount() {
-				return modelRowData.length;
-			}
-			
-			@Override
-			public String getColumnName(int column) {
-				return modelColumnNames[column];
-			}
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				return getValueAt(0, columnIndex).getClass();
-			}
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex) {
-				return modelRowData[rowIndex][columnIndex];
-			}
-			@Override
-			public void setValueAt(Object value, int rowIndex, int columnIndex) {				
-				modelRowData[rowIndex][columnIndex] = value;
-			}
-			
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return true;
-			}
-		};
-		JTable addRowTable = new JTable(databaseTableModel);
-		addRowTable.setFillsViewportHeight(true);
-		
-		return addRowTable;
-	}
-	
-	private String[] buildColumnNames() {
-		TableModel model = databaseTable.getModel();
-		String[] columnNames = new String[model.getColumnCount()];
-		
-		for (int i = 0; i < columnNames.length; i++)
-			columnNames[i] = model.getColumnName(i);
-		
-		return columnNames;
-	}
-	private Object[][] buildEmptyData() {
-		TableModel model = databaseTable.getModel();
-		int numColumns = model.getColumnCount();
-		Object[][] emptyData = new Object[1][numColumns];
-		
-		for (int i = 0; i < numColumns; i++) {
-			Class<?> currentColumnClass = model.getColumnClass(i);
-			Object currentEmptyData = null;
-			
-			if (currentColumnClass == Boolean.class)
-				currentEmptyData = false;
-			else if (currentColumnClass == Short.class)
-				currentEmptyData = (short) 0;
-			else if (currentColumnClass == Integer.class)
-				currentEmptyData = (int) 0;
-			else if (currentColumnClass == Long.class)
-				currentEmptyData = (long) 0;
-			else if (currentColumnClass == Float.class)
-				currentEmptyData = (float) 0;
-			else if (currentColumnClass == Double.class)
-				currentEmptyData = (double) 0;
-			else if (currentColumnClass == Character.class)
-				currentEmptyData = ' ';
-			else
-				currentEmptyData = "";
-			
-			emptyData[0][i] = currentEmptyData;
-		}
-		return emptyData;
+	private static JScrollPane buildAddRowScrollPane(JTable addRowTable) {		
+		JScrollPane addRowScrollPane = new JScrollPane(addRowTable);
+		addRowScrollPane.setPreferredSize(new Dimension((int) addRowTable.getPreferredSize().getWidth(), addRowTable.getRowHeight() + 23));
+				
+		return addRowScrollPane;
 	}
 	
 	private void notifyBackButtonPressed() {
@@ -353,45 +258,12 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			listener.deleteRows(criteria, this);
 	}
 	
-	private static RowEntry[] buildValues(int row, int column, JTable table) {
-		TableModel model = table.getModel();
-		Column currentColumn = new Column(model.getColumnName(column), selectType(model.getColumnClass(column)));
-		RowEntry currentEntry;
-		try {
-			currentEntry = new RowEntry(currentColumn, model.getValueAt(row, column));
-		} catch (MismatchedTypeException e) {
-			throw new RuntimeException(e);
-		}
-		return new RowEntry[]{currentEntry}; 
-	}
-	private static RowEntry[] buildCriteria(int row, JTable table) {	// Criteria for entire changed row
-		TableModel model = table.getModel();
-		RowEntry[] entries = new RowEntry[model.getColumnCount()];
-		
-		for (int i = 0; i < entries.length; i++) {
-			Column currentColumn = new Column(model.getColumnName(i), selectType(model.getColumnClass(i)));
-			try {
-				entries[i] = new RowEntry(currentColumn, model.getValueAt(row, i));
-			} catch (MismatchedTypeException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return entries;
-	}
-	private static SqlType selectType(Class<?> c) {
-		for (SqlType type : SqlType.values()) {
-			if (type.getTypeClass() == c)
-				return type;
-		}
-		return null;
-	}
-	
 	private void deleteSelected() {
 		int[] selectedRows = databaseTable.getSelectedRows();
 		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
 		
 		for (int i = 0; i < toDelete.length; i++)
-			toDelete[i] = buildCriteria(selectedRows[i], databaseTable);
+			toDelete[i] = databaseTable.getRow(selectedRows[i]);
 		
 		for (RowEntry[] toDel : toDelete)
 			notifyDeleteRows(toDel);
