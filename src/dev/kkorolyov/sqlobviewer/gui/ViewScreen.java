@@ -204,7 +204,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), ADD_ROW_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
 		if (selectedOption == JOptionPane.OK_OPTION)
-			notifyInsertRow(addRowTable.getRow(0));
+			notifyInsertRow(addRowTable.getSelectedRow(0));
 	}
 	private static JScrollPane buildAddRowScrollPane(JTable addRowTable) {		
 		JScrollPane addRowScrollPane = new JScrollPane(addRowTable);
