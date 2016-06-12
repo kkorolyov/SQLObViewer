@@ -4,13 +4,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -23,23 +23,42 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /** A {@code JTable} displaying database information. */
 public class DatabaseTable extends JTable implements GuiSubject {
+	private static final String REMOVE_FILTER_TEXT = "Reset Filter";
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final Logger log = Logger.getLogger(DatabaseTable.class.getName());
 	
 	private Column[] columns;
 	private RowEntry[][] data;
-	private JPopupMenu filterPopup;
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	/**
 	 * Constructs a new database table.
 	 * @see #rebuild(Column[], RowEntry[][])
 	 */
+	@SuppressWarnings("synthetic-access")
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
 		setFillsViewportHeight(true);
 		setAutoCreateRowSorter(true);
+		addFilterPopupListener();
 		
-		rebuild(columns, data);
+		setData(columns, data);		
+		setModel(new DatabaseTableModel());
+	}	
+	private void addFilterPopupListener() {
+		getTableHeader().addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger())
+					showFilterPopup(e);
+			}
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger())
+					showFilterPopup(e);
+			}
+		});
 	}
 	
 	/**
@@ -49,122 +68,31 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	 */
 	public void rebuild(Column[] columns, RowEntry[][] data) {
 		setData(columns, data);
-		setModel(buildModel());
-		addPopupMenu();
+		
+		removeFilter();
 	}
 	private void setData(Column[] newColumns, RowEntry[][] newData) {
 		columns = newColumns;
 		data = newData;
 	}
-	private AbstractTableModel buildModel() {
-		return new AbstractTableModel() {
-			private static final long serialVersionUID = 5281540525032945988L;
-			
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public int getColumnCount() {
-				return columns.length;
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public int getRowCount() {
-				return data.length;
-			}
-			
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public String getColumnName(int column) {
-				return columns[column].getName();
-			}
-			
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				return columns[columnIndex].getType().getTypeClass();
-			}
-			
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex) {
-				return data[rowIndex][columnIndex].getValue();
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void setValueAt(Object value, int rowIndex, int columnIndex) {
-				RowEntry[] criteria = saveRow(rowIndex);
-				
-				try {
-					data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
-				} catch (MismatchedTypeException e) {
-					throw new RuntimeException(e);
-				}
-				RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
-				
-				notifyUpdateRows(newValues, criteria);
-			}
-			
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return true;
-			}
-		};
-	}
-	private RowEntry[] saveRow(int rowIndex) {
-		RowEntry[] savedRow = new RowEntry[data[rowIndex].length];
-		
-		for (int i = 0; i < savedRow.length; i++)
-			savedRow[i] = data[rowIndex][i];
-		
-		return savedRow;
-	}
-	private void addPopupMenu() {
-		JTableHeader header = getTableHeader();
-		JPopupMenu popup = new JPopupMenu();
-		
-		header.add(popup);
-		header.addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					showPopup(e);
-				}
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger())
-					showPopup(e);
-			}
-		});
-	}
-	private void showPopup(MouseEvent e) {
-		if (filterPopup == null)
-			filterPopup = new JPopupMenu();
-		
-		filterPopup.removeAll();
-		populatePopup(getColumnModel().getColumnIndexAtX(e.getX()));
-		filterPopup.revalidate();
-		
-		filterPopup.show(e.getComponent(), e.getX(), e.getY());
-	}
-	private void populatePopup(int column) {
-		for (Object value : getUniqueValues(column)) {
-			JMenuItem currentMenuItem = new JMenuItem(value.toString());
-			currentMenuItem.addActionListener(e -> filterBy(value.toString(), column));
-			
-			filterPopup.add(currentMenuItem);
-		}
-	}
 	
 	/**
-	 * Filters the table by the specified regular expression.
-	 * @param filter regex to filter by
+	 * Filters the table by the specified value.
+	 * @param filter value to filter by
+	 * @param column index of column to apply filter on
 	 */
 	@SuppressWarnings("unchecked")
 	public void filterBy(String filter, int column) {
 		String exactFilter = '^' + filter + '$';
+		
 		((TableRowSorter<TableModel>) getRowSorter()).setRowFilter(RowFilter.regexFilter(exactFilter, column));
+	}
+	/**
+	 * Removes this table's current filter.
+	 */
+	@SuppressWarnings("unchecked")
+	public void removeFilter() {
+		((TableRowSorter<TableModel>) getRowSorter()).setRowFilter(null);
 	}
 	
 	/** @return row at the specified view index */
@@ -174,6 +102,20 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	/** @return row at the specified model index */
 	private RowEntry[] getRow(int rowIndex) {
 		return data[rowIndex];
+	}
+	
+	/**
+	 * @param column column index
+	 * @return all unique values under the specified column, sorted in ascending order
+	 */
+	public Object[] getUniqueValues(int column) {
+		Set<Object> uniqueValues = new TreeSet<>();
+		
+		for (RowEntry[] row : data)
+			uniqueValues.add(row[column].getValue());
+		
+		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + columns[column].getName().toUpperCase());
+		return uniqueValues.toArray(new Object[uniqueValues.size()]);
 	}
 	
 	/** @return	an empty row of data reflective of this table's data */
@@ -220,18 +162,27 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		return emptyData;
 	}
 	
-	/**
-	 * @param column column index
-	 * @return all unique values under the specified column
-	 */
-	public Object[] getUniqueValues(int column) {
-		Set<Object> uniqueValues = new HashSet<>();
+	private void showFilterPopup(MouseEvent e) {
+		int column = getColumnModel().getColumnIndexAtX(e.getX());
 		
-		for (RowEntry[] row : data)
-			uniqueValues.add(row[column].getValue());
+		buildFilterPopup(column).show(e.getComponent(), e.getX(), e.getY());
+	}
+	private JPopupMenu buildFilterPopup(int column) {
+		JPopupMenu filterPopup = new JPopupMenu();
 		
-		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + columns[column].getName());
-		return uniqueValues.toArray(new Object[uniqueValues.size()]);
+		JMenuItem removeFilterItem = new JMenuItem(REMOVE_FILTER_TEXT);
+		removeFilterItem.addActionListener(e -> removeFilter());
+		
+		filterPopup.add(removeFilterItem);
+		filterPopup.addSeparator();
+		
+		for (Object value : getUniqueValues(column)) {
+			JMenuItem currentMenuItem = new JMenuItem(value.toString());
+			currentMenuItem.addActionListener(e -> filterBy(value.toString(), column));
+			
+			filterPopup.add(currentMenuItem);
+		}
+		return filterPopup;
 	}
 	
 	private void notifyUpdateRows(RowEntry[] newValues, RowEntry[] criteria) {
@@ -260,5 +211,61 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();
+	}
+	
+	@SuppressWarnings("synthetic-access")
+	private class DatabaseTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 8155987048579413913L;
+
+		@Override
+		public int getColumnCount() {
+			return columns.length;
+		}
+		@Override
+		public int getRowCount() {
+			return data.length;
+		}
+		
+		@Override
+		public String getColumnName(int column) {
+			return columns[column].getName();
+		}
+		
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			return columns[columnIndex].getType().getTypeClass();
+		}
+		
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			return data[rowIndex][columnIndex].getValue();
+		}
+		@Override
+		public void setValueAt(Object value, int rowIndex, int columnIndex) {
+			RowEntry[] criteria = saveRow(rowIndex);
+			
+			try {
+				data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
+			} catch (MismatchedTypeException e) {
+				throw new RuntimeException(e);
+			}
+			RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
+			
+			notifyUpdateRows(newValues, criteria);
+		}
+		
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return true;
+		}
+		
+		private RowEntry[] saveRow(int rowIndex) {
+			RowEntry[] savedRow = new RowEntry[data[rowIndex].length];
+			
+			for (int i = 0; i < savedRow.length; i++)
+				savedRow[i] = data[rowIndex][i];
+			
+			return savedRow;
+		}
 	}
 }
