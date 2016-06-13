@@ -1,5 +1,5 @@
 # SQLObViewer
-A graphical database viewer utilizing the SQLOb API.
+A Java-based graphical database viewer utilizing the SQLOb API.
 
 ## Screenshots
 ![Main table view](screenshots/table.png?raw=true)
