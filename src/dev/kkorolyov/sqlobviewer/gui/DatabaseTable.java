@@ -3,6 +3,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -13,6 +14,7 @@ import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
@@ -193,6 +195,19 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	@Override
+	public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+		super.changeSelection(rowIndex, columnIndex, toggle, extend);
+		
+		if (!(toggle || extend)) {
+			if (editCellAt(rowIndex, columnIndex)) {
+				JTextComponent editor = (JTextComponent) getEditorComponent();
+				editor.requestFocusInWindow();
+				editor.selectAll();
+			}
+		}
+	}
+	
+	@Override
 	public void addListener(GuiListener listener) {
 		listeners.add(listener);
 	}
@@ -242,16 +257,18 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		}
 		@Override
 		public void setValueAt(Object value, int rowIndex, int columnIndex) {
-			RowEntry[] criteria = saveRow(rowIndex);
-			
-			try {
-				data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
-			} catch (MismatchedTypeException e) {
-				throw new RuntimeException(e);
+			if (!Objects.equals(getValueAt(rowIndex, columnIndex), value)) {	// No point updating with equal value
+				RowEntry[] criteria = saveRow(rowIndex);
+				
+				try {
+					data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
+				} catch (MismatchedTypeException e) {
+					throw new RuntimeException(e);
+				}
+				RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
+				
+				notifyUpdateRows(newValues, criteria);
 			}
-			RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
-			
-			notifyUpdateRows(newValues, criteria);
 		}
 		
 		@Override
