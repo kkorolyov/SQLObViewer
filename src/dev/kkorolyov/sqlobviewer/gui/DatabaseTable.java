@@ -71,7 +71,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	public void rebuild(Column[] columns, RowEntry[][] data) {
 		setData(columns, data);
 		
-		removeFilter();
+		sort();
 	}
 	private void setData(Column[] newColumns, RowEntry[][] newData) {
 		columns = newColumns;
@@ -95,6 +95,14 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	@SuppressWarnings("unchecked")
 	public void removeFilter() {
 		((TableRowSorter<TableModel>) getRowSorter()).setRowFilter(null);
+	}
+	
+	/**
+	 * Sorts this table based on its sorter's current sort keys.
+	 */
+	@SuppressWarnings("unchecked")
+	public void sort() {
+		((TableRowSorter<TableModel>) getRowSorter()).sort();
 	}
 	
 	/** @return row at the specified view index */
