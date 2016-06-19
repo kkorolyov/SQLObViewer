@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
+
 import java.awt.GridLayout;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,17 +43,17 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		buildComponents();
 	}
 	private void initComponents() {
-		hostLabel = new JLabel(Strings.HOST);
-		databaseLabel = new JLabel(Strings.DATABASE);
-		userLabel = new JLabel(Strings.USER);
-		passwordLabel = new JLabel(Strings.PASSWORD);
+		hostLabel = new JLabel(Strings.get(HOST));
+		databaseLabel = new JLabel(Strings.get(DATABASE));
+		userLabel = new JLabel(Strings.get(USER));
+		passwordLabel = new JLabel(Strings.get(PASSWORD));
 		
 		hostField = new JTextField(Assets.host());
 		databaseField = new JTextField(Assets.database());
 		userField = new JTextField(Assets.user());
 		passwordField = new JPasswordField(Assets.password());
 		
-		loginButton = new JButton(Strings.LOG_IN);
+		loginButton = new JButton(Strings.get(LOG_IN));
 		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
 		
 		dataPanel = new JPanel();

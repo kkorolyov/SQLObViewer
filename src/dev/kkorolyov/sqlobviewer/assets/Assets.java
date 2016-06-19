@@ -9,8 +9,6 @@ import dev.kkorolyov.simpleprops.Properties;
  * Centralized access to all assets.
  */
 public class Assets {
-	@SuppressWarnings("javadoc")
-	public static final String PROPERTIES_NAME = "SQLOb.ini";
 	private static final String HOST = "HOST",
 															DATABASE = "DATABASE",
 															USER = "USER",
@@ -22,10 +20,10 @@ public class Assets {
 	 * Initializes all assets.
 	 * @return {@code true} if properties were just initialized and must be set.
 	 */
-	public static boolean init() {
+	public static boolean init(String filename) {
 		boolean firstInit = false;
 		
-		props = Properties.getInstance((PROPERTIES_NAME));
+		props = Properties.getInstance((filename));
 		if (props.size() < 4) {
 			initProperties();
 			

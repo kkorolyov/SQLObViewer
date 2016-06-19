@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.HashSet;
@@ -17,7 +19,6 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
  */
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
-	private static final String ADD_ROW_TITLE = "Add Row";
 
 	private JComboBox<String> tableComboBox;
 	private JButton refreshTableButton,
@@ -45,22 +46,22 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		rebuild(tables, table);
 	}
 	private void initComponents() {
-		refreshTableButton = new JButton(Strings.REFRESH_TABLE);
+		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE));
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
 		
-		newTableButton = new JButton(Strings.NEW_TABLE);
+		newTableButton = new JButton(Strings.get(NEW_TABLE));
 		newTableButton.addActionListener(e -> notifyNewTableButtonPressed());
 		
-		addRowButton = new JButton(Strings.ADD_ROW);
+		addRowButton = new JButton(Strings.get(ADD_ROW));
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
-		deleteRowButton = new JButton(Strings.DELETE_ROW);
+		deleteRowButton = new JButton(Strings.get(DELETE_ROW));
 		deleteRowButton.addActionListener(e -> deleteSelected());
 		
-		undoStatementButton = new JButton(Strings.UNDO_STATEMENT);
+		undoStatementButton = new JButton(Strings.get(UNDO_STATEMENT));
 		undoStatementButton.addActionListener(e -> notifyUndoStatementButtonPressed());
 		
-		backButton = new JButton(Strings.LOG_OUT);
+		backButton = new JButton(Strings.get(LOG_OUT));
 		backButton.addActionListener(e -> notifyBackButtonPressed());
 		
 		lastStatementLabel = new JLabel();
@@ -155,7 +156,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void displayAddRowDialog() {
 		DatabaseTable addRowTable = databaseTable.getEmptyTable();
 		
-		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), ADD_ROW_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), Strings.get(ADD_ROW), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
 		if (selectedOption == JOptionPane.OK_OPTION)
 			notifyInsertRow(addRowTable.getSelectedRow(0));
