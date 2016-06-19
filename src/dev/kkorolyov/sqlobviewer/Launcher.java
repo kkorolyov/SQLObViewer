@@ -1,8 +1,7 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.*;
 
-import java.io.File;
 import java.sql.SQLException;
 
 import javax.swing.SwingUtilities;
@@ -10,7 +9,7 @@ import javax.swing.SwingUtilities;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
-import dev.kkorolyov.sqlobviewer.assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 
 /**
@@ -25,27 +24,28 @@ public class Launcher {
 	public static void main(String[] args) throws SQLException {
 		Logger.setGlobalLevel(Level.DEBUG);
 		
-		initStrings();
-		initAssets();
+		Assets.initConfig();
+		Assets.initStrings();
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			@SuppressWarnings("synthetic-access")
+		MainWindow window = buildWindow();
+
+		SwingUtilities.invokeLater(new Runnable() {			
 			@Override
 			public void run() {
-				new Controller(buildWindow());
+				new Controller(window);
 				
-				save();	// Save properties after exit
+				Config.save();	// Save properties after exit
 			}
 		});
 	}
 	private static MainWindow buildWindow() {
-		String title = Assets.get(WINDOW_TITLE);
-		int width = Assets.DEFAULT_WIDTH,
-				height = Assets.DEFAULT_HEIGHT;
+		String title = Config.get(WINDOW_TITLE);
+		int width = DEFAULT_WIDTH,
+				height = DEFAULT_HEIGHT;
 		
 		try {
-			String 	widthString = Assets.get(WINDOW_WIDTH),
-							heightString = Assets.get(WINDOW_HEIGHT);
+			String 	widthString = Config.get(WINDOW_WIDTH),
+							heightString = Config.get(WINDOW_HEIGHT);
 			
 			width = Integer.parseInt(widthString);
 			height = Integer.parseInt(heightString);
@@ -53,28 +53,5 @@ public class Launcher {
 			// Keep default sizes
 		}
 		return new MainWindow(title, width, height);
-	}
-	
-	private static void initStrings() {
-		String langFilename = "assets/lang/en.lang";
-		
-		initFile(langFilename);
-		Strings.init(langFilename);
-	}
-	private static void initAssets() {
-		String assetsFilename = "assets/config.ini";
-		
-		initFile(assetsFilename);
-		Assets.init(assetsFilename);
-	}
-	private static void initFile(String filepath) {
-		File file = new File(filepath);
-		
-		if (!file.exists())
-			file.getParentFile().mkdirs();
-	}
-	private static void save() {
-		Assets.save();
-		Strings.save();
 	}
 }

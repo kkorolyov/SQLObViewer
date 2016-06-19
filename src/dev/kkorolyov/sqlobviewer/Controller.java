@@ -1,11 +1,11 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.*;
-
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.*;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
@@ -14,6 +14,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.DatabaseTable;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
@@ -61,13 +62,19 @@ public class Controller implements GuiListener {
 	
 	@Override
 	public void logInButtonPressed(String host, String database, String user, String password, GuiSubject context) {
-		Assets.set(SAVED_HOST, host);
-		Assets.set(SAVED_DATABASE, database);
-		Assets.set(SAVED_USER, user);
-		Assets.set(SAVED_PASSWORD, password);
-		
-		Assets.save();
-		
+		boolean[] changes = {
+				Config.set(SAVED_HOST, host),
+				Config.set(SAVED_DATABASE, database),
+				Config.set(SAVED_USER, user),
+				Config.set(SAVED_PASSWORD, password)
+		};
+		for (boolean change : changes) {
+			if (change) {	// Avoid needlessly writing
+				System.out.println("CHANGE");
+				Config.save();
+				break;
+			}
+		}		
 		try {
 			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
 		} catch (SQLException e) {

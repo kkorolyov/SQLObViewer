@@ -1,6 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Strings.*;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.RowEntry;
-import dev.kkorolyov.sqlobviewer.assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 

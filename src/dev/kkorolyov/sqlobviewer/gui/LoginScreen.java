@@ -1,7 +1,10 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.*;
-import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_DATABASE;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_HOST;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_PASSWORD;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_USER;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Strings.*;
 
 import java.awt.GridLayout;
 import java.util.HashSet;
@@ -9,8 +12,8 @@ import java.util.Set;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets;
-import dev.kkorolyov.sqlobviewer.assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -49,10 +52,10 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		userLabel = new JLabel(Strings.get(USER));
 		passwordLabel = new JLabel(Strings.get(PASSWORD));
 		
-		hostField = new JTextField(Assets.get(SAVED_HOST));
-		databaseField = new JTextField(Assets.get(SAVED_DATABASE));
-		userField = new JTextField(Assets.get(SAVED_USER));
-		passwordField = new JPasswordField(Assets.get(SAVED_PASSWORD));
+		hostField = new JTextField(Config.get(SAVED_HOST));
+		databaseField = new JTextField(Config.get(SAVED_DATABASE));
+		userField = new JTextField(Config.get(SAVED_USER));
+		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD));
 		
 		loginButton = new JButton(Strings.get(LOG_IN));
 		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
