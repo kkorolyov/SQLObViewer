@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer;
 
+import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
+
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +33,6 @@ public class Controller implements GuiListener {
 	private TableConnection tableConn;
 	private Stack<UndoStatement> undoStatements;
 	private MainWindow window;	// View
-	private ViewScreen viewScreen;
 	private DatabaseTable databaseTable;
 	
 	/**
@@ -39,15 +40,29 @@ public class Controller implements GuiListener {
 	 * @param window application window
 	 */
 	public Controller(MainWindow window) {
-		setWindow(window);
+		this.window = window;
+		this.window.addListener(this);
 		
-		String 	startHost = Assets.host(),
-						startDatabase = Assets.database(),
-						startUser = Assets.user(),
-						startPassword = Assets.password();
+		goToLoginScreen();
+	}
+	
+	private void goToLoginScreen() {
+		LoginScreen loginScreen = new LoginScreen(Assets.host(), Assets.database(), Assets.user(), Assets.password());
+
+		window.setLoginScreen(loginScreen);
+		window.showLoginScreen();
+	}
+	private void goToViewScreen() {
+		ViewScreen viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);
+		viewScreen.setRefreshTableButtonText(REFRESH_TABLE);
+		viewScreen.setNewTableButtonText(NEW_TABLE);
+		viewScreen.setAddRowButtonText(ADD_ROW);
+		viewScreen.setDeleteRowButtonText(DELETE_ROW);
+		viewScreen.setUndoStatementButtonText(UNDO_STATEMENT);
+		viewScreen.setBackButtonText(LOG_OUT);
 		
-		this.window.setLoginScreen(new LoginScreen(startHost, startDatabase, startUser, startPassword));
-		this.window.showLoginScreen();
+		window.setViewScreen(viewScreen);
+		window.showViewScreen();
 	}
 	
 	@Override
@@ -72,10 +87,7 @@ public class Controller implements GuiListener {
 		
 		setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
 		
-		setViewScreen(new ViewScreen(dbTables, databaseTable));
-		
-		window.setViewScreen(viewScreen);
-		window.showViewScreen();
+		goToViewScreen();
 	}
 	@Override
 	public void backButtonPressed(GuiSubject context) {
@@ -206,18 +218,10 @@ public class Controller implements GuiListener {
 		return data.toArray(new RowEntry[data.size()][]);
 	}
 	
-	/** @param newWindow new application window */
-	public void setWindow(MainWindow newWindow) {
-		window = newWindow;
-		window.addListener(this);
-	}
-	/** @param newViewScreen new view screen */
-	public void setViewScreen(ViewScreen newViewScreen) {
-		viewScreen = newViewScreen;
-		viewScreen.addListener(this);		
-	}
-	/** @parama newDatabaseTable new database table */
-	public void setDatabaseTable(DatabaseTable newDatabaseTable) {
+	private void setDatabaseTable(DatabaseTable newDatabaseTable) {
+		if (databaseTable != null)
+			databaseTable.removeListener(this);
+		
 		databaseTable = newDatabaseTable;
 		databaseTable.addListener(this);
 	}
