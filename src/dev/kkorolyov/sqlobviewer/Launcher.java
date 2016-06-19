@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer;
 
+import static dev.kkorolyov.sqlobviewer.assets.Assets.*;
+
 import java.io.File;
 import java.sql.SQLException;
 
@@ -15,10 +17,6 @@ import dev.kkorolyov.sqlobviewer.gui.MainWindow;
  * Launcher SQLObViewer
  */
 public class Launcher {
-	private static final String TITLE = "SQLObViewer";
-	private static final int 	WIDTH = 720,
-														HEIGHT = 480;
-
 	/**
 	 * Main method.
 	 * @param args arguments
@@ -31,13 +29,30 @@ public class Launcher {
 		initAssets();
 		
 		SwingUtilities.invokeLater(new Runnable() {
+			@SuppressWarnings("synthetic-access")
 			@Override
 			public void run() {
-				MainWindow window = new MainWindow(TITLE, WIDTH, HEIGHT);
+				new Controller(buildWindow());
 				
-				new Controller(window);
+				save();	// Save properties after exit
 			}
 		});
+	}
+	private static MainWindow buildWindow() {
+		String title = Assets.get(WINDOW_TITLE);
+		int width = Assets.DEFAULT_WIDTH,
+				height = Assets.DEFAULT_HEIGHT;
+		
+		try {
+			String 	widthString = Assets.get(WINDOW_WIDTH),
+							heightString = Assets.get(WINDOW_HEIGHT);
+			
+			width = Integer.parseInt(widthString);
+			height = Integer.parseInt(heightString);
+		} catch (Exception e) {
+			// Keep default sizes
+		}
+		return new MainWindow(title, width, height);
 	}
 	
 	private static void initStrings() {
@@ -57,5 +72,9 @@ public class Launcher {
 		
 		if (!file.exists())
 			file.getParentFile().mkdirs();
+	}
+	private static void save() {
+		Assets.save();
+		Strings.save();
 	}
 }

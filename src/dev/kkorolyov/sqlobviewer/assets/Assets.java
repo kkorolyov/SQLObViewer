@@ -9,73 +9,48 @@ import dev.kkorolyov.simpleprops.Properties;
  * Centralized access to all assets.
  */
 public class Assets {
-	private static final String HOST = "HOST",
-															DATABASE = "DATABASE",
-															USER = "USER",
-															PASSWORD = "PASSWORD";
-
+	@SuppressWarnings("javadoc")
+	public static final String	WINDOW_TITLE = "WINDOW_TITLE",
+															WINDOW_WIDTH = "WINDOW_WIDTH",
+															WINDOW_HEIGHT = "WINDOW_HEIGHT",
+															SAVED_HOST = "SAVED_HOST",
+															SAVED_DATABASE = "SAVED_DATABASE",
+															SAVED_USER = "SAVED_USER",
+															SAVED_PASSWORD = "SAVED_PASSWORD";
+	@SuppressWarnings("javadoc")
+	public static final int DEFAULT_WIDTH = 720,
+													DEFAULT_HEIGHT = 480;
+	
 	private static Properties props;
 
 	/**
 	 * Initializes all assets.
 	 * @return {@code true} if properties were just initialized and must be set.
 	 */
-	public static boolean init(String filename) {
-		boolean firstInit = false;
-		
+	public static boolean init(String filename) {		
 		props = Properties.getInstance((filename));
-		if (props.size() < 4) {
-			initProperties();
-			
-			firstInit = true;
-		}
-		return firstInit;
-	}
-	private static void initProperties() {
-		props.clear();
 		
-		props.addProperty(HOST, "");
-		props.addProperty(DATABASE, "");
-		props.addProperty(USER, "");
-		props.addProperty(PASSWORD, "");
+		return props.size() <= 0;
+	}
+	
+	/**
+	 * Retrieves the value for a key.
+	 * @param key key to use
+	 * @return value for the specified key.
+	 */
+	public static String get(String key) {
+		if (props.getValue(key) == null)
+			props.addProperty(key, "");
 		
-		save();
+		return props.getValue(key);
 	}
-	
-	/** @return host value */
-	public static String host() {
-		return props.getValue(HOST);
-	}
-	/** @param newHost new host value */
-	public static void setHost(String newHost) {
-		props.addProperty(HOST, newHost);
-	}
-	
-	/** @return database value */
-	public static String database() {
-		return props.getValue(DATABASE);
-	}
-	/** @param newDatabase new database value */
-	public static void setDatabase(String newDatabase) {
-		props.addProperty(DATABASE, newDatabase);
-	}
-	
-	/** @return user value */
-	public static String user() {
-		return props.getValue(USER);
-	}
-	/** @param newUser new user value */
-	public static void setUser(String newUser) {
-		props.addProperty(USER, newUser);
-	}
-	
-	/** @return password value */
-	public static String password() {
-		return props.getValue(PASSWORD);
-	}
-	/** @param newPassword new password value */
-	public static void setPassword(String newPassword) {
-		props.addProperty(PASSWORD, newPassword);
+	/**
+	 * Sets the value matching a specified key. If such a key is not found within the loaded assets, it is added instead.
+	 * @param key key to use
+	 * @param value value to set
+	 */
+	public static void set(String key, String value) {
+		props.addProperty(key, value);
 	}
 	
 	/**

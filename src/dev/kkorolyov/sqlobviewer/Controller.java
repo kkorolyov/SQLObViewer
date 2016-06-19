@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer;
 
+import static dev.kkorolyov.sqlobviewer.assets.Assets.*;
+
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,10 +61,10 @@ public class Controller implements GuiListener {
 	
 	@Override
 	public void logInButtonPressed(String host, String database, String user, String password, GuiSubject context) {
-		Assets.setHost(host);
-		Assets.setDatabase(database);
-		Assets.setUser(user);
-		Assets.setPassword(password);
+		Assets.set(SAVED_HOST, host);
+		Assets.set(SAVED_DATABASE, database);
+		Assets.set(SAVED_USER, user);
+		Assets.set(SAVED_PASSWORD, password);
 		
 		Assets.save();
 		

@@ -28,33 +28,10 @@ public class Strings {
 	 * Initializes all assets.
 	 * @return {@code true} if properties were just initialized and must be set.
 	 */
-	public static boolean init(String filename) {
-		boolean firstInit = false;
-		
+	public static boolean init(String filename) {		
 		props = Properties.getInstance(filename);
 		
-		if (firstInit = (props.size() <= 0)) {
-			initProperties(	HOST,
-											DATABASE,
-											USER,
-											PASSWORD,
-											REFRESH_TABLE,
-											NEW_TABLE,
-											ADD_ROW,
-											DELETE_ROW,
-											UNDO_STATEMENT,
-											LOG_IN,
-											LOG_OUT);
-		}
-		return firstInit;
-	}
-	private static void initProperties(String... newProperties) {
-		props.clear();
-		
-		for (String newProperty : newProperties)
-			props.addProperty(newProperty, "");
-		
-		save();
+		return props.size() <= 0;
 	}
 	
 	/**
@@ -63,6 +40,9 @@ public class Strings {
 	 * @return value for the specified key.
 	 */
 	public static String get(String key) {
+		if (props.getValue(key) == null)
+			props.addProperty(key, "");
+		
 		return props.getValue(key) != "" ? props.getValue(key) : key;
 	}
 	
