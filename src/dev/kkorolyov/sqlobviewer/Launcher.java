@@ -33,8 +33,6 @@ public class Launcher {
 			@Override
 			public void run() {
 				new Controller(window);
-				
-				Config.save();	// Save properties after exit
 			}
 		});
 	}
