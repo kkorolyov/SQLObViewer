@@ -1,7 +1,5 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Strings.*;
-
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,19 +45,13 @@ public class Controller implements GuiListener {
 	}
 	
 	private void goToLoginScreen() {
-		LoginScreen loginScreen = new LoginScreen(Assets.host(), Assets.database(), Assets.user(), Assets.password());
-
+		LoginScreen loginScreen = new LoginScreen();
+		
 		window.setLoginScreen(loginScreen);
 		window.showLoginScreen();
 	}
 	private void goToViewScreen() {
-		ViewScreen viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);
-		viewScreen.setRefreshTableButtonText(REFRESH_TABLE);
-		viewScreen.setNewTableButtonText(NEW_TABLE);
-		viewScreen.setAddRowButtonText(ADD_ROW);
-		viewScreen.setDeleteRowButtonText(DELETE_ROW);
-		viewScreen.setUndoStatementButtonText(UNDO_STATEMENT);
-		viewScreen.setBackButtonText(LOG_OUT);
+		ViewScreen viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);		
 		
 		window.setViewScreen(viewScreen);
 		window.showViewScreen();

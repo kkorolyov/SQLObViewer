@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlobviewer.assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -44,22 +45,22 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		rebuild(tables, table);
 	}
 	private void initComponents() {
-		refreshTableButton = new JButton();
+		refreshTableButton = new JButton(Strings.REFRESH_TABLE);
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
 		
-		newTableButton = new JButton();
+		newTableButton = new JButton(Strings.NEW_TABLE);
 		newTableButton.addActionListener(e -> notifyNewTableButtonPressed());
 		
-		addRowButton = new JButton();
+		addRowButton = new JButton(Strings.ADD_ROW);
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
-		deleteRowButton = new JButton();
+		deleteRowButton = new JButton(Strings.DELETE_ROW);
 		deleteRowButton.addActionListener(e -> deleteSelected());
 		
-		undoStatementButton = new JButton();
+		undoStatementButton = new JButton(Strings.UNDO_STATEMENT);
 		undoStatementButton.addActionListener(e -> notifyUndoStatementButtonPressed());
 		
-		backButton = new JButton();
+		backButton = new JButton(Strings.LOG_OUT);
 		backButton.addActionListener(e -> notifyBackButtonPressed());
 		
 		lastStatementLabel = new JLabel();
@@ -134,31 +135,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			tableComboBox.addItem(table);
 		
 		tableComboBox.addActionListener(e -> notifyTableSelected());
-	}
-	
-	/** @param text new refresh table button text */
-	public void setRefreshTableButtonText(String text) {
-		refreshTableButton.setText(text);
-	}
-	/** @param text new new table button text */
-	public void setNewTableButtonText(String text) {
-		newTableButton.setText(text);
-	}
-	/** @param text new add row button text */
-	public void setAddRowButtonText(String text) {
-		addRowButton.setText(text);
-	}
-	/** @param text new delete row button text */
-	public void setDeleteRowButtonText(String text) {
-		deleteRowButton.setText(text);
-	}
-	/** @param text new undo statement button text */
-	public void setUndoStatementButtonText(String text) {
-		undoStatementButton.setText(text);
-	}
-	/** @param text new back button text */
-	public void setBackButtonText(String text) {
-		backButton.setText(text);
 	}
 	
 	/** @param newTable new database table */

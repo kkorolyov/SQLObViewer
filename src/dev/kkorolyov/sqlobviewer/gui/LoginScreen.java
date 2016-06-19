@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlobviewer.assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
@@ -14,11 +16,6 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
  */
 public class LoginScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7337254975219769022L;
-	private static final String HOST_LABEL_NAME = "Host",
-															DATABASE_LABEL_NAME = "Database",
-															USER_LABEL_NAME = "User",
-															PASSWORD_LABEL_NAME = "Password",
-															LOGIN_BUTTON_NAME = "Log In";
 	
 	private JPanel dataPanel;
 	private JLabel 	hostLabel,
@@ -35,51 +32,33 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	
 	/**
 	 * Constructs a new login screen.
-	 * @see #rebuild(String, String, String, String)
 	 */
-	public LoginScreen(String startHost, String startDatabase, String startUser, String startPassword) {
+	public LoginScreen() {
 		BoxLayout loginLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(loginLayout);
 		
-		rebuild(startHost, startDatabase, startUser, startPassword);
+		initComponents();
+		buildComponents();
 	}
-	
-	/**
-	 * Rebuilds this screen using the specified properties.
-	 * @param startHost pre-filled host value
-	 * @param startDatabase pre-filled database value
-	 * @param startUser pre-filled user value
-	 * @param startPassword pre-filled password value
-	 */
-	public void rebuild(String startHost, String startDatabase, String startUser, String startPassword) {
-		removeAll();
+	private void initComponents() {
+		hostLabel = new JLabel(Strings.HOST);
+		databaseLabel = new JLabel(Strings.DATABASE);
+		userLabel = new JLabel(Strings.USER);
+		passwordLabel = new JLabel(Strings.PASSWORD);
 		
-		setLabels(startHost, startDatabase, startUser, startPassword);
-		setDataPanel();
-		setButton();
+		hostField = new JTextField(Assets.host());
+		databaseField = new JTextField(Assets.database());
+		userField = new JTextField(Assets.user());
+		passwordField = new JPasswordField(Assets.password());
 		
-		add(dataPanel);
-		add(loginButton);
+		loginButton = new JButton(Strings.LOG_IN);
+		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
 		
-		revalidate();
-		repaint();
-	}
-	private void setLabels(String startHost, String startDatabase, String startUser, String startPassword) {
-		hostLabel = new JLabel(HOST_LABEL_NAME);
-		databaseLabel = new JLabel(DATABASE_LABEL_NAME);
-		userLabel = new JLabel(USER_LABEL_NAME);
-		passwordLabel = new JLabel(PASSWORD_LABEL_NAME);
-		
-		hostField = new JTextField(startHost);
-		databaseField = new JTextField(startDatabase);
-		userField = new JTextField(startUser);
-		passwordField = new JPasswordField(startPassword);
-	}
-	private void setDataPanel() {
 		dataPanel = new JPanel();
 		GridLayout dataLayout = new GridLayout(4, 2);
 		dataPanel.setLayout(dataLayout);
-		
+	}
+	private void buildComponents() {
 		dataPanel.add(hostLabel);
 		dataPanel.add(hostField);
 		dataPanel.add(databaseLabel);
@@ -88,10 +67,9 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		dataPanel.add(userField);
 		dataPanel.add(passwordLabel);
 		dataPanel.add(passwordField);
-	}
-	private void setButton() {
-		loginButton = new JButton(LOGIN_BUTTON_NAME);
-		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
+		
+		add(dataPanel);
+		add(loginButton);
 	}
 	
 	private void notifyLogInButtonPressed(String host, String database, String user, String password) {
