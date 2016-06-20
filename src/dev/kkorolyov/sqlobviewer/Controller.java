@@ -64,18 +64,12 @@ public class Controller implements GuiListener {
 	
 	@Override
 	public void logInButtonPressed(String host, String database, String user, String password, GuiSubject context) {
-		boolean[] changes = {
-				Config.set(SAVED_HOST, host),
-				Config.set(SAVED_DATABASE, database),
-				Config.set(SAVED_USER, user),
-				Config.set(SAVED_PASSWORD, password)
-		};
-		for (boolean change : changes) {
-			if (change) {	// Avoid needlessly writing
-				Config.save();
-				break;
-			}
-		}		
+		Config.set(SAVED_HOST, host);
+		Config.set(SAVED_DATABASE, database);
+		Config.set(SAVED_USER, user);
+		Config.set(SAVED_PASSWORD, password);
+
+		Config.save();
 		try {
 			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
 		} catch (SQLException e) {
