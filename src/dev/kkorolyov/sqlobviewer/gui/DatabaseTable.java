@@ -225,15 +225,28 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	@Override
-	public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
-		super.changeSelection(rowIndex, columnIndex, toggle, extend);
+	public boolean editCellAt(int row, int column, EventObject e) {
+		boolean result = super.editCellAt(row, column, e);
 		
-		if (!(toggle || extend)) {
-			if (editCellAt(rowIndex, columnIndex)) {
-				JTextComponent editor = (JTextComponent) getEditorComponent();
-				editor.requestFocusInWindow();
-				editor.selectAll();
+		if (result)
+			selectAll(e);
+		
+		return result;
+	}
+	private void selectAll(EventObject e) {
+		JTextComponent editor = (JTextComponent) getEditorComponent();
+		
+		if (editor != null) {
+			if (e instanceof MouseEvent) {	// If triggered by mouse, must be run on event thread
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						editor.selectAll();
+					}
+				});
 			}
+			else	
+				editor.selectAll();
 		}
 	}
 	
