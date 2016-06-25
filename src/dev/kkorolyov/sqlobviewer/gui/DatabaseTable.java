@@ -3,6 +3,8 @@ package dev.kkorolyov.sqlobviewer.gui;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
 
 import java.awt.Window;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
@@ -42,11 +44,51 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
 		setFillsViewportHeight(true);
 		setAutoCreateRowSorter(true);
+		addDeselectionListeners();
 		addFilterPopupListener();
 		
 		setData(columns, data);		
 		setModel(new DatabaseTableModel());
-	}	
+	}
+	private void addDeselectionListeners() {
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {				
+				if (rowAtPoint(e.getPoint()) < 0)
+					deselect();
+			}
+		});
+		addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// Ignore
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// Ignore
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+					deselect();
+			}
+		});
+	}
+	/**
+	 * Deselects any currently-selected data in this table.
+	 * Cancels any pending cell editing.
+	 */
+	public void deselect() {
+		int selectedRow = getSelectedRow(),
+				selectedColumn = getSelectedColumn();
+		
+		if (selectedRow >= 0 || selectedColumn >= 0) {	// Something is selected
+			clearSelection();
+			
+			if (getCellEditor() != null)
+				getCellEditor().cancelCellEditing();
+		}
+	}
 	private void addFilterPopupListener() {
 		getTableHeader().addMouseListener(new MouseAdapter() {
 			@SuppressWarnings("synthetic-access")

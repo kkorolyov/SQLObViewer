@@ -5,6 +5,9 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +51,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		BorderLayout viewLayout = new BorderLayout();
 		setLayout(viewLayout);
 		
+		addTableDeselectionListener();
+		
 		initComponents();
 		initPanels();
 		
@@ -61,6 +66,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		revalidate();
 		repaint();
+	}
+	private void addTableDeselectionListener() {
+		addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void mouseClicked(MouseEvent e) {				
+				if (databaseTable != null) {
+					if (databaseTable.rowAtPoint(e.getPoint()) < 0) {
+						databaseTable.deselect();
+					}
+				}
+			}
+		});
 	}
 	
 	private void initComponents() {
