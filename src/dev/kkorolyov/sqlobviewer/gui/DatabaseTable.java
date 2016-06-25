@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -17,15 +19,18 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.exceptions.MismatchedTypeException;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Keys;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
-/** A {@code JTable} displaying database information. */
+/**
+ * A {@code JTable} displaying database information. 
+ */
 public class DatabaseTable extends JTable implements GuiSubject {
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final Logger log = Logger.getLogger(DatabaseTable.class.getName());
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
-	private static final String REMOVE_FILTER_TEXT = "Reset Filter";
 	
 	private Column[] columns;
 	private RowEntry[][] data;
@@ -181,7 +186,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 
 		JPopupMenu filterPopup = new JScrollablePopupMenu(popupHeight);
 		
-		JMenuItem removeFilterItem = new JMenuItem(REMOVE_FILTER_TEXT);
+		JMenuItem removeFilterItem = new JMenuItem(Strings.get(REMOVE_FILTER_TEXT));
 		removeFilterItem.addActionListener(e -> removeFilter());
 		
 		filterPopup.add(removeFilterItem);

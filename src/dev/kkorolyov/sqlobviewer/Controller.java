@@ -1,9 +1,6 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_DATABASE;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_HOST;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_PASSWORD;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.SAVED_USER;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.sql.SQLException;
 import java.util.LinkedList;

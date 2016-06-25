@@ -1,7 +1,6 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Config.*;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Strings.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.sql.SQLException;
 

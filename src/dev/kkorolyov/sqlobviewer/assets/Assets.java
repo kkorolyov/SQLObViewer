@@ -67,18 +67,21 @@ public class Assets {
 		}
 	}
 	
-	private static class Keys {
-		private static final String	WINDOW_WIDTH = "WINDOW_WIDTH",
+	/**
+	 * All configuration and string keys.
+	 */
+	public static class Keys {
+		public static final String	WINDOW_WIDTH = "WINDOW_WIDTH",
 																WINDOW_HEIGHT = "WINDOW_HEIGHT";
 		
-		private static final String	SAVED_HOST = "SAVED_HOST",
+		public static final String	SAVED_HOST = "SAVED_HOST",
 																SAVED_DATABASE = "SAVED_DATABASE",
 																SAVED_USER = "SAVED_USER",
 																SAVED_PASSWORD = "SAVED_PASSWORD";
 		
-		private static final String STRINGS_FILENAME = "LANG_FILE";
+		public static final String STRINGS_FILENAME = "LANG_FILE";
 		
-		private static final String WINDOW_TITLE = "WINDOW_TITLE",
+		public static final String 	WINDOW_TITLE = "WINDOW_TITLE",
 																HOST_TEXT = "HOST_TEXT",
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
@@ -88,9 +91,11 @@ public class Assets {
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																DELETE_ROW_TEXT = "DELETE_ROW_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
+																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
 																LOG_IN_TEXT = "LOG_IN_TEXT",
 																LOG_OUT_TEXT = "LOG_OUT_TEXT";
 	}
+	
 	private static class Defaults {
 		private static final String WINDOW_WIDTH = "720",
 																WINDOW_HEIGHT = "480";
@@ -111,6 +116,7 @@ public class Assets {
 																ADD_ROW_TEXT = "+Row",
 																DELETE_ROW_TEXT = "-Row",
 																UNDO_STATEMENT_TEXT = "Undo",
+																REMOVE_FILTER_TEXT = "Reset Filter",
 																LOG_IN_TEXT = "Log In",
 																LOG_OUT_TEXT = "Log Out";
 		
@@ -142,6 +148,7 @@ public class Assets {
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
+			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
 			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);
 			defaults.put(Keys.LOG_OUT_TEXT, LOG_OUT_TEXT);
 
@@ -150,16 +157,9 @@ public class Assets {
 	}
 	
 	/**
-	 * All configuration keys.
+	 * Provides access to configuration properties.
 	 */
 	public static class Config {
-		public static final String	WINDOW_WIDTH = Keys.WINDOW_WIDTH,
-																WINDOW_HEIGHT = Keys.WINDOW_HEIGHT;
-		public static final String	SAVED_HOST = Keys.SAVED_HOST,
-																SAVED_DATABASE = Keys.SAVED_DATABASE,
-																SAVED_USER = Keys.SAVED_USER,
-																SAVED_PASSWORD = Keys.SAVED_PASSWORD;
-		
 		/**
 		 * Retrieves the configuration value for a key.
 		 * @param key key to use
@@ -186,22 +186,9 @@ public class Assets {
 		}
 	}
 	/**
-	 * All language keys.
+	 * Provides access to displayed strings.
 	 */
-	public static class Strings {
-		public static final String 	WINDOW_TITLE = Keys.WINDOW_TITLE,
-																HOST = Keys.HOST_TEXT,
-																DATABASE = Keys.DATABASE_TEXT,
-																USER = Keys.USER_TEXT,
-																PASSWORD = Keys.PASSWORD_TEXT,
-																LOG_IN = Keys.LOG_IN_TEXT,
-																LOG_OUT = Keys.LOG_OUT_TEXT,
-																REFRESH_TABLE = Keys.REFRESH_TABLE_TEXT,
-																NEW_TABLE = Keys.NEW_TABLE_TEXT,
-																ADD_ROW = Keys.ADD_ROW_TEXT,
-																DELETE_ROW = Keys.DELETE_ROW_TEXT,
-																UNDO_STATEMENT = Keys.UNDO_STATEMENT_TEXT;
-		
+	public static class Strings {		
 		/**
 		 * Retrieves the loaded language file's value for a key.
 		 * @param key key to use
