@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
+import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simpleprops.EncryptedProperties;
 import dev.kkorolyov.simpleprops.Properties;
 
 /**
@@ -12,30 +14,34 @@ import dev.kkorolyov.simpleprops.Properties;
  */
 @SuppressWarnings({"synthetic-access", "javadoc"})
 public class Assets {
+	private static final Logger log = Logger.getLogger(Assets.class.getName());
+	
 	private static Properties config,
 														strings;
+	private static byte[] key = {2};
 
 	/**
-	 * Initializes configuration assets.
+	 * Loads assets.
+	 * Creates necessary asset files if needed.
 	 */
-	public static void initConfig() {
-		config = new Properties(new File(Defaults.CONFIG_FILENAME), Defaults.buildConfig(), true);
-		try {
-			config.saveFile();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+	public static void init() {
+		initConfig();
+		initStrings();
+		
+		log.debug("Initialized assets");
 	}
-	/**
-	 * Initializes language assets.
-	 */
-	public static void initStrings() {
-		strings = new Properties(new File(Config.get(Keys.STRINGS_FILENAME)), Defaults.buildStrings(), true);
-		try {
-			strings.saveFile();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+	
+	private static void initConfig() {
+		config = new EncryptedProperties(new File(Defaults.CONFIG_FILENAME), Defaults.buildConfig(), key);
+		save(config);
+		
+		log.debug("Initialized config file");
+	}
+	private static void initStrings() {
+		strings = new Properties(new File(Config.get(Keys.STRINGS_FILENAME)), Defaults.buildStrings());
+		save(strings);
+		
+		log.debug("Initialized strings file");
 	}
 	
 	private static String get(String key, Properties props) {
@@ -53,9 +59,16 @@ public class Assets {
 		return change;
 	}
 	
+	private static void save(Properties props) {
+		try {
+			props.saveFile(true);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+	
 	private static class Keys {
-		private static final String	WINDOW_TITLE = "WINDOW_TITLE",
-																WINDOW_WIDTH = "WINDOW_WIDTH",
+		private static final String	WINDOW_WIDTH = "WINDOW_WIDTH",
 																WINDOW_HEIGHT = "WINDOW_HEIGHT";
 		
 		private static final String	SAVED_HOST = "SAVED_HOST",
@@ -65,7 +78,8 @@ public class Assets {
 		
 		private static final String STRINGS_FILENAME = "LANG_FILE";
 		
-		private static final String HOST_TEXT = "HOST_TEXT",
+		private static final String WINDOW_TITLE = "WINDOW_TITLE",
+																HOST_TEXT = "HOST_TEXT",
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
 																PASSWORD_TEXT = "PASSWORD_TEXT",
@@ -80,20 +94,57 @@ public class Assets {
 	private static class Defaults {
 		private static final String WINDOW_WIDTH = "720",
 																WINDOW_HEIGHT = "480";
+		private static final String	SAVED_HOST = "",
+																SAVED_DATABASE = "",
+																SAVED_USER = "",
+																SAVED_PASSWORD = "";
 		private static final String CONFIG_FILENAME = "assets/config.ini",
 																STRINGS_FILENAME = "assets/lang/en.lang";
 		
+		private static final String WINDOW_TITLE = "SQLObViewer",
+																HOST_TEXT = "Host",
+																DATABASE_TEXT = "Database",
+																USER_TEXT = "User",
+																PASSWORD_TEXT = "Password",
+																REFRESH_TABLE_TEXT = "R",
+																NEW_TABLE_TEXT = "+Table",
+																ADD_ROW_TEXT = "+Row",
+																DELETE_ROW_TEXT = "-Row",
+																UNDO_STATEMENT_TEXT = "Undo",
+																LOG_IN_TEXT = "Log In",
+																LOG_OUT_TEXT = "Log Out";
+		
 		private static Properties buildConfig() {
 			Properties defaults = new Properties();
+			
 			defaults.put(Keys.WINDOW_WIDTH, WINDOW_WIDTH);
 			defaults.put(Keys.WINDOW_HEIGHT, WINDOW_HEIGHT);
+			
+			defaults.put(Keys.SAVED_HOST, SAVED_HOST);
+			defaults.put(Keys.SAVED_DATABASE, SAVED_DATABASE);
+			defaults.put(Keys.SAVED_USER, SAVED_USER);
+			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
+			
 			defaults.put(Keys.STRINGS_FILENAME, STRINGS_FILENAME);
 			
 			return defaults;
 		}
 		private static Properties buildStrings() {
-			Properties defaults = null;
+			Properties defaults = new Properties();
 			
+			defaults.put(Keys.WINDOW_TITLE, WINDOW_TITLE);
+			defaults.put(Keys.HOST_TEXT, HOST_TEXT);
+			defaults.put(Keys.USER_TEXT, USER_TEXT);
+			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
+			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
+			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
+			defaults.put(Keys.NEW_TABLE_TEXT, NEW_TABLE_TEXT);
+			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
+			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
+			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
+			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);
+			defaults.put(Keys.LOG_OUT_TEXT, LOG_OUT_TEXT);
+
 			return defaults;
 		}
 	}
@@ -131,11 +182,7 @@ public class Assets {
 		 * Saves current configuration.
 		 */
 		public static void save() {
-			try {
-				config.saveFile();
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+			Assets.save(config);
 		}
 	}
 	/**
