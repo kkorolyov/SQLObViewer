@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
 
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
@@ -198,8 +199,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		buildFilterPopup(column).show(e.getComponent(), e.getX(), e.getY());
 	}
 	private JPopupMenu buildFilterPopup(int column) {
-		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-		int popupHeight = frame == null ? DEFAULT_POPUP_HEIGHT : frame.getHeight() / DEFAULT_POPUP_HEIGHT;
+		Window frame = SwingUtilities.getWindowAncestor(this);
+		int popupHeight = (frame == null) ? DEFAULT_POPUP_HEIGHT : frame.getHeight() / DEFAULT_POPUP_HEIGHT;
 
 		JPopupMenu filterPopup = new JScrollablePopupMenu(popupHeight);
 		
