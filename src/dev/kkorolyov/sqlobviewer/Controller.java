@@ -92,7 +92,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
-		databaseTable.rebuild(getTableColumns(), getTableData());
+		databaseTable.setData(getTableColumns(), getTableData());
 	}
 	@Override
 	public void newTableButtonPressed(GuiSubject context) {
@@ -107,7 +107,7 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
-		databaseTable.rebuild(getTableColumns(), getTableData());
+		databaseTable.setData(getTableColumns(), getTableData());
 	}
 	
 	@Override
@@ -117,13 +117,13 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		databaseTable.rebuild(getTableColumns(), getTableData());
+		databaseTable.setData(getTableColumns(), getTableData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
 		try {
 			if (tableConn.update(newValues, criteria) > 1)
-				databaseTable.rebuild(getTableColumns(), getTableData());	// Rebuild table to match database
+				databaseTable.setData(getTableColumns(), getTableData());	// Rebuild table to match database
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
@@ -135,7 +135,7 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			window.displayError(e.getMessage());
 		}
-		databaseTable.rebuild(getTableColumns(), getTableData());
+		databaseTable.setData(getTableColumns(), getTableData());
 	}
 	
 	@Override

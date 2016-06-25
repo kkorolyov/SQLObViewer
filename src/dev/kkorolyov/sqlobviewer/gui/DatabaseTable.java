@@ -34,7 +34,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 														listenersToRemove = new HashSet<>();
 	/**
 	 * Constructs a new database table.
-	 * @see #rebuild(Column[], RowEntry[][])
+	 * @param columns table columns
+	 * @param data table data
 	 */
 	@SuppressWarnings("synthetic-access")
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
@@ -61,18 +62,18 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	/**
-	 * Rebuilds this table using the specified properties.
-	 * @param columns table columns
-	 * @param data table data
+	 * Sets the displayed data of this table.
+	 * @param newColumns new table columns
+	 * @param newData new table data
 	 */
-	public void rebuild(Column[] columns, RowEntry[][] data) {
-		setData(columns, data);
-		
-		sort();
-	}
-	private void setData(Column[] newColumns, RowEntry[][] newData) {
+	public void setData(Column[] newColumns, RowEntry[][] newData) {
 		columns = newColumns;
 		data = newData;
+		
+		sort();
+		
+		revalidate();
+		repaint();
 	}
 	
 	/**
@@ -237,7 +238,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		JTextComponent editor = (JTextComponent) getEditorComponent();
 		
 		if (editor != null) {
-			if (e instanceof MouseEvent) {	// If triggered by mouse, must be run on event thread
+			if (e instanceof MouseEvent) {	// If triggered by mouse, must be run on EDT
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
