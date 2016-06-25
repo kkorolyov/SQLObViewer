@@ -7,10 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.RowFilter;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -25,9 +22,10 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /** A {@code JTable} displaying database information. */
 public class DatabaseTable extends JTable implements GuiSubject {
-	private static final String REMOVE_FILTER_TEXT = "Reset Filter";
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final Logger log = Logger.getLogger(DatabaseTable.class.getName());
+	private static final int DEFAULT_POPUP_HEIGHT = 32;
+	private static final String REMOVE_FILTER_TEXT = "Reset Filter";
 	
 	private Column[] columns;
 	private RowEntry[][] data;
@@ -178,7 +176,10 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		buildFilterPopup(column).show(e.getComponent(), e.getX(), e.getY());
 	}
 	private JPopupMenu buildFilterPopup(int column) {
-		JPopupMenu filterPopup = new JPopupMenu();
+		JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+		int popupHeight = frame == null ? DEFAULT_POPUP_HEIGHT : frame.getHeight() / DEFAULT_POPUP_HEIGHT;
+
+		JPopupMenu filterPopup = new JScrollablePopupMenu(popupHeight);
 		
 		JMenuItem removeFilterItem = new JMenuItem(REMOVE_FILTER_TEXT);
 		removeFilterItem.addActionListener(e -> removeFilter());
