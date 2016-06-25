@@ -1,17 +1,13 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
@@ -19,7 +15,6 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.exceptions.MismatchedTypeException;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Keys;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
@@ -34,6 +29,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	
 	private Column[] columns;
 	private RowEntry[][] data;
+	private Map<Integer, RowFilter<DatabaseTableModel, Integer>> filters = new HashMap<>();
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	/**
@@ -54,14 +50,12 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger())
-					showFilterPopup(e);
+				tryShowFilterPopup(e);
 			}
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger())
-					showFilterPopup(e);
+				tryShowFilterPopup(e);
 			}
 		});
 	}
@@ -82,30 +76,48 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	/**
-	 * Filters the table by the specified value.
+	 * Adds a filter to this table.
 	 * @param filter value to filter by
 	 * @param column index of column to apply filter on
 	 */
-	@SuppressWarnings("unchecked")
-	public void filterBy(String filter, int column) {
+	public void addFilter(String filter, int column) {
 		String exactFilter = '^' + filter + '$';
 		
-		((TableRowSorter<TableModel>) getRowSorter()).setRowFilter(RowFilter.regexFilter(exactFilter, column));
+		filters.put(column, RowFilter.regexFilter(exactFilter, column));
+		log.debug("Added filter=" + exactFilter + " for column=" + columns[column].getName().toUpperCase());
+		
+		applyFilters();
+	}
+	
+	/**
+	 * Removes the filter for a specified column.
+	 * @param column index of column to remove filter of
+	 */
+	public void removeFilter(int column) {		
+		if (filters.remove(column) == null)
+			log.debug("No filter to remove for column=" + columns[column].getName().toUpperCase());
+		else
+			log.debug("Removed filter for column=" + columns[column].getName().toUpperCase());
+
+		applyFilters();
 	}
 	/**
-	 * Removes this table's current filter.
+	 * Removes all filters.
 	 */
-	@SuppressWarnings("unchecked")
-	public void removeFilter() {
-		((TableRowSorter<TableModel>) getRowSorter()).setRowFilter(null);
+	public void clearFilters() {
+		filters.clear();
+		applyFilters();
+	}
+	
+	private void applyFilters() {
+		getCastedRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
 	}
 	
 	/**
 	 * Sorts this table based on its sorter's current sort keys.
 	 */
-	@SuppressWarnings("unchecked")
 	public void sort() {
-		((TableRowSorter<TableModel>) getRowSorter()).sort();
+		getCastedRowSorter().sort();
 	}
 	
 	/** @return row at the specified view index */
@@ -175,6 +187,10 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		return emptyData;
 	}
 	
+	private void tryShowFilterPopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showFilterPopup(e);
+	}
 	private void showFilterPopup(MouseEvent e) {
 		int column = getColumnModel().getColumnIndexAtX(e.getX());
 		
@@ -187,14 +203,14 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		JPopupMenu filterPopup = new JScrollablePopupMenu(popupHeight);
 		
 		JMenuItem removeFilterItem = new JMenuItem(Strings.get(REMOVE_FILTER_TEXT));
-		removeFilterItem.addActionListener(e -> removeFilter());
+		removeFilterItem.addActionListener(e -> removeFilter(column));
 		
 		filterPopup.add(removeFilterItem);
 		filterPopup.addSeparator();
 		
 		for (Object value : getUniqueValues(column)) {
 			JMenuItem currentMenuItem = new JMenuItem(value.toString());
-			currentMenuItem.addActionListener(e -> filterBy(value.toString(), column));
+			currentMenuItem.addActionListener(e -> addFilter(value.toString(), column));
 			
 			filterPopup.add(currentMenuItem);
 		}
@@ -240,6 +256,11 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private TableRowSorter<DatabaseTableModel> getCastedRowSorter() {	// Convenience casting method
+		return (TableRowSorter<DatabaseTableModel>) getRowSorter();
 	}
 	
 	@SuppressWarnings("synthetic-access")

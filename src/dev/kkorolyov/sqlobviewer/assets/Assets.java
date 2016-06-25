@@ -116,7 +116,7 @@ public class Assets {
 																ADD_ROW_TEXT = "+Row",
 																DELETE_ROW_TEXT = "-Row",
 																UNDO_STATEMENT_TEXT = "Undo",
-																REMOVE_FILTER_TEXT = "Reset Filter",
+																REMOVE_FILTER_TEXT = "Remove Filter",
 																LOG_IN_TEXT = "Log In",
 																LOG_OUT_TEXT = "Log Out";
 		
