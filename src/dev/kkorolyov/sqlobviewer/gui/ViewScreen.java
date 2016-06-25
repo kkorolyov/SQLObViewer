@@ -151,6 +151,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		forwardListeners(databaseTable);
 		
 		scrollPane.setViewportView(databaseTable);
+		scrollPane.revalidate();
+		scrollPane.repaint();
 	}
 	
 	/** @param statement new statement to display */
@@ -163,8 +165,12 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
-		if (selectedOption == JOptionPane.OK_OPTION)
+		if (selectedOption == JOptionPane.OK_OPTION) {
+			if (addRowTable.getCellEditor() != null)
+				addRowTable.getCellEditor().stopCellEditing();
+			
 			notifyInsertRow(addRowTable.getSelectedRow(0));
+		}
 	}
 	private static JScrollPane buildAddRowScrollPane(JTable addRowTable) {		
 		JScrollPane addRowScrollPane = new JScrollPane(addRowTable);
