@@ -3,6 +3,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,26 +29,46 @@ public class ViewScreen extends JPanel implements GuiSubject {
 									undoStatementButton,
 									backButton;
 	private DatabaseTable databaseTable;
-	
 	private JLabel lastStatementLabel;
+	
+	private JPanel 	northPanel,
+									eastPanel,
+									southPanel;
+	private JScrollPane scrollPane;
+	
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
 	/**
 	 * Constructs a new view screen.
-	 * @see #rebuild(String[], DatabaseTable)
+	 * @param tables table names to display
+	 * @param table database table to display
 	 */
 	public ViewScreen(String[] tables, DatabaseTable table) {
 		BorderLayout viewLayout = new BorderLayout();
 		setLayout(viewLayout);
 		
 		initComponents();
+		initPanels();
 		
-		rebuild(tables, table);
+		setTables(tables);
+		setViewedTable(table);
+		
+		add(northPanel, BorderLayout.NORTH);
+		add(eastPanel, BorderLayout.EAST);
+		add(southPanel, BorderLayout.SOUTH);
+		add(scrollPane, BorderLayout.CENTER);
+		
+		revalidate();
+		repaint();
 	}
+	
 	private void initComponents() {
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
+		
+		tableComboBox = new JComboBox<String>();
+		tableComboBox.addActionListener(e -> notifyTableSelected());
 		
 		newTableButton = new JButton(Strings.get(NEW_TABLE_TEXT));
 		newTableButton.addActionListener(e -> notifyNewTableButtonPressed());
@@ -66,76 +87,59 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		lastStatementLabel = new JLabel();
 	}
+	private void initPanels() {
+		northPanel = new JPanel();
+		BorderLayout northLayout = new BorderLayout();
+		northPanel.setLayout(northLayout);
+		
+		northPanel.add(refreshTableButton, BorderLayout.WEST);
+		northPanel.add(tableComboBox, BorderLayout.CENTER);
+		northPanel.add(newTableButton, BorderLayout.EAST);
+		
+		eastPanel = new JPanel();
+		BoxLayout eastLayout = new BoxLayout(eastPanel, BoxLayout.Y_AXIS);
+		eastPanel.setLayout(eastLayout);
+		
+		standardizeComponents(addRowButton, deleteRowButton);
+		eastPanel.add(addRowButton);
+		eastPanel.add(deleteRowButton);
+		
+		southPanel = new JPanel();
+		BorderLayout southLayout = new BorderLayout();
+		southPanel.setLayout(southLayout);
+		
+		southPanel.add(lastStatementLabel, BorderLayout.CENTER);
+		southPanel.add(undoStatementButton, BorderLayout.EAST);
+		southPanel.add(backButton, BorderLayout.SOUTH);
+		
+		scrollPane = new JScrollPane();
+	}
 	
-	/**
-	 * Rebuilds this screen using specified properties.
-	 * @param tables table names to display
-	 * @param table database table to display
-	 */
-	public void rebuild(String[] tables, DatabaseTable table) {
-		removeAll();
+	private static void standardizeComponents(Component... components) {	// Inflates smaller components' max sizes to max size of largest component
+		int maxWidth = 0,
+				maxHeight = 0;
 		
-		setTables(tables);
-		setViewedTable(table);
-		
-		add(buildTablesPanel(), BorderLayout.NORTH);
-		add(buildDatabaseTableScrollPane(), BorderLayout.CENTER);
-		add(buildAddDeletePanel(), BorderLayout.EAST);
-		add(buildStatementPanel(), BorderLayout.SOUTH);
-		
-		revalidate();
-		repaint();
-	}
-	private JPanel buildTablesPanel() {
-		JPanel tablesPanel = new JPanel();
-		BorderLayout tablesLayout = new BorderLayout();
-		tablesPanel.setLayout(tablesLayout);
-		
-		tablesPanel.add(refreshTableButton, BorderLayout.WEST);
-		tablesPanel.add(tableComboBox, BorderLayout.CENTER);
-		tablesPanel.add(newTableButton, BorderLayout.EAST);
-		
-		return tablesPanel;
-	}
-	private JScrollPane buildDatabaseTableScrollPane() {
-		JScrollPane databaseTableScrollPane = new JScrollPane(databaseTable);
-		
-		return databaseTableScrollPane;
-	}
-	private JPanel buildAddDeletePanel() {
-		JPanel addDeletePanel = new JPanel();
-		BoxLayout addDeleteLayout = new BoxLayout(addDeletePanel, BoxLayout.Y_AXIS);
-		addDeletePanel.setLayout(addDeleteLayout);
-		
-		addDeletePanel.add(addRowButton);
-		addDeletePanel.add(deleteRowButton);
-		
-		return addDeletePanel;
-	}
-	private JPanel buildStatementPanel() {
-		JPanel statementPanel = new JPanel();
-		BorderLayout statementLayout = new BorderLayout();
-		statementPanel.setLayout(statementLayout);
-		
-		statementPanel.add(lastStatementLabel, BorderLayout.CENTER);
-		statementPanel.add(undoStatementButton, BorderLayout.EAST);
-		
-		// TODO Placeholder location for back button
-		statementPanel.add(backButton, BorderLayout.SOUTH);
-		
-		return statementPanel;
+		for (Component component : components) {
+			int currentWidth = (int) component.getMaximumSize().getWidth(),
+					currentHeight = (int) component.getMaximumSize().getHeight();
+			
+			if (currentWidth > maxWidth)
+				maxWidth = currentWidth;
+			if (currentHeight > maxHeight)
+				maxHeight = currentHeight;
+		}
+		for (Component component : components)
+			component.setMaximumSize(new Dimension(maxWidth, maxHeight));
 	}
 	
 	/** @param tables table names to display */
 	public void setTables(String[] tables) {
-		if (tableComboBox == null)
-			tableComboBox = new JComboBox<>();
-		
 		tableComboBox.removeAllItems();
 		for (String table : tables)
 			tableComboBox.addItem(table);
 		
-		tableComboBox.addActionListener(e -> notifyTableSelected());
+		tableComboBox.revalidate();
+		tableComboBox.repaint();
 	}
 	
 	/** @param newTable new database table */
@@ -144,8 +148,9 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			databaseTable.clearListeners();
 		
 		databaseTable = newTable;
-		
 		forwardListeners(databaseTable);
+		
+		scrollPane.setViewportView(databaseTable);
 	}
 	
 	/** @param statement new statement to display */
@@ -166,6 +171,17 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		addRowScrollPane.setPreferredSize(new Dimension((int) addRowTable.getPreferredSize().getWidth(), addRowTable.getRowHeight() + 23));
 				
 		return addRowScrollPane;
+	}
+	
+	private void deleteSelected() {
+		int[] selectedRows = databaseTable.getSelectedRows();
+		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
+		
+		for (int i = 0; i < toDelete.length; i++)
+			toDelete[i] = databaseTable.getSelectedRow(selectedRows[i]);
+		
+		for (RowEntry[] toDel : toDelete)
+			notifyDeleteRows(toDel);
 	}
 	
 	private void notifyBackButtonPressed() {
@@ -211,17 +227,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		for (GuiListener listener : listeners)
 			listener.deleteRows(criteria, this);
-	}
-	
-	private void deleteSelected() {
-		int[] selectedRows = databaseTable.getSelectedRows();
-		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
-		
-		for (int i = 0; i < toDelete.length; i++)
-			toDelete[i] = databaseTable.getSelectedRow(selectedRows[i]);
-		
-		for (RowEntry[] toDel : toDelete)
-			notifyDeleteRows(toDel);
 	}
 	
 	@Override
