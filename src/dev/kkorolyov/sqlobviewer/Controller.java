@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Stack;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlob.construct.Column;
@@ -70,7 +71,8 @@ public class Controller implements GuiListener {
 		try {
 			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
 		} catch (SQLException e) {
-			window.displayError(e.getMessage());
+			log.exception(e, Level.WARNING);
+			window.displayException(e);
 			
 			return;
 		}
@@ -115,7 +117,7 @@ public class Controller implements GuiListener {
 		try {
 			tableConn.insert(rowValues);
 		} catch (SQLException e) {
-			window.displayError(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		databaseTable.setData(getTableColumns(), getTableData());
 	}
@@ -125,7 +127,7 @@ public class Controller implements GuiListener {
 			if (tableConn.update(newValues, criteria) > 1)
 				databaseTable.setData(getTableColumns(), getTableData());	// Rebuild table to match database
 		} catch (SQLException e) {
-			window.displayError(e.getMessage());
+			throw new RuntimeException(e);
 		}
 	}
 	@Override
@@ -133,7 +135,7 @@ public class Controller implements GuiListener {
 		try {
 			tableConn.delete(criteria);
 		} catch (SQLException e) {
-			window.displayError(e.getMessage());
+			throw new RuntimeException(e);
 		}
 		databaseTable.setData(getTableColumns(), getTableData());
 	}

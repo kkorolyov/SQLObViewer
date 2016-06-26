@@ -33,6 +33,18 @@ public class Launcher {
 		
 		MainWindow window = buildWindow();
 
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {	// Display application errors + terminate
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				log.severe("Error caught by default ExceptionHandler");
+				log.exception((Exception) e, Level.SEVERE);
+				
+				window.displayError(e, true);
+				
+				log.severe("Terminated gracefully");
+			}
+		});
 		SwingUtilities.invokeLater(new Runnable() {			
 			@Override
 			public void run() {

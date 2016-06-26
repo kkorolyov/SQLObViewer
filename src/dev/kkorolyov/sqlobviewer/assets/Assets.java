@@ -82,6 +82,10 @@ public class Assets {
 		public static final String STRINGS_FILENAME = "LANG_FILE";
 		
 		public static final String 	WINDOW_TITLE = "WINDOW_TITLE",
+																EXCEPTION_TITLE_SUFFIX = "EXCEPTION_TITLE_SUFFIX",
+																ERROR_TITLE_SUFFIX = "ERROR_TITLE_SUFFIX",
+																EXPAND_ERROR_TEXT = "EXPAND_ERROR_TEXT",
+																APPLICATION_CLOSING_TEXT = "APPLICATION_CLOSING_TEXT",
 																HOST_TEXT = "HOST_TEXT",
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
@@ -107,6 +111,10 @@ public class Assets {
 																STRINGS_FILENAME = "assets/lang/en.lang";
 		
 		private static final String WINDOW_TITLE = "SQLObViewer",
+																EXCEPTION_TITLE_SUFFIX = "ERROR",
+																ERROR_TITLE_SUFFIX = "FATAL ERROR",
+																EXPAND_ERROR_TEXT = "CLICK TO EXPAND",
+																APPLICATION_CLOSING_TEXT = "The application will now exit",
 																HOST_TEXT = "Host",
 																DATABASE_TEXT = "Database",
 																USER_TEXT = "User",
@@ -139,6 +147,11 @@ public class Assets {
 			Properties defaults = new Properties();
 			
 			defaults.put(Keys.WINDOW_TITLE, WINDOW_TITLE);
+			defaults.put(Keys.EXCEPTION_TITLE_SUFFIX, EXCEPTION_TITLE_SUFFIX);
+			defaults.put(Keys.ERROR_TITLE_SUFFIX, ERROR_TITLE_SUFFIX);
+			defaults.put(Keys.EXPAND_ERROR_TEXT, EXPAND_ERROR_TEXT);
+			defaults.put(Keys.APPLICATION_CLOSING_TEXT, APPLICATION_CLOSING_TEXT);
+			
 			defaults.put(Keys.HOST_TEXT, HOST_TEXT);
 			defaults.put(Keys.USER_TEXT, USER_TEXT);
 			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
