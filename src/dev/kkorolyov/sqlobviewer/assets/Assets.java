@@ -93,9 +93,13 @@ public class Assets {
 																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
 																NEW_TABLE_TEXT = "NEW_TABLE_TEXT",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
+																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
+																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
 																DELETE_ROW_TEXT = "DELETE_ROW_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
+																SUBMIT_TEXT = "SUBMIT_TEXT",
+																BACK_TEXT = "BACK_TEXT",
 																LOG_IN_TEXT = "LOG_IN_TEXT",
 																LOG_OUT_TEXT = "LOG_OUT_TEXT";
 	}
@@ -122,9 +126,13 @@ public class Assets {
 																REFRESH_TABLE_TEXT = "R",
 																NEW_TABLE_TEXT = "+Table",
 																ADD_ROW_TEXT = "+Row",
+																ADD_COLUMN_TEXT = "Add Column",
+																REMOVE_COLUMN_TEXT = "Remove Column",
 																DELETE_ROW_TEXT = "-Row",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
+																SUBMIT_TEXT = "Submit",
+																BACK_TEXT = "Back",
 																LOG_IN_TEXT = "Log In",
 																LOG_OUT_TEXT = "Log Out";
 		
@@ -159,9 +167,13 @@ public class Assets {
 			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
 			defaults.put(Keys.NEW_TABLE_TEXT, NEW_TABLE_TEXT);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
+			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
+			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
 			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
+			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
+			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
 			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);
 			defaults.put(Keys.LOG_OUT_TEXT, LOG_OUT_TEXT);
 

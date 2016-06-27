@@ -205,6 +205,9 @@ public class MainWindow implements GuiSubject {
 	}
 	/**	@param newCreateTableScreen create table screen */
 	public void setCreateTableScreen(CreateTableScreen newCreateTableScreen) {
+		if (createTableScreen != null)
+			createTableScreen.clearListeners();
+		
 		createTableScreen = newCreateTableScreen;
 		
 		forwardListeners(createTableScreen);

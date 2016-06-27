@@ -3,9 +3,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -17,6 +15,8 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.sqlobviewer.utility.Standardizer;
+import dev.kkorolyov.sqlobviewer.utility.Standardizer.Extreme;
 
 /**
  * A prebuilt database view screen.
@@ -118,7 +118,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		BoxLayout eastLayout = new BoxLayout(eastPanel, BoxLayout.Y_AXIS);
 		eastPanel.setLayout(eastLayout);
 		
-		standardizeComponents(addRowButton, deleteRowButton);
+		Standardizer.standardize(null, Extreme.MAXIMUM, addRowButton, deleteRowButton);
 		eastPanel.add(addRowButton);
 		eastPanel.add(deleteRowButton);
 		
@@ -131,23 +131,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		southPanel.add(backButton, BorderLayout.SOUTH);
 		
 		scrollPane = new JScrollPane();
-	}
-	
-	private static void standardizeComponents(Component... components) {	// Inflates smaller components' max sizes to max size of largest component
-		int maxWidth = 0,
-				maxHeight = 0;
-		
-		for (Component component : components) {
-			int currentWidth = (int) component.getMaximumSize().getWidth(),
-					currentHeight = (int) component.getMaximumSize().getHeight();
-			
-			if (currentWidth > maxWidth)
-				maxWidth = currentWidth;
-			if (currentHeight > maxHeight)
-				maxHeight = currentHeight;
-		}
-		for (Component component : components)
-			component.setMaximumSize(new Dimension(maxWidth, maxHeight));
 	}
 	
 	/** @param tables table names to display */

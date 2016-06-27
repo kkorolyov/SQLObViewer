@@ -15,10 +15,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.gui.DatabaseTable;
-import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
-import dev.kkorolyov.sqlobviewer.gui.MainWindow;
-import dev.kkorolyov.sqlobviewer.gui.ViewScreen;
+import dev.kkorolyov.sqlobviewer.gui.*;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
@@ -59,30 +56,49 @@ public class Controller implements GuiListener {
 		window.setViewScreen(viewScreen);
 		window.showViewScreen();
 	}
+	private void goToCreateTableScreen() {
+		CreateTableScreen createTableScreen = new CreateTableScreen();
+		
+		window.setCreateTableScreen(createTableScreen);
+		window.showCreateTableScreen();
+	}
 	
 	@Override
-	public void logInButtonPressed(String host, String database, String user, String password, GuiSubject context) {
-		Config.set(SAVED_HOST, host);
-		Config.set(SAVED_DATABASE, database);
-		Config.set(SAVED_USER, user);
-		Config.set(SAVED_PASSWORD, password);
-
-		Config.save();
-		try {
-			setDatabaseConnection(new DatabaseConnection(host, database, user, password));
-		} catch (SQLException e) {
-			log.exception(e, Level.WARNING);
-			window.displayException(e);
+	public void submitButtonPressed(GuiSubject context) {
+		if (context instanceof LoginScreen) {
+			LoginScreen loginContext = (LoginScreen) context;
+			String 	host = loginContext.getHost(),
+							database = loginContext.getDatabase(),
+							user = loginContext.getUser(),
+							password = loginContext.getPassword();
 			
-			return;
+			Config.set(SAVED_HOST, host);
+			Config.set(SAVED_DATABASE, database);
+			Config.set(SAVED_USER, user);
+			Config.set(SAVED_PASSWORD, password);
+	
+			Config.save();
+			try {
+				setDatabaseConnection(new DatabaseConnection(host, database, user, password));
+			} catch (SQLException e) {
+				log.exception(e, Level.WARNING);
+				window.displayException(e);
+				
+				return;
+			}
+			String[] dbTables = dbConn.getTables();
+			
+			setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
+			
+			setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
+			
+			goToViewScreen();
 		}
-		String[] dbTables = dbConn.getTables();
-		
-		setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
-		
-		setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
-		
-		goToViewScreen();
+		else if (context instanceof CreateTableScreen) {
+			dbConn.createTable("Two", ((CreateTableScreen) context).getColumns());
+			
+			goToViewScreen();
+		}
 	}
 	@Override
 	public void backButtonPressed(GuiSubject context) {
@@ -91,6 +107,9 @@ public class Controller implements GuiListener {
 			
 			window.showLoginScreen();
 		}
+		else if (context instanceof CreateTableScreen) {
+			goToViewScreen();
+		}
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
@@ -98,7 +117,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void newTableButtonPressed(GuiSubject context) {
-		window.showCreateTableScreen();
+		goToCreateTableScreen();
 	}
 	@Override
 	public void undoStatementButtonPressed(GuiSubject context) {

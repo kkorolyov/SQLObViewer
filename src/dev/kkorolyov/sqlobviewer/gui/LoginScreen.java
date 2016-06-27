@@ -54,7 +54,7 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD));
 		
 		loginButton = new JButton(Strings.get(LOG_IN_TEXT));
-		loginButton.addActionListener(e -> notifyLogInButtonPressed(hostField.getText(), databaseField.getText(), userField.getText(), passwordField.getText()));
+		loginButton.addActionListener(e -> notifySubmitButtonPressed());
 		
 		dataPanel = new JPanel();
 		GridLayout dataLayout = new GridLayout(4, 2);
@@ -74,11 +74,28 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		add(loginButton);
 	}
 	
-	private void notifyLogInButtonPressed(String host, String database, String user, String password) {
+	/** @return current text in host field */
+	public String getHost() {
+		return hostField.getText();
+	}
+	/** @return current text in database field */
+	public String getDatabase() {
+		return databaseField.getText();
+	}
+	/** @return current text in user field */
+	public String getUser() {
+		return userField.getText();
+	}
+	/** @return current text in password field */
+	public String getPassword() {
+		return passwordField.getText();
+	}
+	
+	private void notifySubmitButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
-			listener.logInButtonPressed(host, database, user, password, this);
+			listener.submitButtonPressed(this);
 	}
 	
 	@Override

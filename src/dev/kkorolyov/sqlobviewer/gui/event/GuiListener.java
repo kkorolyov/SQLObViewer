@@ -7,14 +7,10 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
  */
 public interface GuiListener {
 	/**
-	 * Invoked when the the log in button is pressed.
-	 * @param host input host
-	 * @param database input database
-	 * @param user input user
-	 * @param password input password
-	 * @param GUI component calling this event
+	 * Invoked when the the submit button is pressed.
+	 * @param context GUI component calling this event
 	 */
-	void logInButtonPressed(String host, String database, String user, String password, GuiSubject context);
+	void submitButtonPressed(GuiSubject context);
 	/**
 	 * Invoked when the back button is pressed.
 	 * Implementations may vary based on the calling subject.
