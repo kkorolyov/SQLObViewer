@@ -4,11 +4,11 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_COLUMN_TEXT;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.SqlType;
@@ -23,37 +23,62 @@ import dev.kkorolyov.sqlobviewer.utility.Standardizer.Property;
 public class ColumnPanel extends JPanel {
 	private static final long serialVersionUID = 3309134424336942020L;
 
-	private JButton deleteButton;
 	private JTextField columnNameField;
 	private JComboBox<SqlType> columnTypeComboBox;
+	private JPopupMenu deleteMenu;
+	private JMenuItem deleteMenuItem;
 	
 	/**
 	 * Constructs a new column panel.
 	 */
 	public ColumnPanel() {
-		//BoxLayout columnLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
-		GridLayout columnLayout = new GridLayout(3, 1);
+		GridLayout columnLayout = new GridLayout(2, 1);
 		setLayout(columnLayout);
-		
+				
 		initComponents();
-		
-		Standardizer.standardize(Property.WIDTH, Extreme.MAXIMUM, deleteButton, columnNameField, columnTypeComboBox);
-		add(deleteButton);
+		addDeletePopupListeners();
+
+		Standardizer.standardize(Property.WIDTH, Extreme.MAXIMUM, columnNameField, columnTypeComboBox);
 		add(columnNameField);
 		add(columnTypeComboBox);
 		
 		repaint();
 		revalidate();
 	}
-	private void initComponents() {
-		deleteButton = new JButton(Strings.get(REMOVE_COLUMN_TEXT));
-		columnNameField = new JTextField();
-		columnTypeComboBox = new JComboBox<>(SqlType.values());
+	private void addDeletePopupListeners() {
+		MouseListener popupListener = buildPopupListener();
+		
+		addMouseListener(popupListener);
+		columnNameField.addMouseListener(popupListener);
+		columnTypeComboBox.addMouseListener(popupListener);
+	}
+	@SuppressWarnings("synthetic-access")
+	private MouseListener buildPopupListener() {
+		return new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowDeletePopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowDeletePopup(e);
+			}
+		};
 	}
 	
-	/** @param e action which this panel's delete button invokes */
-	public void addDeleteButtonListener(ActionListener e) {
-		deleteButton.addActionListener(e);
+	private void initComponents() {
+		columnNameField = new JTextField();
+		
+		columnTypeComboBox = new JComboBox<>(SqlType.values());
+		
+		deleteMenu = new JPopupMenu();
+		deleteMenuItem = new JMenuItem(Strings.get(REMOVE_COLUMN_TEXT));
+		deleteMenu.add(deleteMenuItem);
+	}
+	
+	/** @param e action invoked when a deletion event occurs on this component */
+	public void addDeletionListener(ActionListener e) {
+		deleteMenuItem.addActionListener(e);
 	}
 	
 	/** @return	a {@code Column} matching the data specified in this panel, or {@code null} if not enough data */
@@ -62,5 +87,13 @@ public class ColumnPanel extends JPanel {
 			return null;
 		
 		return new Column(columnNameField.getText(), (SqlType) columnTypeComboBox.getSelectedItem());
+	}
+	
+	private void tryShowDeletePopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showDeletePopup(e);
+	}
+	private void showDeletePopup(MouseEvent e) {
+		deleteMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 }

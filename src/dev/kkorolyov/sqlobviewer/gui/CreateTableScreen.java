@@ -82,7 +82,7 @@ public class CreateTableScreen extends JPanel implements GuiSubject {
 	
 	private void addColumn() {
 		ColumnPanel newColumn = new ColumnPanel();
-		newColumn.addDeleteButtonListener(e -> removeColumn(newColumn));
+		newColumn.addDeletionListener(e -> removeColumn(newColumn));
 		
 		if (columnsPanel.getComponentCount() > 0)
 			columnsPanel.remove(columnsPanel.getComponentCount() - 1);	// Remove add button from this column
