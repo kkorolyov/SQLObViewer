@@ -277,20 +277,12 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		
 		return result;
 	}
-	private void selectAll(EventObject e) {
-		JTextComponent editor = (JTextComponent) getEditorComponent();
-		
-		if (editor != null) {
-			if (e instanceof MouseEvent) {	// If triggered by mouse, must be run on EDT
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						editor.selectAll();
-					}
-				});
-			}
-			else	
-				editor.selectAll();
+	private void selectAll(EventObject e) {		
+		if (getEditorComponent() != null && (getEditorComponent() instanceof JTextComponent)) {
+			if (e instanceof MouseEvent)
+				SwingUtilities.invokeLater(() -> ((JTextComponent) getEditorComponent()).selectAll());
+			else
+				((JTextComponent) getEditorComponent()).selectAll();
 		}
 	}
 	
