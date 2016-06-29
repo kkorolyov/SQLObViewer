@@ -98,6 +98,7 @@ public class Assets {
 																DELETE_ROW_TEXT = "DELETE_ROW_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
+																COPY_TEXT = "COPY_TEXT",
 																SUBMIT_TEXT = "SUBMIT_TEXT",
 																BACK_TEXT = "BACK_TEXT",
 																LOG_IN_TEXT = "LOG_IN_TEXT",
@@ -131,6 +132,7 @@ public class Assets {
 																DELETE_ROW_TEXT = "-Row",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
+																COPY_TEXT = "Copy",
 																SUBMIT_TEXT = "Submit",
 																BACK_TEXT = "Back",
 																LOG_IN_TEXT = "Log In",
@@ -172,6 +174,7 @@ public class Assets {
 			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
+			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
 			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
 			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
 			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);

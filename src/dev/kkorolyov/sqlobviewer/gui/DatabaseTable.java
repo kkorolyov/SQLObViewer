@@ -1,8 +1,10 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -33,6 +35,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	private Column[] columns;
 	private RowEntry[][] data;
 	private Map<Integer, RowFilter<DatabaseTableModel, Integer>> filters = new HashMap<>();
+	
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	/**
@@ -44,8 +47,10 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
 		setFillsViewportHeight(true);
 		setAutoCreateRowSorter(true);
+		
 		addDeselectionListeners();
-		addFilterPopupListener();
+		addHeaderPopupListener();
+		addCellPopupListener();
 		
 		setData(columns, data);		
 		setModel(new DatabaseTableModel());
@@ -74,6 +79,34 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			}
 		});
 	}
+	private void addHeaderPopupListener() {
+		getTableHeader().addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowHeaderPopup(e);
+			}
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowHeaderPopup(e);
+			}
+		});
+	}
+	@SuppressWarnings("synthetic-access")
+	private void addCellPopupListener() {
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowCellPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowCellPopup(e);
+			}
+		});
+	}
+	
 	/**
 	 * Deselects any currently-selected data in this table.
 	 * Cancels any pending cell editing.
@@ -88,20 +121,6 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			if (getCellEditor() != null)
 				getCellEditor().cancelCellEditing();
 		}
-	}
-	private void addFilterPopupListener() {
-		getTableHeader().addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mousePressed(MouseEvent e) {
-				tryShowFilterPopup(e);
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				tryShowFilterPopup(e);
-			}
-		});
 	}
 	
 	/**
@@ -132,7 +151,6 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		
 		applyFilters();
 	}
-	
 	/**
 	 * Removes the filter for a specified column.
 	 * @param column index of column to remove filter of
@@ -231,34 +249,68 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		return emptyData;
 	}
 	
-	private void tryShowFilterPopup(MouseEvent e) {
-		if (e.isPopupTrigger())
-			showFilterPopup(e);
+	private void tryShowCellPopup(MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			int row = rowAtPoint(e.getPoint()),
+					column = columnAtPoint(e.getPoint());
+			
+			if (row >= 0 && column >= 0) {
+				changeSelection(row, column, false, false);
+				showCellPopup(getValueAt(row, column), e);
+			}
+		}
 	}
-	private void showFilterPopup(MouseEvent e) {
-		int column = getColumnModel().getColumnIndexAtX(e.getX());
+	private static void showCellPopup(Object value, MouseEvent e) {
+		buildCellPopup(value).show(e.getComponent(), e.getX(), e.getY());
+	}
+	private static JPopupMenu buildCellPopup(Object value) {
+		JPopupMenu cellPopup = new JPopupMenu();
 		
-		buildFilterPopup(column).show(e.getComponent(), e.getX(), e.getY());
+		JMenuItem valueItem = new JMenuItem(value.toString()),
+							copyItem = new JMenuItem(Strings.get(COPY_TEXT));
+		valueItem.setEnabled(false);
+		copyItem.addActionListener(e -> copyToClipboard(value));
+		
+		cellPopup.add(valueItem);
+		cellPopup.addSeparator();
+		cellPopup.add(copyItem);
+		
+		return cellPopup;
 	}
-	private JPopupMenu buildFilterPopup(int column) {
+	private static void copyToClipboard(Object value) {
+		StringSelection selection = new StringSelection(value.toString());
+		
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+	}
+	
+	private void tryShowHeaderPopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showHeaderPopup(e);
+	}
+	private void showHeaderPopup(MouseEvent e) {
+		int column = columnAtPoint(e.getPoint());
+		
+		buildHeaderPopup(column).show(e.getComponent(), e.getX(), e.getY());
+	}
+	private JPopupMenu buildHeaderPopup(int column) {
 		Window frame = SwingUtilities.getWindowAncestor(this);
 		int popupHeight = (frame == null) ? DEFAULT_POPUP_HEIGHT : frame.getHeight() / DEFAULT_POPUP_HEIGHT;
 
-		JPopupMenu filterPopup = new JScrollablePopupMenu(popupHeight);
+		JPopupMenu headerPopup = new JScrollablePopupMenu(popupHeight);
 		
 		JMenuItem removeFilterItem = new JMenuItem(Strings.get(REMOVE_FILTER_TEXT));
 		removeFilterItem.addActionListener(e -> removeFilter(column));
 		
-		filterPopup.add(removeFilterItem);
-		filterPopup.addSeparator();
+		headerPopup.add(removeFilterItem);
+		headerPopup.addSeparator();
 		
 		for (Object value : getUniqueValues(column)) {
-			JMenuItem currentMenuItem = new JMenuItem(value.toString());
-			currentMenuItem.addActionListener(e -> addFilter(value.toString(), column));
+			JMenuItem currentFilterItem = new JMenuItem(value.toString());
+			currentFilterItem.addActionListener(e -> addFilter(value.toString(), column));
 			
-			filterPopup.add(currentMenuItem);
+			headerPopup.add(currentFilterItem);
 		}
-		return filterPopup;
+		return headerPopup;
 	}
 	
 	private void notifyUpdateRows(RowEntry[] newValues, RowEntry[] criteria) {
