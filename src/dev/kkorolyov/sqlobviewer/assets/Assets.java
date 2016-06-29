@@ -96,6 +96,7 @@ public class Assets {
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
 																DELETE_ROW_TEXT = "DELETE_ROW_TEXT",
+																DEFAULT_TABLE_NAME_TEXT = "DEFAULT_TABLE_NAME_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
 																COPY_TEXT = "COPY_TEXT",
@@ -130,6 +131,7 @@ public class Assets {
 																ADD_COLUMN_TEXT = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
 																DELETE_ROW_TEXT = "-Row",
+																DEFAULT_TABLE_NAME_TEXT = "TABLE_NAME",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
 																COPY_TEXT = "Copy",
@@ -172,6 +174,7 @@ public class Assets {
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
 			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
+			defaults.put(Keys.DEFAULT_TABLE_NAME_TEXT, DEFAULT_TABLE_NAME_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);

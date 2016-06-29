@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ADD_COLUMN_TEXT;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.BACK_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.DEFAULT_TABLE_NAME_TEXT;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SUBMIT_TEXT;
 
 import java.awt.BorderLayout;
@@ -11,10 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
@@ -29,6 +27,7 @@ import dev.kkorolyov.sqlobviewer.utility.Standardizer.Extreme;
 public class CreateTableScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = 596434011928144752L;
 	
+	private JTextField nameField;
 	private JButton submitButton,
 									backButton,
 									addColumnButton;
@@ -50,6 +49,7 @@ public class CreateTableScreen extends JPanel implements GuiSubject {
 		initComponents();
 		initPanels();
 		
+		add(nameField, BorderLayout.NORTH);
 		add(columnsScrollPane, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 		
@@ -59,6 +59,8 @@ public class CreateTableScreen extends JPanel implements GuiSubject {
 		repaint();
 	}
 	private void initComponents() {
+		nameField = new JTextField(Strings.get(DEFAULT_TABLE_NAME_TEXT));
+		
 		submitButton = new JButton(Strings.get(SUBMIT_TEXT));
 		submitButton.addActionListener(e -> notifySubmitButtonPressed());
 		
@@ -99,6 +101,11 @@ public class CreateTableScreen extends JPanel implements GuiSubject {
 		
 		columnsPanel.repaint();
 		columnsPanel.revalidate();
+	}
+	
+	/** @return current text in column name field */
+	public String getName() {
+		return nameField.getText();
 	}
 	
 	/** @return	an array of {@code Column} objects matching all the {@code ColumnPanel} objects currently on this screen */

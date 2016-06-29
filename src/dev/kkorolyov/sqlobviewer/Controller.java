@@ -95,7 +95,9 @@ public class Controller implements GuiListener {
 			goToViewScreen();
 		}
 		else if (context instanceof CreateTableScreen) {
-			dbConn.createTable("Two", ((CreateTableScreen) context).getColumns());
+			CreateTableScreen createTableContext = (CreateTableScreen) context;
+			
+			dbConn.createTable(createTableContext.getName(), createTableContext.getColumns());
 			
 			goToViewScreen();
 		}
@@ -128,7 +130,9 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 		
-		databaseTable.setData(getTableColumns(), getTableData());
+		setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
+		
+		goToViewScreen();	// TODO Avoid discarding screen
 	}
 	
 	@Override
