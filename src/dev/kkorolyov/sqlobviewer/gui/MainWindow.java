@@ -19,19 +19,15 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 /**
  * Main SQLObViewer application window.
  */
-public class MainWindow implements GuiSubject {
-	private static final Dimension LOGIN_DIMENSION = new Dimension(240, 160);
-	
+public class MainWindow implements GuiSubject {	
 	private JFrame frame;
-	private LoginScreen loginScreen;
-	private ViewScreen viewScreen;
-	private CreateTableScreen createTableScreen;
+
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
 	/**
 	 * Constructs a new main application window.
-	 * @param title frame title
+	 * @param title window title
 	 * @param width initial width
 	 * @param height initial height
 	 */
@@ -84,32 +80,18 @@ public class MainWindow implements GuiSubject {
 	}
 	
 	/**
-	 * Displays the login screen in this window.
+	 * Displays a screen in this window.
+	 * @param screen screen to display
+	 * @param fitToScreen if {@code true}, will resize window to screen's preferred size
 	 */
-	public void showLoginScreen() {
-		showScreen(loginScreen, LOGIN_DIMENSION);
-	}
-	/**
-	 * Displays the database view screen in this window.
-	 */
-	public void showViewScreen() {
-		showScreen(viewScreen, null);
-	}
-	/**
-	 * Displays the create table screen in this window.
-	 */
-	public void showCreateTableScreen() {
-		showScreen(createTableScreen, null);
-	}
-	
-	private void showScreen(JPanel toShow, Dimension size) {
+	public void showScreen(JPanel screen, boolean fitToScreen) {
 		frame.getContentPane().removeAll();
-		frame.add(toShow);
+		frame.add(screen);
 		frame.revalidate();
 		frame.repaint();
 		
-		if (size != null)
-			frame.setSize(size);
+		if (fitToScreen)
+			frame.setSize(screen.getPreferredSize());
 		else
 			frame.pack();
 		
@@ -185,34 +167,6 @@ public class MainWindow implements GuiSubject {
 		frame.pack();
 	}
 	
-	/** @param newLoginScreen login screen */
-	public void setLoginScreen(LoginScreen newLoginScreen) {
-		if (loginScreen != null)
-			loginScreen.clearListeners();
-		
-		loginScreen = newLoginScreen;
-		
-		forwardListeners(loginScreen);
-	}
-	/** @param newViewScreen database view screen */
-	public void setViewScreen(ViewScreen newViewScreen) {
-		if (viewScreen != null)
-			viewScreen.clearListeners();
-		
-		viewScreen = newViewScreen;
-		
-		forwardListeners(viewScreen);
-	}
-	/**	@param newCreateTableScreen create table screen */
-	public void setCreateTableScreen(CreateTableScreen newCreateTableScreen) {
-		if (createTableScreen != null)
-			createTableScreen.clearListeners();
-		
-		createTableScreen = newCreateTableScreen;
-		
-		forwardListeners(createTableScreen);
-	}
-	
 	private void notifyClosed() {
 		removeQueuedListeners();
 		
@@ -239,10 +193,5 @@ public class MainWindow implements GuiSubject {
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();
-	}
-	
-	private void forwardListeners(GuiSubject subject) {
-		for (GuiListener listener : listeners)
-			subject.addListener(listener);
 	}
 }

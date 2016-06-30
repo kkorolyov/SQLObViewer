@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.awt.Dimension;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +31,11 @@ public class Controller implements GuiListener {
 	private DatabaseConnection dbConn;	// Model
 	private TableConnection tableConn;
 	private Stack<UndoStatement> undoStatements;
+	
 	private MainWindow window;	// View
+	private LoginScreen loginScreen;
+	private ViewScreen viewScreen;
+	private CreateTableScreen createTableScreen;
 	private DatabaseTable databaseTable;
 	
 	/**
@@ -45,22 +50,32 @@ public class Controller implements GuiListener {
 	}
 	
 	private void goToLoginScreen() {
-		LoginScreen loginScreen = new LoginScreen();
+		if (loginScreen != null)
+			loginScreen.clearListeners();
 		
-		window.setLoginScreen(loginScreen);
-		window.showLoginScreen();
+		loginScreen = new LoginScreen();
+		loginScreen.addListener(this);
+		loginScreen.setPreferredSize(new Dimension(240, 160));
+		
+		window.showScreen(loginScreen, true);
 	}
 	private void goToViewScreen() {
-		ViewScreen viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);		
+		if (viewScreen != null)
+			viewScreen.clearListeners();
 		
-		window.setViewScreen(viewScreen);
-		window.showViewScreen();
+		viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);		
+		viewScreen.addListener(this);
+		
+		window.showScreen(viewScreen, false);
 	}
 	private void goToCreateTableScreen() {
-		CreateTableScreen createTableScreen = new CreateTableScreen();
+		if (createTableScreen != null)
+			createTableScreen.clearListeners();
 		
-		window.setCreateTableScreen(createTableScreen);
-		window.showCreateTableScreen();
+		createTableScreen = new CreateTableScreen();
+		createTableScreen.addListener(this);
+		
+		window.showScreen(createTableScreen, false);
 	}
 	
 	@Override
@@ -107,7 +122,7 @@ public class Controller implements GuiListener {
 		if (context instanceof ViewScreen) {
 			setDatabaseConnection(null);
 			
-			window.showLoginScreen();
+			goToLoginScreen();
 		}
 		else if (context instanceof CreateTableScreen) {
 			goToViewScreen();
