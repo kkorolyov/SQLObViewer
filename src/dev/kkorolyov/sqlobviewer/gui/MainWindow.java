@@ -19,7 +19,11 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 /**
  * Main SQLObViewer application window.
  */
-public class MainWindow implements GuiSubject {	
+public class MainWindow implements GuiSubject {
+	private String title;
+	private int width,
+							height;
+	
 	private JFrame frame;
 
 	private Set<GuiListener> 	listeners = new HashSet<>(),
@@ -32,12 +36,13 @@ public class MainWindow implements GuiSubject {
 	 * @param height initial height
 	 */
 	public MainWindow(String title, int width, int height) {
-		buildFrame(title, width, height);		
-	}
-	private void buildFrame(String title, int width, int height) {
-		frame = new JFrame();
 		setTitle(title);
 		setSize(width, height);
+		
+		buildFrame();		
+	}
+	private void buildFrame() {
+		frame = new JFrame(title);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(new WindowListener() {
@@ -72,6 +77,7 @@ public class MainWindow implements GuiSubject {
 			}
 		});
 	}
+	
 	/**
 	 * Exits this window and releases all resources.
 	 */
@@ -90,10 +96,12 @@ public class MainWindow implements GuiSubject {
 		frame.revalidate();
 		frame.repaint();
 		
-		if (fitToScreen)
-			frame.setSize(screen.getPreferredSize());
-		else
+		if (fitToScreen) {
+			frame.setPreferredSize(null);
 			frame.pack();
+		}
+		else
+			frame.setPreferredSize(new Dimension(width, height));
 		
 		frame.setVisible(true);
 	}
@@ -156,15 +164,15 @@ public class MainWindow implements GuiSubject {
 	
 	/** @param newTitle new title */
 	public void setTitle(String newTitle) {
-		frame.setTitle(newTitle);
+		title = newTitle;
 	}
 	/**
 	 * @param newWidth new width in pixels
 	 * @param newHeight new height in pixels
 	 */
 	public void setSize(int newWidth, int newHeight) {
-		frame.setPreferredSize(new Dimension(newWidth, newHeight));
-		frame.pack();
+		width = newWidth;
+		height = newHeight;
 	}
 	
 	private void notifyClosed() {

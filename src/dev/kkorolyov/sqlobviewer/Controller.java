@@ -55,7 +55,6 @@ public class Controller implements GuiListener {
 		
 		loginScreen = new LoginScreen();
 		loginScreen.addListener(this);
-		loginScreen.setPreferredSize(new Dimension(240, 160));
 		
 		window.showScreen(loginScreen, true);
 	}

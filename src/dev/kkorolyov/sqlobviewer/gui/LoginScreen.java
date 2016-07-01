@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.awt.GridLayout;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * A prebuilt login screen.
@@ -19,7 +19,6 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 public class LoginScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7337254975219769022L;
 	
-	private JPanel dataPanel;
 	private JLabel 	hostLabel,
 									databaseLabel,
 									userLabel,
@@ -36,11 +35,12 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	 * Constructs a new login screen.
 	 */
 	public LoginScreen() {
-		BoxLayout loginLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
+		MigLayout loginLayout = new MigLayout("", "[fill][fill, grow]", "[][][][]2%push[]");
 		setLayout(loginLayout);
 		
 		initComponents();
 		buildComponents();
+		System.out.println(getPreferredSize().getWidth() + ", " + getPreferredSize().getHeight());
 	}
 	private void initComponents() {
 		hostLabel = new JLabel(Strings.get(HOST_TEXT));
@@ -48,30 +48,24 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		userLabel = new JLabel(Strings.get(USER_TEXT));
 		passwordLabel = new JLabel(Strings.get(PASSWORD_TEXT));
 		
-		hostField = new JTextField(Config.get(SAVED_HOST));
+		hostField = new JTextField(Config.get(SAVED_HOST), 15);
 		databaseField = new JTextField(Config.get(SAVED_DATABASE));
 		userField = new JTextField(Config.get(SAVED_USER));
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD));
 		
 		loginButton = new JButton(Strings.get(LOG_IN_TEXT));
 		loginButton.addActionListener(e -> notifySubmitButtonPressed());
-		
-		dataPanel = new JPanel();
-		GridLayout dataLayout = new GridLayout(4, 2);
-		dataPanel.setLayout(dataLayout);
 	}
 	private void buildComponents() {
-		dataPanel.add(hostLabel);
-		dataPanel.add(hostField);
-		dataPanel.add(databaseLabel);
-		dataPanel.add(databaseField);
-		dataPanel.add(userLabel);
-		dataPanel.add(userField);
-		dataPanel.add(passwordLabel);
-		dataPanel.add(passwordField);
-		
-		add(dataPanel);
-		add(loginButton);
+		add(hostLabel);
+		add(hostField, "wrap");
+		add(databaseLabel);
+		add(databaseField, "wrap");
+		add(userLabel);
+		add(userField, "wrap");
+		add(passwordLabel);
+		add(passwordField, "wrap");
+		add(loginButton, "cell 1 4, align center, grow 0");
 	}
 	
 	/** @return current text in host field */
