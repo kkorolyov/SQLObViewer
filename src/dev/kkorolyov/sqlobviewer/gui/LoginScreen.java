@@ -36,7 +36,7 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	 * Constructs a new login screen.
 	 */
 	public LoginScreen() {
-		MigLayout loginLayout = new MigLayout("", "[fill][fill, grow]", "[][][][]2%push[]");
+		MigLayout loginLayout = new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]");
 		setLayout(loginLayout);
 		
 		initComponents();
@@ -58,14 +58,14 @@ public class LoginScreen extends JPanel implements GuiSubject {
 	}
 	private void buildComponents() {
 		add(hostLabel);
-		add(hostField, "wrap");
+		add(hostField);
 		add(databaseLabel);
-		add(databaseField, "wrap");
+		add(databaseField);
 		add(userLabel);
-		add(userField, "wrap");
+		add(userField);
 		add(passwordLabel);
-		add(passwordField, "wrap");
-		add(loginButton, "cell 1 4, align center, grow 0");
+		add(passwordField);
+		add(loginButton, "span, align 75%, grow 0");
 	}
 	
 	/** @return current text in host field */

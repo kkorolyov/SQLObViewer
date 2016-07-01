@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -15,8 +14,7 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
-import dev.kkorolyov.sqlobviewer.utility.Standardizer;
-import dev.kkorolyov.sqlobviewer.utility.Standardizer.Extreme;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * A prebuilt database view screen.
@@ -34,9 +32,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private DatabaseTable databaseTable;
 	private JLabel lastStatementLabel;
 	
-	private JPanel 	northPanel,
-									eastPanel,
-									southPanel;
 	private JScrollPane scrollPane;
 	
 	private Set<GuiListener> 	listeners = new HashSet<>(),
@@ -48,24 +43,16 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	 * @param table database table to display
 	 */
 	public ViewScreen(String[] tables, DatabaseTable table) {
-		BorderLayout viewLayout = new BorderLayout();
+		MigLayout viewLayout = new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]");
 		setLayout(viewLayout);
 		
 		addTableDeselectionListener();
 		
 		initComponents();
-		initPanels();
+		buildComponents();
 		
 		setTables(tables);
 		setViewedTable(table);
-		
-		add(northPanel, BorderLayout.NORTH);
-		add(eastPanel, BorderLayout.EAST);
-		add(southPanel, BorderLayout.SOUTH);
-		add(scrollPane, BorderLayout.CENTER);
-		
-		revalidate();
-		repaint();
 	}
 	private void addTableDeselectionListener() {
 		addMouseListener(new MouseAdapter() {
@@ -104,33 +91,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		backButton.addActionListener(e -> notifyBackButtonPressed());
 		
 		lastStatementLabel = new JLabel();
-	}
-	private void initPanels() {
-		northPanel = new JPanel();
-		BorderLayout northLayout = new BorderLayout();
-		northPanel.setLayout(northLayout);
-		
-		northPanel.add(refreshTableButton, BorderLayout.WEST);
-		northPanel.add(tableComboBox, BorderLayout.CENTER);
-		northPanel.add(newTableButton, BorderLayout.EAST);
-		
-		eastPanel = new JPanel();
-		BoxLayout eastLayout = new BoxLayout(eastPanel, BoxLayout.Y_AXIS);
-		eastPanel.setLayout(eastLayout);
-		
-		Standardizer.standardize(null, Extreme.MAXIMUM, addRowButton, deleteRowButton);
-		eastPanel.add(addRowButton);
-		eastPanel.add(deleteRowButton);
-		
-		southPanel = new JPanel();
-		BorderLayout southLayout = new BorderLayout();
-		southPanel.setLayout(southLayout);
-		
-		southPanel.add(lastStatementLabel, BorderLayout.CENTER);
-		southPanel.add(undoStatementButton, BorderLayout.EAST);
-		southPanel.add(backButton, BorderLayout.SOUTH);
 		
 		scrollPane = new JScrollPane();
+	}
+	private void buildComponents() {
+		add(refreshTableButton);
+		add(tableComboBox);
+		add(newTableButton);
+		add(scrollPane, "spanx 2, grow");
+		add(addRowButton, "split 2, flowy, top, gapy 0");
+		add(deleteRowButton, "gapy 0");
+		add(lastStatementLabel, "spanx 2");
+		add(undoStatementButton);
+		add(backButton, "span, center, grow 0");
 	}
 	
 	/** @param tables table names to display */
