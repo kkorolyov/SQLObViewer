@@ -93,15 +93,12 @@ public class MainWindow implements GuiSubject {
 	public void showScreen(JPanel screen, boolean fitToScreen) {
 		frame.getContentPane().removeAll();
 		frame.add(screen);
+		
 		frame.revalidate();
 		frame.repaint();
 		
-		if (fitToScreen) {
-			frame.setPreferredSize(null);
-			frame.pack();
-		}
-		else
-			frame.setPreferredSize(new Dimension(width, height));
+		frame.setPreferredSize(fitToScreen ? null : new Dimension(width, height));
+		frame.pack();
 		
 		frame.setVisible(true);
 	}

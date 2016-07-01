@@ -18,6 +18,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class LoginScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7337254975219769022L;
+	private static final int DEFAULT_FIELD_COLUMNS = 15;
 	
 	private JLabel 	hostLabel,
 									databaseLabel,
@@ -40,7 +41,6 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		
 		initComponents();
 		buildComponents();
-		System.out.println(getPreferredSize().getWidth() + ", " + getPreferredSize().getHeight());
 	}
 	private void initComponents() {
 		hostLabel = new JLabel(Strings.get(HOST_TEXT));
@@ -48,10 +48,10 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		userLabel = new JLabel(Strings.get(USER_TEXT));
 		passwordLabel = new JLabel(Strings.get(PASSWORD_TEXT));
 		
-		hostField = new JTextField(Config.get(SAVED_HOST), 15);
-		databaseField = new JTextField(Config.get(SAVED_DATABASE));
-		userField = new JTextField(Config.get(SAVED_USER));
-		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD));
+		hostField = new JTextField(Config.get(SAVED_HOST), DEFAULT_FIELD_COLUMNS);
+		databaseField = new JTextField(Config.get(SAVED_DATABASE), DEFAULT_FIELD_COLUMNS);
+		userField = new JTextField(Config.get(SAVED_USER), DEFAULT_FIELD_COLUMNS);
+		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
 		
 		loginButton = new JButton(Strings.get(LOG_IN_TEXT));
 		loginButton.addActionListener(e -> notifySubmitButtonPressed());
