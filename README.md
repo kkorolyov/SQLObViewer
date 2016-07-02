@@ -13,6 +13,7 @@ A Java-based graphical database viewer utilizing the SQLOb API.
 * [PostgreSQL JDBC Driver](https://jdbc.postgresql.org/) - Database connection
 * [SimpleProps](https://github.com/kkorolyov/SimpleProps) - Configuration file management
 * [SimpleLogs](https://github.com/kkorolyov/SimpleLogs) - Application logging
+* [MiGLayout](http://www.miglayout.com/) - GUI layout management
 
 ## Installation
 * Download the [latest release](https://github.com/kkorolyov/SQLObViewer/releases/latest).
