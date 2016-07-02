@@ -65,7 +65,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void initComponents() {
-		databaseTable = new DatabaseTable(new Column[0], new RowEntry[0][0]);
+		databaseTable = new DatabaseTable();
 		
 		lastStatementLabel = new JLabel();
 		

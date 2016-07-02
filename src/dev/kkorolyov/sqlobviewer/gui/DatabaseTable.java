@@ -38,10 +38,18 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	private RowEntry[][] data;
 	private Map<Integer, RowFilter<DatabaseTableModel, Integer>> filters = new HashMap<>();
 	
-	private JScrollPane scrollPane = new JScrollPane();
+	private JScrollPane scrollPane;
 	
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
+	
+	/**
+	 * Constructs an empty table with no data.
+	 * @see #DatabaseTable(Column[], RowEntry[][])
+	 */
+	public DatabaseTable() {
+		this(new Column[0], new RowEntry[0][0]);
+	}
 	/**
 	 * Constructs a new database table.
 	 * @param columns table columns
@@ -60,6 +68,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		
 		setData(columns, data);		
 		setModel(new DatabaseTableModel());
+		
+		scrollPane = new JScrollPane(this);
 	}
 	private void addDeselectionListeners() {
 		addMouseListener(new MouseAdapter() {
@@ -135,12 +145,15 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	 * @param newData new table data
 	 */
 	public void setData(Column[] newColumns, RowEntry[][] newData) {
+		boolean headerChanged = !Arrays.equals(columns, newColumns);
+		
 		columns = newColumns;
 		data = newData;
-		setModel(new DatabaseTableModel());
-		sort();
 		
-		updateScrollPane();
+		if (headerChanged)
+			((AbstractTableModel) getModel()).fireTableChanged(null);
+		
+		sort();	
 	}
 	
 	/**
@@ -257,11 +270,6 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	/*** @return auto-updating {@code JScrollPane} containing this table */
 	public JScrollPane getScrollPane() {
 		return scrollPane;
-	}
-	private void updateScrollPane() {		
-		scrollPane.getViewport().setView(this);
-		scrollPane.revalidate();
-		scrollPane.repaint();
 	}
 	
 	private void tryShowCellPopup(MouseEvent e) {
