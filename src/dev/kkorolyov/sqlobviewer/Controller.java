@@ -13,6 +13,7 @@ import java.util.Stack;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
+import dev.kkorolyov.sqlob.connection.PostgresDatabaseConnection;
 import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
@@ -94,7 +95,7 @@ public class Controller implements GuiListener {
 	
 			Config.save();
 			try {
-				setDatabaseConnection(new DatabaseConnection(host, database, user, password));
+				setDatabaseConnection(new PostgresDatabaseConnection(host, database, user, password));
 			} catch (SQLException e) {
 				log.exception(e, Level.WARNING);
 				window.displayException(e);
@@ -143,34 +144,38 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 				
-		goToViewScreen();	// TODO Avoid discarding screen
+		goToViewScreen();
 	}
 	
 	@Override
 	public void insertRow(RowEntry[] rowValues, GuiSubject context) {
-		try {
-			tableConn.insert(rowValues);
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		String statement = String.valueOf(tableConn.insert(rowValues));
+			
+		pushUndoStatement(new UndoStatement());
+		
+		viewScreen.setLastStatement(statement);
 		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
-		try {
-			if (tableConn.update(newValues, criteria) > 1)
-				viewScreen.setViewedData(getTableColumns(), getTableData());	// Rebuild table to match database
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		int result = tableConn.update(newValues, criteria);
+		
+		if (result > 1)
+			viewScreen.setViewedData(getTableColumns(), getTableData());	// Rebuild table to match database
+		
+		String statement = String.valueOf(result);
+		
+		pushUndoStatement(new UndoStatement());
+		
+		viewScreen.setLastStatement(statement);
 	}
 	@Override
 	public void deleteRows(RowEntry[] criteria, GuiSubject context) {
-		try {
-			tableConn.delete(criteria);
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		String statement = String.valueOf(tableConn.delete(criteria));
+		
+		pushUndoStatement(new UndoStatement());
+		
+		viewScreen.setLastStatement(statement);
 		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	
@@ -190,7 +195,7 @@ public class Controller implements GuiListener {
 			log.debug("Created new undoStatements Stack");
 		}
 		if (undoStatements.size() >= MAX_UNDO_STATEMENTS) {
-			log.debug("Number of undo statements (" + undoStatements.size() + ") has reach MAX_UNDO_STATEMENTS=" + MAX_UNDO_STATEMENTS + ", removing oldest undo statement");
+			log.debug("Number of undo statements (" + undoStatements.size() + ") has reached MAX_UNDO_STATEMENTS=" + MAX_UNDO_STATEMENTS + ", removing oldest undo statement");
 			
 			undoStatements.remove(0);
 		}
@@ -234,16 +239,12 @@ public class Controller implements GuiListener {
 		
 		List<RowEntry[]> data = new LinkedList<>();
 
-		try {
-			Results allResults = tableConn.select(null);
+		Results allResults = tableConn.select(null);
+		
+		RowEntry[] currentRow;
+		while ((currentRow = allResults.getNextRow()) != null)				
+			data.add(currentRow);
 			
-			RowEntry[] currentRow;
-			while ((currentRow = allResults.getNextRow()) != null)				
-				data.add(currentRow);
-			
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
 		return data.toArray(new RowEntry[data.size()][]);
 	}
 }
