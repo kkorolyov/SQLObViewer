@@ -1,8 +1,10 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_DATABASE;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_HOST;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_PASSWORD;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_USER;
 
-import java.awt.Dimension;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +38,6 @@ public class Controller implements GuiListener {
 	private LoginScreen loginScreen;
 	private ViewScreen viewScreen;
 	private CreateTableScreen createTableScreen;
-	private DatabaseTable databaseTable;
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -59,11 +60,11 @@ public class Controller implements GuiListener {
 		window.showScreen(loginScreen, true);
 	}
 	private void goToViewScreen() {
-		if (viewScreen != null)
-			viewScreen.clearListeners();
-		
-		viewScreen = new ViewScreen(dbConn.getTables(), databaseTable);		
-		viewScreen.addListener(this);
+		if (viewScreen == null) {
+			viewScreen = new ViewScreen(dbConn.getTables());		
+			viewScreen.addListener(this);
+		}
+		viewScreen.setViewedData(getTableColumns(), getTableData());
 		
 		window.showScreen(viewScreen, false);
 	}
@@ -103,9 +104,7 @@ public class Controller implements GuiListener {
 			String[] dbTables = dbConn.getTables();
 			
 			setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
-			
-			setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
-			
+						
 			goToViewScreen();
 		}
 		else if (context instanceof CreateTableScreen) {
@@ -129,7 +128,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
-		databaseTable.setData(getTableColumns(), getTableData());
+		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	@Override
 	public void newTableButtonPressed(GuiSubject context) {
@@ -143,9 +142,7 @@ public class Controller implements GuiListener {
 	@Override
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
-		
-		setDatabaseTable(new DatabaseTable(getTableColumns(), getTableData()));
-		
+				
 		goToViewScreen();	// TODO Avoid discarding screen
 	}
 	
@@ -156,13 +153,13 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		databaseTable.setData(getTableColumns(), getTableData());
+		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	@Override
 	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
 		try {
 			if (tableConn.update(newValues, criteria) > 1)
-				databaseTable.setData(getTableColumns(), getTableData());	// Rebuild table to match database
+				viewScreen.setViewedData(getTableColumns(), getTableData());	// Rebuild table to match database
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -174,7 +171,7 @@ public class Controller implements GuiListener {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		databaseTable.setData(getTableColumns(), getTableData());
+		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	
 	@Override
@@ -248,13 +245,5 @@ public class Controller implements GuiListener {
 			throw new RuntimeException(e);
 		}
 		return data.toArray(new RowEntry[data.size()][]);
-	}
-	
-	private void setDatabaseTable(DatabaseTable newDatabaseTable) {
-		if (databaseTable != null)
-			databaseTable.removeListener(this);
-		
-		databaseTable = newDatabaseTable;
-		databaseTable.addListener(this);
 	}
 }

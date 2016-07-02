@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -10,6 +9,7 @@ import java.util.Set;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
@@ -31,18 +31,15 @@ public class ViewScreen extends JPanel implements GuiSubject {
 									backButton;
 	private DatabaseTable databaseTable;
 	private JLabel lastStatementLabel;
-	
-	private JScrollPane scrollPane;
-	
+		
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
 	/**
 	 * Constructs a new view screen.
 	 * @param tables table names to display
-	 * @param table database table to display
 	 */
-	public ViewScreen(String[] tables, DatabaseTable table) {
+	public ViewScreen(String[] tables) {
 		MigLayout viewLayout = new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]");
 		setLayout(viewLayout);
 		
@@ -52,7 +49,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		buildComponents();
 		
 		setTables(tables);
-		setViewedTable(table);
 	}
 	private void addTableDeselectionListener() {
 		addMouseListener(new MouseAdapter() {
@@ -69,6 +65,10 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void initComponents() {
+		databaseTable = new DatabaseTable(new Column[0], new RowEntry[0][0]);
+		
+		lastStatementLabel = new JLabel();
+		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
 		
@@ -89,16 +89,12 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> notifyBackButtonPressed());
-		
-		lastStatementLabel = new JLabel();
-		
-		scrollPane = new JScrollPane();
 	}
 	private void buildComponents() {
 		add(refreshTableButton);
 		add(tableComboBox);
 		add(newTableButton);
-		add(scrollPane, "spanx 2, grow");
+		add(databaseTable.getScrollPane(), "spanx 2, grow");
 		add(addRowButton, "split 2, flowy, top, gapy 0");
 		add(deleteRowButton, "gapy 0");
 		add(lastStatementLabel, "spanx 2");
@@ -116,17 +112,15 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		tableComboBox.repaint();
 	}
 	
-	/** @param newTable new database table */
-	public void setViewedTable(DatabaseTable newTable) {
-		if (databaseTable != null)
-			databaseTable.clearListeners();
+	/**
+	 * @param newColumns new viewed columns
+	 * @param newData new viewed data
+	 */
+	public void setViewedData(Column[] newColumns, RowEntry[][] newData) {
+		databaseTable.setData(newColumns, newData);
 		
-		databaseTable = newTable;
-		forwardListeners(databaseTable);
-		
-		scrollPane.setViewportView(databaseTable);
-		scrollPane.revalidate();
-		scrollPane.repaint();
+		revalidate();
+		repaint();
 	}
 	
 	/** @param statement new statement to display */
@@ -137,7 +131,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void displayAddRowDialog() {
 		DatabaseTable addRowTable = databaseTable.getEmptyTable();
 		
-		int selectedOption = JOptionPane.showOptionDialog(this, buildAddRowScrollPane(addRowTable), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		int selectedOption = JOptionPane.showOptionDialog(this, addRowTable.getScrollPane(), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
 		if (selectedOption == JOptionPane.OK_OPTION) {
 			if (addRowTable.getCellEditor() != null)
@@ -145,12 +139,6 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			
 			notifyInsertRow(addRowTable.getSelectedRow(0));
 		}
-	}
-	private static JScrollPane buildAddRowScrollPane(JTable addRowTable) {		
-		JScrollPane addRowScrollPane = new JScrollPane(addRowTable);
-		addRowScrollPane.setPreferredSize(new Dimension((int) addRowTable.getPreferredSize().getWidth(), addRowTable.getRowHeight() + 23));
-				
-		return addRowScrollPane;
 	}
 	
 	private void deleteSelected() {
@@ -192,8 +180,10 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void notifyTableSelected() {
 		removeQueuedListeners();
 		
-		for (GuiListener listener : listeners)
-			listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
+		for (GuiListener listener : listeners) {
+			if (tableComboBox.getSelectedItem() != null)
+				listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
+		}
 	}
 	
 	private void notifyInsertRow(RowEntry[] rowValues) {
@@ -212,15 +202,18 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	@Override
 	public void addListener(GuiListener listener) {
 		listeners.add(listener);
+		databaseTable.addListener(listener);
 	}
 	@Override
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
+		databaseTable.removeListener(listener);
 	}
 	
 	@Override
 	public void clearListeners() {
 		listeners.clear();
+		databaseTable.clearListeners();
 	}
 	
 	private void removeQueuedListeners() {
@@ -228,10 +221,5 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			listeners.remove(listener);
 		
 		listenersToRemove.clear();
-	}
-	
-	private void forwardListeners(GuiSubject subject) {
-		for (GuiListener listener : listeners)
-			subject.addListener(listener);
 	}
 }

@@ -1,7 +1,9 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COPY_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
 
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
@@ -36,6 +38,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	private RowEntry[][] data;
 	private Map<Integer, RowFilter<DatabaseTableModel, Integer>> filters = new HashMap<>();
 	
+	private JScrollPane scrollPane = new JScrollPane();
+	
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	/**
@@ -45,7 +49,9 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	 */
 	@SuppressWarnings("synthetic-access")
 	public DatabaseTable(Column[] columns, RowEntry[][] data) {
+		setPreferredScrollableViewportSize(new Dimension((int) getPreferredScrollableViewportSize().getWidth(), getRowHeight()));
 		setFillsViewportHeight(true);
+		
 		setAutoCreateRowSorter(true);
 		
 		addDeselectionListeners();
@@ -131,11 +137,10 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	public void setData(Column[] newColumns, RowEntry[][] newData) {
 		columns = newColumns;
 		data = newData;
-		
+		setModel(new DatabaseTableModel());
 		sort();
 		
-		revalidate();
-		repaint();
+		updateScrollPane();
 	}
 	
 	/**
@@ -247,6 +252,16 @@ public class DatabaseTable extends JTable implements GuiSubject {
 			}
 		}
 		return emptyData;
+	}
+	
+	/*** @return auto-updating {@code JScrollPane} containing this table */
+	public JScrollPane getScrollPane() {
+		return scrollPane;
+	}
+	private void updateScrollPane() {		
+		scrollPane.getViewport().setView(this);
+		scrollPane.revalidate();
+		scrollPane.repaint();
 	}
 	
 	private void tryShowCellPopup(MouseEvent e) {
