@@ -24,9 +24,10 @@ public class ViewScreen extends JPanel implements GuiSubject {
 
 	private JComboBox<String> tableComboBox;
 	private JButton refreshTableButton,
-									newTableButton,
+									addTableButton,
+									removeTableButton,
 									addRowButton,
-									deleteRowButton,
+									removeRowButton,
 									undoStatementButton,
 									backButton;
 	private DatabaseTable databaseTable;
@@ -75,14 +76,17 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> notifyTableSelected());
 		
-		newTableButton = new JButton(Strings.get(NEW_TABLE_TEXT));
-		newTableButton.addActionListener(e -> notifyNewTableButtonPressed());
+		addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT));
+		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
+		
+		removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
+		removeTableButton.addActionListener(e -> notifyRemoveTable());
 		
 		addRowButton = new JButton(Strings.get(ADD_ROW_TEXT));
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
-		deleteRowButton = new JButton(Strings.get(DELETE_ROW_TEXT));
-		deleteRowButton.addActionListener(e -> deleteSelected());
+		removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
+		removeRowButton.addActionListener(e -> deleteSelected());
 		
 		undoStatementButton = new JButton(Strings.get(UNDO_STATEMENT_TEXT));
 		undoStatementButton.addActionListener(e -> notifyUndoStatementButtonPressed());
@@ -93,10 +97,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void buildComponents() {
 		add(refreshTableButton);
 		add(tableComboBox);
-		add(newTableButton);
+		add(addTableButton, "split 2");
+		add(removeTableButton);
 		add(databaseTable.getScrollPane(), "spanx 2, grow");
 		add(addRowButton, "split 2, flowy, top, gapy 0");
-		add(deleteRowButton, "gapy 0");
+		add(removeRowButton, "gapy 0");
 		add(lastStatementLabel, "spanx 2");
 		add(undoStatementButton);
 		add(backButton, "span, center, grow 0");
@@ -164,11 +169,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		for (GuiListener listener : listeners)
 			listener.refreshTableButtonPressed(this);
 	}
-	private void notifyNewTableButtonPressed() {
+	private void notifyAddTableButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
-			listener.newTableButtonPressed(this);
+			listener.addTableButtonPressed(this);
 	}
 	private void notifyUndoStatementButtonPressed() {
 		removeQueuedListeners();
@@ -184,6 +189,13 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			if (tableComboBox.getSelectedItem() != null)
 				listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
 		}
+	}
+	
+	private void notifyRemoveTable() {
+		removeQueuedListeners();
+		
+		for (GuiListener listener : listeners)
+			listener.removeTable((String) tableComboBox.getSelectedItem(), this);
 	}
 	
 	private void notifyInsertRow(RowEntry[] rowValues) {

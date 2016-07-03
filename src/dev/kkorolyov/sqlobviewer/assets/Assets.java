@@ -91,12 +91,13 @@ public class Assets {
 																USER_TEXT = "USER_TEXT",
 																PASSWORD_TEXT = "PASSWORD_TEXT",
 																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
-																NEW_TABLE_TEXT = "NEW_TABLE_TEXT",
+																ADD_TABLE_TEXT = "ADD_TABLE_TEXT",
+																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
+																DEFAULT_TABLE_NAME_TEXT = "DEFAULT_TABLE_NAME_TEXT",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
+																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
-																DELETE_ROW_TEXT = "DELETE_ROW_TEXT",
-																DEFAULT_TABLE_NAME_TEXT = "DEFAULT_TABLE_NAME_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
 																COPY_TEXT = "COPY_TEXT",
@@ -126,12 +127,13 @@ public class Assets {
 																USER_TEXT = "User",
 																PASSWORD_TEXT = "Password",
 																REFRESH_TABLE_TEXT = "R",
-																NEW_TABLE_TEXT = "+Table",
+																ADD_TABLE_TEXT = "+Table",
+																REMOVE_TABLE_TEXT = "-Table",
+																DEFAULT_TABLE_NAME_TEXT = "TABLE_NAME",
 																ADD_ROW_TEXT = "+Row",
+																REMOVE_ROW_TEXT = "-Row",
 																ADD_COLUMN_TEXT = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
-																DELETE_ROW_TEXT = "-Row",
-																DEFAULT_TABLE_NAME_TEXT = "TABLE_NAME",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
 																COPY_TEXT = "Copy",
@@ -169,12 +171,13 @@ public class Assets {
 			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
 			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
 			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
-			defaults.put(Keys.NEW_TABLE_TEXT, NEW_TABLE_TEXT);
+			defaults.put(Keys.ADD_TABLE_TEXT, ADD_TABLE_TEXT);
+			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
+			defaults.put(Keys.DEFAULT_TABLE_NAME_TEXT, DEFAULT_TABLE_NAME_TEXT);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
+			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
-			defaults.put(Keys.DELETE_ROW_TEXT, DELETE_ROW_TEXT);
-			defaults.put(Keys.DEFAULT_TABLE_NAME_TEXT, DEFAULT_TABLE_NAME_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);

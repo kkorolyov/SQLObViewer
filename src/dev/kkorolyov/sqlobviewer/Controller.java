@@ -132,7 +132,7 @@ public class Controller implements GuiListener {
 		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	@Override
-	public void newTableButtonPressed(GuiSubject context) {
+	public void addTableButtonPressed(GuiSubject context) {
 		goToCreateTableScreen();
 	}
 	@Override
@@ -144,6 +144,17 @@ public class Controller implements GuiListener {
 	public void tableSelected(String table, GuiSubject context) {
 		setTableConnection(dbConn.connect(table));
 				
+		goToViewScreen();
+	}
+	
+	@Override
+	public void removeTable(String table, GuiSubject context) {
+		dbConn.dropTable(table);
+		
+		if (tableConn.getTableName().equals(table))
+			setTableConnection(null);
+		
+		viewScreen.setTables(dbConn.getTables());
 		goToViewScreen();
 	}
 	
@@ -231,11 +242,11 @@ public class Controller implements GuiListener {
 	}
 	
 	private Column[] getTableColumns() {
-		return tableConn != null ? tableConn.getColumns() : null;
+		return tableConn != null ? tableConn.getColumns() : new Column[0];
 	}
 	private RowEntry[][] getTableData() {
 		if (tableConn == null)
-			return null;
+			return new RowEntry[0][0];
 		
 		List<RowEntry[]> data = new LinkedList<>();
 
