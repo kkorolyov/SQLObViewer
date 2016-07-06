@@ -57,7 +57,8 @@ public class CreateTableScreen implements Screen, GuiSubject {
 		
 		columnsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, (int) columnsScrollPane.getHorizontalScrollBar().getPreferredSize().getHeight(), 0));
 		
-		nameField = new JTextField(Strings.get(DEFAULT_TABLE_NAME_TEXT));
+		nameField = new JPlaceholderTextField(Strings.get(TABLE_NAME_TIP), 0);
+		nameField.setToolTipText(Strings.get(TABLE_NAME_TIP));
 		
 		submitButton = new JButton(Strings.get(SUBMIT_TEXT));
 		submitButton.addActionListener(e -> notifySubmitButtonPressed());

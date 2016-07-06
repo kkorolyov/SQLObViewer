@@ -1,5 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COLUMN_NAME_TIP;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COLUMN_TYPE_TIP;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_COLUMN_TEXT;
 
 import java.awt.GridLayout;
@@ -64,8 +66,10 @@ public class ColumnPanel extends JPanel {
 	
 	private void initComponents() {
 		columnNameField = new JTextField();
+		columnNameField.setToolTipText(Strings.get(COLUMN_NAME_TIP));
 		
 		columnTypeComboBox = new JComboBox<>(SqlType.values());
+		columnTypeComboBox.setToolTipText(Strings.get(COLUMN_TYPE_TIP));
 		
 		deleteMenu = new JPopupMenu();
 		deleteMenuItem = new JMenuItem(Strings.get(REMOVE_COLUMN_TEXT));

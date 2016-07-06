@@ -93,12 +93,14 @@ public class Assets {
 																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
 																ADD_TABLE_TEXT = "ADD_TABLE_TEXT",
 																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
-																DEFAULT_TABLE_NAME_TEXT = "DEFAULT_TABLE_NAME_TEXT",
+																TABLE_NAME_TIP = "TABLE_NAME_TIP",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
 																ADD_COLUMN_TIP = "ADD_COLUMN_TIP",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
+																COLUMN_NAME_TIP = "COLUMN_NAME_TIP",
+																COLUMN_TYPE_TIP = "COLUMN_TYPE_TIP",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
 																COPY_TEXT = "COPY_TEXT",
@@ -131,12 +133,14 @@ public class Assets {
 																REFRESH_TABLE_TEXT = "R",
 																ADD_TABLE_TEXT = "+Table",
 																REMOVE_TABLE_TEXT = "-Table",
-																DEFAULT_TABLE_NAME_TEXT = "TABLE_NAME",
+																TABLE_NAME_TIP = "Table name",
 																ADD_ROW_TEXT = "+Row",
 																REMOVE_ROW_TEXT = "-Row",
 																ADD_COLUMN_TEXT = "+",
 																ADD_COLUMN_TIP = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
+																COLUMN_NAME_TIP = "Column name",
+																COLUMN_TYPE_TIP = "Column type",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
 																COPY_TEXT = "Copy",
@@ -177,12 +181,14 @@ public class Assets {
 			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
 			defaults.put(Keys.ADD_TABLE_TEXT, ADD_TABLE_TEXT);
 			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
-			defaults.put(Keys.DEFAULT_TABLE_NAME_TEXT, DEFAULT_TABLE_NAME_TEXT);
+			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TIP, ADD_COLUMN_TIP);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
+			defaults.put(Keys.COLUMN_NAME_TIP, COLUMN_NAME_TIP);
+			defaults.put(Keys.COLUMN_TYPE_TIP, COLUMN_TYPE_TIP);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
