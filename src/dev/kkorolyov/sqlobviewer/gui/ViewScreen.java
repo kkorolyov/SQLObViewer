@@ -97,8 +97,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void buildComponents() {
 		add(refreshTableButton);
 		add(tableComboBox);
-		add(addTableButton, "split 2");
-		add(removeTableButton);
+		add(addTableButton, "split 2, gap 0");
+		add(removeTableButton, "gap 0");
 		add(databaseTable.getScrollPane(), "spanx 2, grow");
 		add(addRowButton, "split 2, flowy, top, gapy 0");
 		add(removeRowButton, "gapy 0");

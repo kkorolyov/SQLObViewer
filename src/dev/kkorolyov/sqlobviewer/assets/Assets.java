@@ -97,12 +97,14 @@ public class Assets {
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
+																ADD_COLUMN_TIP = "ADD_COLUMN_TIP",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
 																COPY_TEXT = "COPY_TEXT",
 																SUBMIT_TEXT = "SUBMIT_TEXT",
 																BACK_TEXT = "BACK_TEXT",
+																CANCEL_TEXT = "CANCEL_TEXT",
 																LOG_IN_TEXT = "LOG_IN_TEXT",
 																LOG_OUT_TEXT = "LOG_OUT_TEXT";
 	}
@@ -132,13 +134,15 @@ public class Assets {
 																DEFAULT_TABLE_NAME_TEXT = "TABLE_NAME",
 																ADD_ROW_TEXT = "+Row",
 																REMOVE_ROW_TEXT = "-Row",
-																ADD_COLUMN_TEXT = "Add Column",
+																ADD_COLUMN_TEXT = "+",
+																ADD_COLUMN_TIP = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
 																COPY_TEXT = "Copy",
 																SUBMIT_TEXT = "Submit",
 																BACK_TEXT = "Back",
+																CANCEL_TEXT = "Cancel",
 																LOG_IN_TEXT = "Log In",
 																LOG_OUT_TEXT = "Log Out";
 		
@@ -177,12 +181,14 @@ public class Assets {
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
+			defaults.put(Keys.ADD_COLUMN_TIP, ADD_COLUMN_TIP);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
 			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
 			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
+			defaults.put(Keys.CANCEL_TEXT, CANCEL_TEXT);
 			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);
 			defaults.put(Keys.LOG_OUT_TEXT, LOG_OUT_TEXT);
 

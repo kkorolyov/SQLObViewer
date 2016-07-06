@@ -76,7 +76,7 @@ public class Controller implements GuiListener {
 		createTableScreen = new CreateTableScreen();
 		createTableScreen.addListener(this);
 		
-		window.showScreen(createTableScreen, false);
+		window.showScreen(createTableScreen.getPanel(), true);
 	}
 	
 	@Override
