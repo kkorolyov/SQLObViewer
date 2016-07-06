@@ -13,9 +13,6 @@ import javax.swing.*;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.SqlType;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.utility.Standardizer;
-import dev.kkorolyov.sqlobviewer.utility.Standardizer.Extreme;
-import dev.kkorolyov.sqlobviewer.utility.Standardizer.Property;
 
 /**
  * Contains editable info for a single column.
@@ -38,7 +35,6 @@ public class ColumnPanel extends JPanel {
 		initComponents();
 		addDeletePopupListeners();
 
-		Standardizer.standardize(Property.WIDTH, Extreme.MAXIMUM, columnNameField, columnTypeComboBox);
 		add(columnNameField);
 		add(columnTypeComboBox);
 		
