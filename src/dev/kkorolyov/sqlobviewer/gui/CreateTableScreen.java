@@ -15,6 +15,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.swingplus.JPlaceholderTextField;
 import net.miginfocom.swing.MigLayout;
 
 /**

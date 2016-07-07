@@ -25,6 +25,7 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 
 /**
  * A {@code JTable} displaying database information. 

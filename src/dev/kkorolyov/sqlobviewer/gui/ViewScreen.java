@@ -14,6 +14,9 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.swingplus.JHoverButtonPanel;
+import dev.kkorolyov.swingplus.JHoverButtonPanel.ExpandTrigger;
+import dev.kkorolyov.swingplus.JHoverButtonPanel.Orientation;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -23,7 +26,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 
 	private JComboBox<String> tableComboBox;
-	private DynamicButtonPanel 	tableButtonPanel,
+	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
 	private JButton refreshTableButton,
 									backButton;
@@ -83,11 +86,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		undoItem.addActionListener(e -> notifyUndoStatementButtonPressed());
 		lastStatementPopup.add(undoItem);
 		
-		tableButtonPanel = new DynamicButtonPanel(Strings.get(TABLE_OPTIONS_TEXT));
+		tableButtonPanel = new JHoverButtonPanel(Strings.get(TABLE_OPTIONS_TEXT), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton tableButton : initTableButtons())
 			tableButtonPanel.addButton(tableButton);
 		
-		rowButtonPanel = new DynamicButtonPanel(Strings.get(ROW_OPTIONS_TEXT));
+		rowButtonPanel = new JHoverButtonPanel(Strings.get(ROW_OPTIONS_TEXT), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton rowButton : initRowButtons())
 			rowButtonPanel.addButton(rowButton);
 		
