@@ -97,8 +97,11 @@ public class Assets {
 																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
 																REMOVE_TABLE_TIP = "REMOVE_TABLE_TIP",
 																TABLE_NAME_TIP = "TABLE_NAME_TIP",
+																ROW_OPTIONS_TEXT = "ROW_OPTIONS_TEXT",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
+																ADD_ROW_TIP = "ADD_ROW_TIP",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
+																REMOVE_ROW_TIP = "REMOVE_ROW_TIP",
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
 																ADD_COLUMN_TIP = "ADD_COLUMN_TIP",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
@@ -140,8 +143,11 @@ public class Assets {
 																REMOVE_TABLE_TEXT = "-",
 																REMOVE_TABLE_TIP = "Drop table",
 																TABLE_NAME_TIP = "Table name",
-																ADD_ROW_TEXT = "+Row",
-																REMOVE_ROW_TEXT = "-Row",
+																ROW_OPTIONS_TEXT = "Row",
+																ADD_ROW_TEXT = "+",
+																ADD_ROW_TIP = "Add row",
+																REMOVE_ROW_TEXT = "-",
+																REMOVE_ROW_TIP = "Delete row(s)",
 																ADD_COLUMN_TEXT = "+",
 																ADD_COLUMN_TIP = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
@@ -191,8 +197,11 @@ public class Assets {
 			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
 			defaults.put(Keys.REMOVE_TABLE_TIP, REMOVE_TABLE_TIP);
 			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
+			defaults.put(Keys.ROW_OPTIONS_TEXT, ROW_OPTIONS_TEXT);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
+			defaults.put(Keys.ADD_ROW_TIP, ADD_ROW_TIP);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
+			defaults.put(Keys.REMOVE_ROW_TIP, REMOVE_ROW_TIP);
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TIP, ADD_COLUMN_TIP);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);

@@ -23,10 +23,9 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 
 	private JComboBox<String> tableComboBox;
-	private DynamicButtonPanel tableButtonPanel;
+	private DynamicButtonPanel 	tableButtonPanel,
+															rowButtonPanel;
 	private JButton refreshTableButton,
-									addRowButton,
-									removeRowButton,
 									backButton;
 	private DatabaseTable databaseTable;
 	private JLabel lastStatementLabel;
@@ -85,14 +84,12 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		lastStatementPopup.add(undoItem);
 		
 		tableButtonPanel = new DynamicButtonPanel(Strings.get(TABLE_OPTIONS_TEXT));
-		JButton addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT)),
-						removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
-		addTableButton.setToolTipText(Strings.get(ADD_TABLE_TIP));
-		removeTableButton.setToolTipText(Strings.get(REMOVE_TABLE_TIP));
-		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
-		removeTableButton.addActionListener(e -> notifyRemoveTable());
-		tableButtonPanel.addButton(addTableButton);
-		tableButtonPanel.addButton(removeTableButton);
+		for (JButton tableButton : initTableButtons())
+			tableButtonPanel.addButton(tableButton);
+		
+		rowButtonPanel = new DynamicButtonPanel(Strings.get(ROW_OPTIONS_TEXT));
+		for (JButton rowButton : initRowButtons())
+			rowButtonPanel.addButton(rowButton);
 		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
@@ -100,22 +97,38 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> notifyTableSelected());
 		
-		addRowButton = new JButton(Strings.get(ADD_ROW_TEXT));
-		addRowButton.addActionListener(e -> displayAddRowDialog());
-		
-		removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
-		removeRowButton.addActionListener(e -> deleteSelected());
-		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> notifyBackButtonPressed());
 	}
+	private JButton[] initTableButtons() {
+		JButton addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT));		
+		addTableButton.setToolTipText(Strings.get(ADD_TABLE_TIP));
+		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
+
+		JButton removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
+		removeTableButton.setToolTipText(Strings.get(REMOVE_TABLE_TIP));
+		removeTableButton.addActionListener(e -> notifyRemoveTable());
+		
+		return new JButton[]{addTableButton, removeTableButton};
+	}
+	private JButton[] initRowButtons() {
+		JButton addRowButton = new JButton(Strings.get(ADD_ROW_TEXT));
+		addRowButton.setToolTipText(Strings.get(ADD_ROW_TIP));
+		addRowButton.addActionListener(e -> displayAddRowDialog());
+		
+		JButton removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
+		removeRowButton.setToolTipText(Strings.get(REMOVE_ROW_TIP));
+		removeRowButton.addActionListener(e -> deleteSelected());
+		
+		return new JButton[]{addRowButton, removeRowButton};
+	}
+	
 	private void buildComponents() {
 		add(refreshTableButton);
 		add(tableComboBox);
 		add(tableButtonPanel, "gap 0");
 		add(databaseTable.getScrollPane(), "spanx 2, grow");
-		add(addRowButton, "split 2, flowy, top, gapy 0");
-		add(removeRowButton, "gapy 0");
+		add(rowButtonPanel, "top, gap 0");
 		add(lastStatementLabel, "spanx");
 		add(backButton, "span, center, grow 0");
 	}
