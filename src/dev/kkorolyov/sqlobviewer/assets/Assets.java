@@ -91,8 +91,11 @@ public class Assets {
 																USER_TEXT = "USER_TEXT",
 																PASSWORD_TEXT = "PASSWORD_TEXT",
 																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
+																TABLE_OPTIONS_TEXT = "TABLE_OPTIONS_TEXT",
 																ADD_TABLE_TEXT = "ADD_TABLE_TEXT",
+																ADD_TABLE_TIP = "ADD_TABLE_TIP",
 																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
+																REMOVE_TABLE_TIP = "REMOVE_TABLE_TIP",
 																TABLE_NAME_TIP = "TABLE_NAME_TIP",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
@@ -131,8 +134,11 @@ public class Assets {
 																USER_TEXT = "User",
 																PASSWORD_TEXT = "Password",
 																REFRESH_TABLE_TEXT = "R",
-																ADD_TABLE_TEXT = "+Table",
-																REMOVE_TABLE_TEXT = "-Table",
+																TABLE_OPTIONS_TEXT = "Table",
+																ADD_TABLE_TEXT = "+",
+																ADD_TABLE_TIP = "Create table",
+																REMOVE_TABLE_TEXT = "-",
+																REMOVE_TABLE_TIP = "Drop table",
 																TABLE_NAME_TIP = "Table name",
 																ADD_ROW_TEXT = "+Row",
 																REMOVE_ROW_TEXT = "-Row",
@@ -179,8 +185,11 @@ public class Assets {
 			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
 			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
 			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
+			defaults.put(Keys.TABLE_OPTIONS_TEXT, TABLE_OPTIONS_TEXT);
 			defaults.put(Keys.ADD_TABLE_TEXT, ADD_TABLE_TEXT);
+			defaults.put(Keys.ADD_TABLE_TIP, ADD_TABLE_TIP);
 			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
+			defaults.put(Keys.REMOVE_TABLE_TIP, REMOVE_TABLE_TIP);
 			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);

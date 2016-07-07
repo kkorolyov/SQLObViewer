@@ -23,15 +23,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 
 	private JComboBox<String> tableComboBox;
+	private DynamicButtonPanel tableButtonPanel;
 	private JButton refreshTableButton,
-									addTableButton,
-									removeTableButton,
 									addRowButton,
 									removeRowButton,
-									undoStatementButton,
 									backButton;
 	private DatabaseTable databaseTable;
 	private JLabel lastStatementLabel;
+	private JPopupMenu lastStatementPopup;
 		
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
@@ -65,10 +64,35 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		});
 	}
 	
+	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
 		databaseTable = new DatabaseTable();
 		
 		lastStatementLabel = new JLabel();
+		lastStatementLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowLastStatementPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowLastStatementPopup(e);
+			}
+		});
+		lastStatementPopup = new JPopupMenu();
+		JMenuItem undoItem = new JMenuItem(Strings.get(UNDO_STATEMENT_TEXT));
+		undoItem.addActionListener(e -> notifyUndoStatementButtonPressed());
+		lastStatementPopup.add(undoItem);
+		
+		tableButtonPanel = new DynamicButtonPanel(Strings.get(TABLE_OPTIONS_TEXT));
+		JButton addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT)),
+						removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
+		addTableButton.setToolTipText(Strings.get(ADD_TABLE_TIP));
+		removeTableButton.setToolTipText(Strings.get(REMOVE_TABLE_TIP));
+		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
+		removeTableButton.addActionListener(e -> notifyRemoveTable());
+		tableButtonPanel.addButton(addTableButton);
+		tableButtonPanel.addButton(removeTableButton);
 		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
@@ -76,20 +100,11 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> notifyTableSelected());
 		
-		addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT));
-		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
-		
-		removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
-		removeTableButton.addActionListener(e -> notifyRemoveTable());
-		
 		addRowButton = new JButton(Strings.get(ADD_ROW_TEXT));
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
 		removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
 		removeRowButton.addActionListener(e -> deleteSelected());
-		
-		undoStatementButton = new JButton(Strings.get(UNDO_STATEMENT_TEXT));
-		undoStatementButton.addActionListener(e -> notifyUndoStatementButtonPressed());
 		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> notifyBackButtonPressed());
@@ -97,14 +112,20 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	private void buildComponents() {
 		add(refreshTableButton);
 		add(tableComboBox);
-		add(addTableButton, "split 2, gap 0");
-		add(removeTableButton, "gap 0");
+		add(tableButtonPanel, "gap 0");
 		add(databaseTable.getScrollPane(), "spanx 2, grow");
 		add(addRowButton, "split 2, flowy, top, gapy 0");
 		add(removeRowButton, "gapy 0");
-		add(lastStatementLabel, "spanx 2");
-		add(undoStatementButton);
+		add(lastStatementLabel, "spanx");
 		add(backButton, "span, center, grow 0");
+	}
+	
+	private void tryShowLastStatementPopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showLastStatementPopup(e);
+	}
+	private void showLastStatementPopup(MouseEvent e) {
+		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	/** @param tables table names to display */
