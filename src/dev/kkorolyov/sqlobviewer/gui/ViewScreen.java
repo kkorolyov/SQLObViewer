@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -28,10 +27,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
-
-	private SQLObTableModel tableModel;
-	private List<SQLObTable> tables;
-	private JPanel tablePanel;
+	
+	private TablesScreen tables;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
@@ -60,8 +57,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void mouseClicked(MouseEvent e) {				
-				if (!tablePanel.contains(e.getPoint())) {
-					for (SQLObTable table : tables)
+				if (!tables.getPanel().contains(e.getPoint())) {
+					for (SQLObTable table : tables.getTables())
 						table.deselect();
 				}
 			}
@@ -70,8 +67,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
-		tablePanel = new JPanel(new BorderLayout());
-		tables = new LinkedList<>();
+		tables = new TablesScreen(null);
 		
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
@@ -133,7 +129,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		add(refreshTableButton);
 		add(tableComboBox);
 		add(tableButtonPanel, "gap 0");
-		add(tablePanel, "spanx 2, grow");
+		add(tables.getPanel(), "spanx 2, grow");
 		add(rowButtonPanel, "top, gap 0");
 		add(lastStatementLabel, "spanx");
 		add(backButton, "span, center, grow 0");
@@ -159,16 +155,14 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/** @param newModel new table model */
 	public void setTableModel(SQLObTableModel newModel) {
-		tableModel = newModel;
+		tables.setModel(newModel);
 	}
 	
 	/**
 	 * Spawns a new table matching this screen's current table model.
 	 */
 	public void spawnTable() {
-		SQLObTable newTable = new SQLObTable(tableModel);
-		tables.add(newTable);
-		tablePanel.add(newTable.getScrollPane());
+		tables.spawnTable();
 	}
 	
 	/** @param statement new statement to display */
@@ -177,7 +171,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void displayAddRowDialog() {
-		SQLObTable addRowTable = new SQLObTable(tableModel.getEmptyTableModel());
+		SQLObTable addRowTable = new SQLObTable(tables.getModel().getEmptyTableModel());
 		
 		int selectedOption = JOptionPane.showOptionDialog(this, addRowTable.getScrollPane(), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
@@ -185,19 +179,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			if (addRowTable.getCellEditor() != null)
 				addRowTable.getCellEditor().stopCellEditing();
 			
-			tableModel.insertRow(addRowTable.getRow(0));
+			tables.getModel().insertRow(addRowTable.getRow(0));
 		}
 	}
 	
 	private void deleteSelected() {
 		List<RowEntry[]> toDelete = new LinkedList<>();
 		
-		for (SQLObTable table : tables) {
+		for (SQLObTable table : tables.getTables()) {
 			for (int index : table.getSelectedRows())
 				toDelete.add(table.getRow(index));
 		}
 		for (RowEntry[] toDel : toDelete)
-			tableModel.deleteRow(toDel);
+			tables.getModel().deleteRow(toDel);
 	}
 	
 	private void notifyBackButtonPressed() {

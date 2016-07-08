@@ -67,10 +67,12 @@ public class Controller implements GuiListener, TableRequestListener {
 		if (viewScreen == null) {
 			viewScreen = new ViewScreen();		
 			viewScreen.addListener(this);
+			viewScreen.setTables(dbConn.getTables());
+			viewScreen.setTableModel(tableModel);
+			viewScreen.spawnTable();
 		}
 		viewScreen.setTables(dbConn.getTables());
 		viewScreen.setTableModel(tableModel);
-		viewScreen.spawnTable();
 		
 		window.showScreen(viewScreen, false);
 	}
@@ -174,10 +176,10 @@ public class Controller implements GuiListener, TableRequestListener {
 	}
 	@Override
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SQLObTableModel context) {
-		int result = tableConn.update(newValues, criteria);
+		log.debug("Updating " + newValues.length + " row");
 		
-		if (result > 1)
-			updateTableModel();	// Rebuild table to match database
+		int result = tableConn.update(newValues, criteria);
+		updateTableModel();
 		
 		String statement = String.valueOf(result);
 		
@@ -252,7 +254,7 @@ public class Controller implements GuiListener, TableRequestListener {
 			tableModel.clearListeners();
 		
 		tableModel = new SQLObTableModel(getTableColumns(), getTableData());
-		tableModel.addListener(this);
+		tableModel.addRequestListener(this);
 	}
 	private void updateTableModel() {
 		tableModel.setData(getTableColumns(), getTableData());

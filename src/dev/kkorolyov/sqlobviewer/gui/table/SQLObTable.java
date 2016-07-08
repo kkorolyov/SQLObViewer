@@ -7,8 +7,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
@@ -27,11 +30,14 @@ import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 /**
  * A {@code JTable} displaying database information. 
  */
-public class SQLObTable extends JTable {
+public class SQLObTable extends JTable implements ChangeListener {
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
 	
+	private int lastSelectedRow,
+							lastSelectedColumn;
+	private boolean selectionListenerActive = true;
 	private Map<Integer, RowFilter<SQLObTableModel, Integer>> filters = new HashMap<>();
 	
 	private JScrollPane scrollPane;
@@ -40,19 +46,27 @@ public class SQLObTable extends JTable {
 	 * Constructs a new database table.
 	 * @param model the model backing this table
 	 */
-	public SQLObTable(SQLObTableModel model) {
-		setPreferredScrollableViewportSize(new Dimension((int) getPreferredScrollableViewportSize().getWidth(), getRowHeight()));
-		setFillsViewportHeight(true);
-		
+	public SQLObTable(SQLObTableModel model) {		
 		setAutoCreateRowSorter(true);
 		
+		addListSelectionListener();
 		addDeselectionListeners();
 		addHeaderPopupListener();
 		addCellPopupListener();
-				
+		
 		setModel(model);
 		
 		scrollPane = new JScrollPane(this);
+	}
+	private void addListSelectionListener() {
+		if (getSelectionModel() != null) {
+			getSelectionModel().addListSelectionListener(e -> {
+				if (selectionListenerActive) {
+					lastSelectedRow = getSelectedRow();
+					lastSelectedColumn = getSelectedColumn();
+				}
+			});
+		}
 	}
 	private void addDeselectionListeners() {
 		addMouseListener(new MouseAdapter() {
@@ -62,15 +76,7 @@ public class SQLObTable extends JTable {
 					deselect();
 			}
 		});
-		addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// Ignore
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// Ignore
-			}
+		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
@@ -115,7 +121,13 @@ public class SQLObTable extends JTable {
 				selectedColumn = getSelectedColumn();
 		
 		if (selectedRow >= 0 || selectedColumn >= 0) {	// Something is selected
+			boolean oldSelectionListenerActive = selectionListenerActive;
+			selectionListenerActive = false;
+			
+			changeSelection(getRowCount(), getColumnCount(), false, false);	// Moves focus to nonexistent cell
 			clearSelection();
+			
+			selectionListenerActive = oldSelectionListenerActive;
 			
 			if (getCellEditor() != null)
 				getCellEditor().cancelCellEditing();
@@ -156,14 +168,14 @@ public class SQLObTable extends JTable {
 	}
 	
 	private void applyFilters() {
-		getRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
+		getCastedRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
 	}
 	
 	/**
 	 * Sorts this table based on its sorter's current sort keys.
 	 */
 	public void sort() {
-		getRowSorter().sort();
+		getCastedRowSorter().sort();
 	}
 	
 	/** @return row at the specified view index */
@@ -263,13 +275,38 @@ public class SQLObTable extends JTable {
 		}
 	}
 	
-	/** @return	casted table model */
-	public SQLObTableModel getCastedModel() {
-		return (SQLObTableModel) super.getModel();
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return new Dimension((int) super.getPreferredScrollableViewportSize().getWidth(), getRowHeight());
 	}
 	@Override
+	public boolean getFillsViewportHeight() {
+		return true;
+	}
+	
+	@Override
+	public void setModel(TableModel dataModel) {
+		super.setModel(dataModel);
+		if (dataModel instanceof SQLObTableModel)
+			((SQLObTableModel) dataModel).addChangeListener(this);
+	}
+	
+	/** @return	casted table model */
+	private SQLObTableModel getCastedModel() {
+		return (SQLObTableModel) super.getModel();
+	}
 	@SuppressWarnings("unchecked")
-	public TableRowSorter<SQLObTableModel> getRowSorter() {
+	private TableRowSorter<SQLObTableModel> getCastedRowSorter() {
 		return (TableRowSorter<SQLObTableModel>) super.getRowSorter();
+	}
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		deselect();
+		sort();
+		
+		changeSelection(lastSelectedRow, lastSelectedColumn, false, false);
+		
+		revalidate();
+		repaint();
 	}	
 }
