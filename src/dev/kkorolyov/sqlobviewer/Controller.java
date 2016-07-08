@@ -22,17 +22,20 @@ import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.*;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
+import dev.kkorolyov.sqlobviewer.gui.table.TableRequestListener;
 import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements GuiListener {
+public class Controller implements GuiListener, TableRequestListener {
 	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
 	private DatabaseConnection dbConn;	// Model
 	private TableConnection tableConn;
+	private SQLObTableModel tableModel;
 	private Stack<UndoStatement> undoStatements;
 	
 	private MainWindow window;	// View
@@ -62,10 +65,12 @@ public class Controller implements GuiListener {
 	}
 	private void goToViewScreen() {
 		if (viewScreen == null) {
-			viewScreen = new ViewScreen(dbConn.getTables());		
+			viewScreen = new ViewScreen();		
 			viewScreen.addListener(this);
 		}
-		viewScreen.setViewedData(getTableColumns(), getTableData());
+		viewScreen.setTables(dbConn.getTables());
+		viewScreen.setTableModel(tableModel);
+		viewScreen.spawnTable();
 		
 		window.showScreen(viewScreen, false);
 	}
@@ -129,7 +134,7 @@ public class Controller implements GuiListener {
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {
-		viewScreen.setViewedData(getTableColumns(), getTableData());
+		updateTableModel();
 	}
 	@Override
 	public void addTableButtonPressed(GuiSubject context) {
@@ -159,20 +164,20 @@ public class Controller implements GuiListener {
 	}
 	
 	@Override
-	public void insertRow(RowEntry[] rowValues, GuiSubject context) {
+	public void insertRow(RowEntry[] rowValues, SQLObTableModel context) {
 		String statement = String.valueOf(tableConn.insert(rowValues));
-			
+		updateTableModel();
+
 		pushUndoStatement(new UndoStatement());
 		
 		viewScreen.setLastStatement(statement);
-		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	@Override
-	public void updateRows(RowEntry[] newValues, RowEntry[] criteria, GuiSubject context) {
+	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SQLObTableModel context) {
 		int result = tableConn.update(newValues, criteria);
 		
 		if (result > 1)
-			viewScreen.setViewedData(getTableColumns(), getTableData());	// Rebuild table to match database
+			updateTableModel();	// Rebuild table to match database
 		
 		String statement = String.valueOf(result);
 		
@@ -181,13 +186,13 @@ public class Controller implements GuiListener {
 		viewScreen.setLastStatement(statement);
 	}
 	@Override
-	public void deleteRows(RowEntry[] criteria, GuiSubject context) {
+	public void deleteRow(RowEntry[] criteria, SQLObTableModel context) {
 		String statement = String.valueOf(tableConn.delete(criteria));
+		updateTableModel();
 		
 		pushUndoStatement(new UndoStatement());
 		
 		viewScreen.setLastStatement(statement);
-		viewScreen.setViewedData(getTableColumns(), getTableData());
 	}
 	
 	@Override
@@ -239,6 +244,18 @@ public class Controller implements GuiListener {
 	/** @param newTableConnection new table connection */
 	public void setTableConnection(TableConnection newTableConnection) {
 		tableConn = newTableConnection;
+		
+		resetTableModel();
+	}
+	private void resetTableModel() {
+		if (tableModel != null)
+			tableModel.clearListeners();
+		
+		tableModel = new SQLObTableModel(getTableColumns(), getTableData());
+		tableModel.addListener(this);
+	}
+	private void updateTableModel() {
+		tableModel.setData(getTableColumns(), getTableData());
 	}
 	
 	private Column[] getTableColumns() {

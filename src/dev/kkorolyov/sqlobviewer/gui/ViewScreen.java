@@ -2,18 +2,22 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
 import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.sqlobviewer.gui.table.SQLObTable;
+import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.swingplus.JHoverButtonPanel;
 import dev.kkorolyov.swingplus.JHoverButtonPanel.ExpandTrigger;
 import dev.kkorolyov.swingplus.JHoverButtonPanel.Orientation;
@@ -25,12 +29,14 @@ import net.miginfocom.swing.MigLayout;
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 
+	private SQLObTableModel tableModel;
+	private List<SQLObTable> tables;
+	private JPanel tablePanel;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
 	private JButton refreshTableButton,
 									backButton;
-	private DatabaseTable databaseTable;
 	private JLabel lastStatementLabel;
 	private JPopupMenu lastStatementPopup;
 		
@@ -39,9 +45,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/**
 	 * Constructs a new view screen.
-	 * @param tables table names to display
 	 */
-	public ViewScreen(String[] tables) {
+	public ViewScreen() {
 		MigLayout viewLayout = new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]");
 		setLayout(viewLayout);
 		
@@ -49,18 +54,15 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		
 		initComponents();
 		buildComponents();
-		
-		setTables(tables);
 	}
 	private void addTableDeselectionListener() {
 		addMouseListener(new MouseAdapter() {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void mouseClicked(MouseEvent e) {				
-				if (databaseTable != null) {
-					if (databaseTable.rowAtPoint(e.getPoint()) < 0) {
-						databaseTable.deselect();
-					}
+				if (!tablePanel.contains(e.getPoint())) {
+					for (SQLObTable table : tables)
+						table.deselect();
 				}
 			}
 		});
@@ -68,7 +70,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
-		databaseTable = new DatabaseTable();
+		tablePanel = new JPanel(new BorderLayout());
+		tables = new LinkedList<>();
 		
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
@@ -130,7 +133,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		add(refreshTableButton);
 		add(tableComboBox);
 		add(tableButtonPanel, "gap 0");
-		add(databaseTable.getScrollPane(), "spanx 2, grow");
+		add(tablePanel, "spanx 2, grow");
 		add(rowButtonPanel, "top, gap 0");
 		add(lastStatementLabel, "spanx");
 		add(backButton, "span, center, grow 0");
@@ -154,15 +157,18 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		tableComboBox.repaint();
 	}
 	
+	/** @param newModel new table model */
+	public void setTableModel(SQLObTableModel newModel) {
+		tableModel = newModel;
+	}
+	
 	/**
-	 * @param newColumns new viewed columns
-	 * @param newData new viewed data
+	 * Spawns a new table matching this screen's current table model.
 	 */
-	public void setViewedData(Column[] newColumns, RowEntry[][] newData) {
-		databaseTable.setData(newColumns, newData);
-		
-		revalidate();
-		repaint();
+	public void spawnTable() {
+		SQLObTable newTable = new SQLObTable(tableModel);
+		tables.add(newTable);
+		tablePanel.add(newTable.getScrollPane());
 	}
 	
 	/** @param statement new statement to display */
@@ -171,7 +177,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void displayAddRowDialog() {
-		DatabaseTable addRowTable = databaseTable.getEmptyTable();
+		SQLObTable addRowTable = new SQLObTable(tableModel.getEmptyTableModel());
 		
 		int selectedOption = JOptionPane.showOptionDialog(this, addRowTable.getScrollPane(), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
@@ -179,19 +185,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			if (addRowTable.getCellEditor() != null)
 				addRowTable.getCellEditor().stopCellEditing();
 			
-			notifyInsertRow(addRowTable.getSelectedRow(0));
+			tableModel.insertRow(addRowTable.getRow(0));
 		}
 	}
 	
 	private void deleteSelected() {
-		int[] selectedRows = databaseTable.getSelectedRows();
-		RowEntry[][] toDelete = new RowEntry[selectedRows.length][];
+		List<RowEntry[]> toDelete = new LinkedList<>();
 		
-		for (int i = 0; i < toDelete.length; i++)
-			toDelete[i] = databaseTable.getSelectedRow(selectedRows[i]);
-		
+		for (SQLObTable table : tables) {
+			for (int index : table.getSelectedRows())
+				toDelete.add(table.getRow(index));
+		}
 		for (RowEntry[] toDel : toDelete)
-			notifyDeleteRows(toDel);
+			tableModel.deleteRow(toDel);
 	}
 	
 	private void notifyBackButtonPressed() {
@@ -235,34 +241,18 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			listener.removeTable((String) tableComboBox.getSelectedItem(), this);
 	}
 	
-	private void notifyInsertRow(RowEntry[] rowValues) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.insertRow(rowValues, this);
-	}
-	private void notifyDeleteRows(RowEntry[] criteria) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.deleteRows(criteria, this);
-	}
-	
 	@Override
 	public void addListener(GuiListener listener) {
 		listeners.add(listener);
-		databaseTable.addListener(listener);
 	}
 	@Override
 	public void removeListener(GuiListener listener) {
 		listenersToRemove.add(listener);
-		databaseTable.removeListener(listener);
 	}
 	
 	@Override
 	public void clearListeners() {
 		listeners.clear();
-		databaseTable.clearListeners();
 	}
 	
 	private void removeQueuedListeners() {

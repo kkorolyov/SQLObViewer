@@ -1,4 +1,4 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.table;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COPY_TEXT;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
@@ -11,53 +11,36 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import dev.kkorolyov.simplelogs.Logger;
-import dev.kkorolyov.sqlob.construct.Column;
-import dev.kkorolyov.sqlob.construct.MismatchedTypeException;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 
 /**
  * A {@code JTable} displaying database information. 
  */
-public class DatabaseTable extends JTable implements GuiSubject {
+public class SQLObTable extends JTable {
 	private static final long serialVersionUID = 899876032885503098L;
-	private static final Logger log = Logger.getLogger(DatabaseTable.class.getName());
+	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
 	
-	private Column[] columns;
-	private RowEntry[][] data;
-	private Map<Integer, RowFilter<DatabaseTableModel, Integer>> filters = new HashMap<>();
+	private Map<Integer, RowFilter<SQLObTableModel, Integer>> filters = new HashMap<>();
 	
 	private JScrollPane scrollPane;
 	
-	private Set<GuiListener> 	listeners = new HashSet<>(),
-														listenersToRemove = new HashSet<>();
-	
-	/**
-	 * Constructs an empty table with no data.
-	 * @see #DatabaseTable(Column[], RowEntry[][])
-	 */
-	public DatabaseTable() {
-		this(new Column[0], new RowEntry[0][0]);
-	}
 	/**
 	 * Constructs a new database table.
-	 * @param columns table columns
-	 * @param data table data
+	 * @param model the model backing this table
 	 */
-	@SuppressWarnings("synthetic-access")
-	public DatabaseTable(Column[] columns, RowEntry[][] data) {
+	public SQLObTable(SQLObTableModel model) {
 		setPreferredScrollableViewportSize(new Dimension((int) getPreferredScrollableViewportSize().getWidth(), getRowHeight()));
 		setFillsViewportHeight(true);
 		
@@ -66,9 +49,8 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		addDeselectionListeners();
 		addHeaderPopupListener();
 		addCellPopupListener();
-		
-		setData(columns, data);		
-		setModel(new DatabaseTableModel());
+				
+		setModel(model);
 		
 		scrollPane = new JScrollPane(this);
 	}
@@ -141,23 +123,6 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	/**
-	 * Sets the displayed data of this table.
-	 * @param newColumns new table columns
-	 * @param newData new table data
-	 */
-	public void setData(Column[] newColumns, RowEntry[][] newData) {
-		boolean headerChanged = !Arrays.equals(columns, newColumns);
-		
-		columns = newColumns;
-		data = newData;
-		
-		if (headerChanged)
-			((AbstractTableModel) getModel()).fireTableChanged(null);
-		
-		sort();	
-	}
-	
-	/**
 	 * Adds a filter to this table.
 	 * @param filter value to filter by
 	 * @param column index of column to apply filter on
@@ -166,7 +131,7 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		String exactFilter = '^' + filter + '$';
 		
 		filters.put(column, RowFilter.regexFilter(exactFilter, column));
-		log.debug("Added filter=" + exactFilter + " for column=" + columns[column].getName().toUpperCase());
+		log.debug("Added filter=" + exactFilter + " for column=" + getModel().getColumnName(column).toUpperCase());
 		
 		applyFilters();
 	}
@@ -176,9 +141,9 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	 */
 	public void removeFilter(int column) {		
 		if (filters.remove(column) == null)
-			log.debug("No filter to remove for column=" + columns[column].getName().toUpperCase());
+			log.debug("No filter to remove for column=" + getModel().getColumnName(column).toUpperCase());
 		else
-			log.debug("Removed filter for column=" + columns[column].getName().toUpperCase());
+			log.debug("Removed filter for column=" + getModel().getColumnName(column).toUpperCase());
 
 		applyFilters();
 	}
@@ -191,81 +156,24 @@ public class DatabaseTable extends JTable implements GuiSubject {
 	}
 	
 	private void applyFilters() {
-		getCastedRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
+		getRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
 	}
 	
 	/**
 	 * Sorts this table based on its sorter's current sort keys.
 	 */
 	public void sort() {
-		getCastedRowSorter().sort();
+		getRowSorter().sort();
 	}
 	
 	/** @return row at the specified view index */
-	public RowEntry[] getSelectedRow(int rowIndex) {
-		return getRow(convertRowIndexToModel(rowIndex));
-	}
-	/** @return row at the specified model index */
-	private RowEntry[] getRow(int rowIndex) {
-		return data[rowIndex];
+	public RowEntry[] getRow(int index) {
+		return getCastedModel().getRow(convertRowIndexToModel(index));
 	}
 	
-	/**
-	 * @param column column index
-	 * @return all unique values under the specified column, sorted in ascending order
-	 */
-	public Object[] getUniqueValues(int column) {
-		Set<Object> uniqueValues = new TreeSet<>();
-		
-		for (RowEntry[] row : data)
-			uniqueValues.add(row[column].getValue());
-		
-		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + columns[column].getName().toUpperCase());
-		return uniqueValues.toArray(new Object[uniqueValues.size()]);
-	}
-	
-	/** @return	an empty row of data reflective of this table's data */
-	public DatabaseTable getEmptyTable() {
-		return new DatabaseTable(columns, buildEmptyData());
-	}
-	private RowEntry[][] buildEmptyData() {
-		RowEntry[][] emptyData = new RowEntry[1][columns.length];
-		
-		for (int i = 0; i < emptyData[0].length; i++) {
-			Object currentEmptyData = null;
-
-			switch (columns[i].getType()) {			
-				case BOOLEAN:
-					currentEmptyData = false;
-					break;
-				case SMALLINT:
-					currentEmptyData = (short) 0;
-					break;
-				case INTEGER:
-					currentEmptyData = (int) 0;
-					break;
-				case BIGINT:
-					currentEmptyData = (long) 0;
-					break;
-				case REAL:
-					currentEmptyData = (float) 0;
-					break;
-				case DOUBLE:
-					currentEmptyData = (double) 0;
-					break;
-				case CHAR:
-					currentEmptyData = ' ';
-					break;
-				default:
-					currentEmptyData = "";
-			}
-			try {
-				emptyData[0][i] = new RowEntry(columns[i], currentEmptyData);
-			} catch (MismatchedTypeException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return emptyData;
+	/** @return	a table with a single row of data matching this table's data types */
+	public SQLObTable getEmptyTable() {
+		return new SQLObTable(getCastedModel().getEmptyTableModel());
 	}
 	
 	/*** @return auto-updating {@code JScrollPane} containing this table */
@@ -328,20 +236,13 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		headerPopup.add(removeFilterItem);
 		headerPopup.addSeparator();
 		
-		for (Object value : getUniqueValues(column)) {
+		for (Object value : getCastedModel().getUniqueValues(column)) {
 			JMenuItem currentFilterItem = new JMenuItem(value.toString());
 			currentFilterItem.addActionListener(e -> addFilter(value.toString(), column));
 			
 			headerPopup.add(currentFilterItem);
 		}
 		return headerPopup;
-	}
-	
-	private void notifyUpdateRows(RowEntry[] newValues, RowEntry[] criteria) {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.updateRows(newValues, criteria, this);
 	}
 	
 	@Override
@@ -362,87 +263,13 @@ public class DatabaseTable extends JTable implements GuiSubject {
 		}
 	}
 	
-	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
+	/** @return	casted table model */
+	public SQLObTableModel getCastedModel() {
+		return (SQLObTableModel) super.getModel();
 	}
 	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
-	}
-	
-	@Override
-	public void clearListeners() {
-		listeners.clear();
-	}
-	
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
-	}
-	
 	@SuppressWarnings("unchecked")
-	private TableRowSorter<DatabaseTableModel> getCastedRowSorter() {	// Convenience casting method
-		return (TableRowSorter<DatabaseTableModel>) getRowSorter();
-	}
-	
-	@SuppressWarnings("synthetic-access")
-	private class DatabaseTableModel extends AbstractTableModel {
-		private static final long serialVersionUID = 8155987048579413913L;
-
-		@Override
-		public int getColumnCount() {
-			return columns.length;
-		}
-		@Override
-		public int getRowCount() {
-			return data.length;
-		}
-		
-		@Override
-		public String getColumnName(int column) {
-			return columns[column].getName();
-		}
-		
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return columns[columnIndex].getType().getTypeClass();
-		}
-		
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			return data[rowIndex][columnIndex].getValue();
-		}
-		@Override
-		public void setValueAt(Object value, int rowIndex, int columnIndex) {
-			if (!Objects.equals(getValueAt(rowIndex, columnIndex), value)) {	// No point updating with equal value
-				RowEntry[] criteria = saveRow(rowIndex);
-				
-				try {
-					data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
-				} catch (MismatchedTypeException e) {
-					throw new RuntimeException(e);
-				}
-				RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
-				
-				notifyUpdateRows(newValues, criteria);
-			}
-		}
-		
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-		
-		private RowEntry[] saveRow(int rowIndex) {
-			RowEntry[] savedRow = new RowEntry[data[rowIndex].length];
-			
-			for (int i = 0; i < savedRow.length; i++)
-				savedRow[i] = data[rowIndex][i];
-			
-			return savedRow;
-		}
-	}
+	public TableRowSorter<SQLObTableModel> getRowSorter() {
+		return (TableRowSorter<SQLObTableModel>) super.getRowSorter();
+	}	
 }
