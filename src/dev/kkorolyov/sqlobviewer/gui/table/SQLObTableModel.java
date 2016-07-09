@@ -1,7 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui.table;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -22,8 +22,8 @@ public class SQLObTableModel extends AbstractTableModel {
 	private List<Column> columns = new LinkedList<>();
 	private List<RowEntry[]> data = new LinkedList<>();
 	
-	private List<TableRequestListener> requestListeners = new CopyOnWriteArrayList<>();
-	private List<ChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+	private Set<TableRequestListener> requestListeners = new CopyOnWriteArraySet<>();
+	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new model.

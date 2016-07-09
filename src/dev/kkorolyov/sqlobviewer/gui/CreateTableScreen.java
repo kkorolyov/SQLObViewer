@@ -3,25 +3,23 @@ package dev.kkorolyov.sqlobviewer.gui;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.Component;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 import javax.swing.Box.Filler;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 import dev.kkorolyov.swingplus.JPlaceholderTextField;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * A prebuilt create table screen.
  */
-public class CreateTableScreen implements Screen, GuiSubject {
+public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 	private static final byte NUM_FILLER_COLUMNS = 4;
 		
 	private JPanel panel;
@@ -32,8 +30,8 @@ public class CreateTableScreen implements Screen, GuiSubject {
 	private JPanel columnsPanel;
 	private JScrollPane columnsScrollPane;
 	
-	private Set<GuiListener> 	listeners = new HashSet<>(),
-														listenersToRemove = new HashSet<>();
+	private Set<SubmitListener> submitListeners = new CopyOnWriteArraySet<>();
+	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new create table screen.
@@ -62,10 +60,10 @@ public class CreateTableScreen implements Screen, GuiSubject {
 		nameField.setToolTipText(Strings.get(TABLE_NAME_TIP));
 		
 		submitButton = new JButton(Strings.get(SUBMIT_TEXT));
-		submitButton.addActionListener(e -> notifySubmitButtonPressed());
+		submitButton.addActionListener(e -> fireSubmitted());
 		
 		backButton = new JButton(Strings.get(CANCEL_TEXT));
-		backButton.addActionListener(e -> notifyBackButtonPressed());
+		backButton.addActionListener(e -> fireCanceled());
 		
 		addColumnButton = new JButton(Strings.get(ADD_COLUMN_TEXT));
 		addColumnButton.setToolTipText(Strings.get(ADD_COLUMN_TIP));
@@ -122,17 +120,13 @@ public class CreateTableScreen implements Screen, GuiSubject {
 		return columns.toArray(new Column[columns.size()]);
 	}
 	
-	private void notifySubmitButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.submitButtonPressed(this);
+	private void fireSubmitted() {
+		for (SubmitListener listener : submitListeners)
+			listener.submitted(this);
 	}
-	private void notifyBackButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.backButtonPressed(this);
+	private void fireCanceled() {		
+		for (CancelListener listener : cancelListeners)
+			listener.canceled(this);
 	}
 	
 	@Override
@@ -141,23 +135,26 @@ public class CreateTableScreen implements Screen, GuiSubject {
 	}
 	
 	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
+	public void addSubmitListener(SubmitListener listener) {
+		submitListeners.add(listener);
 	}
 	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
+	public void removeSubmitListener(SubmitListener listener) {
+		submitListeners.remove(listener);
+	}
+	
+	@Override
+	public void addCancelListener(CancelListener listener) {
+		cancelListeners.add(listener);
+	}
+	@Override
+	public void removeCancelListener(CancelListener listener) {
+		cancelListeners.remove(listener);
 	}
 	
 	@Override
 	public void clearListeners() {
-		listeners.clear();
-	}
-	
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
+		submitListeners.clear();
+		cancelListeners.clear();
 	}
 }

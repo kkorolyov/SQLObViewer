@@ -29,7 +29,7 @@ import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements GuiListener, TableRequestListener {
+public class Controller implements GuiListener, SubmitListener, CancelListener, TableRequestListener {
 	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
@@ -40,7 +40,7 @@ public class Controller implements GuiListener, TableRequestListener {
 	
 	private MainWindow window;	// View
 	private LoginScreen loginScreen;
-	private ViewScreen viewScreen;
+	private MainScreen viewScreen;
 	private CreateTableScreen createTableScreen;
 	
 	/**
@@ -59,34 +59,36 @@ public class Controller implements GuiListener, TableRequestListener {
 			loginScreen.clearListeners();
 		
 		loginScreen = new LoginScreen();
-		loginScreen.addListener(this);
+		loginScreen.addSubmitListener(this);
 		
-		window.showScreen(loginScreen, true);
+		window.setScreen(loginScreen, true);
 	}
 	private void goToViewScreen() {
 		if (viewScreen == null) {
-			viewScreen = new ViewScreen();		
+			viewScreen = new MainScreen();		
 			viewScreen.addListener(this);
+			viewScreen.addCancelListener(this);
 			viewScreen.setTables(dbConn.getTables());
 			viewScreen.setTableModel(tableModel);
 		}
 		viewScreen.setTables(dbConn.getTables());
 		viewScreen.setTableModel(tableModel);
 		
-		window.showScreen(viewScreen, false);
+		window.setScreen(viewScreen, false);
 	}
 	private void goToCreateTableScreen() {
 		if (createTableScreen != null)
 			createTableScreen.clearListeners();
 		
 		createTableScreen = new CreateTableScreen();
-		createTableScreen.addListener(this);
+		createTableScreen.addSubmitListener(this);
+		createTableScreen.addCancelListener(this);
 		
-		window.showScreen(createTableScreen.getPanel(), true);
+		window.setScreen(createTableScreen, true);
 	}
 	
 	@Override
-	public void submitButtonPressed(GuiSubject context) {
+	public void submitted(SubmitSubject context) {
 		if (context instanceof LoginScreen) {
 			LoginScreen loginContext = (LoginScreen) context;
 			String 	host = loginContext.getHost(),
@@ -123,8 +125,8 @@ public class Controller implements GuiListener, TableRequestListener {
 		}
 	}
 	@Override
-	public void backButtonPressed(GuiSubject context) {
-		if (context instanceof ViewScreen) {
+	public void canceled(CancelSubject context) {
+		if (context instanceof MainScreen) {
 			setDatabaseConnection(null);
 			
 			goToLoginScreen();
@@ -132,6 +134,14 @@ public class Controller implements GuiListener, TableRequestListener {
 		else if (context instanceof CreateTableScreen) {
 			goToViewScreen();
 		}
+	}
+	@Override
+	public void submitButtonPressed(GuiSubject context) {
+		
+	}
+	@Override
+	public void backButtonPressed(GuiSubject context) {
+		
 	}
 	@Override
 	public void refreshTableButtonPressed(GuiSubject context) {

@@ -19,7 +19,7 @@ import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 /**
  * Main SQLObViewer application window.
  */
-public class MainWindow implements GuiSubject {
+public class MainWindow implements Window, GuiSubject {
 	private String title;
 	private int width,
 							height;
@@ -85,17 +85,12 @@ public class MainWindow implements GuiSubject {
 		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 	}
 	
-	/**
-	 * Displays a screen in this window.
-	 * @param screen screen to display
-	 * @param fitToScreen if {@code true}, will resize window to screen's preferred size
-	 */
-	public void showScreen(JPanel screen, boolean fitToScreen) {
-		frame.getContentPane().removeAll();
-		frame.add(screen);
+	@Override
+	public void setScreen(Screen screen, boolean fitToScreen) {
+		frame.setVisible(false);
 		
-		frame.revalidate();
-		frame.repaint();
+		frame.getContentPane().removeAll();
+		frame.add(screen.getPanel());
 		
 		frame.setPreferredSize(fitToScreen ? null : new Dimension(width, height));
 		frame.pack();

@@ -2,24 +2,22 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * A prebuilt login screen.
+ * The login screen.
  */
-public class LoginScreen extends JPanel implements GuiSubject {
-	private static final long serialVersionUID = -7337254975219769022L;
+public class LoginScreen implements Screen, SubmitSubject {
 	private static final int DEFAULT_FIELD_COLUMNS = 15;
 	
+	private JPanel panel;
 	private JLabel 	hostLabel,
 									databaseLabel,
 									userLabel,
@@ -29,20 +27,19 @@ public class LoginScreen extends JPanel implements GuiSubject {
 											userField,
 											passwordField;
 	private JButton loginButton;
-	private Set<GuiListener> 	listeners = new HashSet<>(),
-														listenersToRemove = new HashSet<>();
+
+	private Set<SubmitListener> submitListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new login screen.
 	 */
 	public LoginScreen() {
-		MigLayout loginLayout = new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]");
-		setLayout(loginLayout);
-		
 		initComponents();
 		buildComponents();
 	}
 	private void initComponents() {
+		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]"));
+		
 		hostLabel = new JLabel(Strings.get(HOST_TEXT));
 		databaseLabel = new JLabel(Strings.get(DATABASE_TEXT));
 		userLabel = new JLabel(Strings.get(USER_TEXT));
@@ -54,18 +51,18 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
 		
 		loginButton = new JButton(Strings.get(LOG_IN_TEXT));
-		loginButton.addActionListener(e -> notifySubmitButtonPressed());
+		loginButton.addActionListener(e -> fireSubmitted());
 	}
 	private void buildComponents() {
-		add(hostLabel);
-		add(hostField);
-		add(databaseLabel);
-		add(databaseField);
-		add(userLabel);
-		add(userField);
-		add(passwordLabel);
-		add(passwordField);
-		add(loginButton, "span, align 75%, grow 0");
+		panel.add(hostLabel);
+		panel.add(hostField);
+		panel.add(databaseLabel);
+		panel.add(databaseField);
+		panel.add(userLabel);
+		panel.add(userField);
+		panel.add(passwordLabel);
+		panel.add(passwordField);
+		panel.add(loginButton, "span, align 75%, grow 0");
 	}
 	
 	/** @return current text in host field */
@@ -85,31 +82,27 @@ public class LoginScreen extends JPanel implements GuiSubject {
 		return passwordField.getText();
 	}
 	
-	private void notifySubmitButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.submitButtonPressed(this);
+	@Override
+	public JPanel getPanel() {
+		return panel;
+	}
+	
+	private void fireSubmitted() {		
+		for (SubmitListener listener : submitListeners)
+			listener.submitted(this);
 	}
 	
 	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
+	public void addSubmitListener(SubmitListener listener) {
+		submitListeners.add(listener);
 	}
 	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
+	public void removeSubmitListener(SubmitListener listener) {
+		submitListeners.remove(listener);
 	}
 	
 	@Override
 	public void clearListeners() {
-		listeners.clear();
-	}
-	
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
+		submitListeners.clear();
 	}
 }

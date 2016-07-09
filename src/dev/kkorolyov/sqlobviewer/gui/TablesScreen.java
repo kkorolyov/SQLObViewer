@@ -43,6 +43,9 @@ public class TablesScreen implements Screen {
 	}
 	/** @param newModel new table model */
 	public void setModel(SQLObTableModel newModel) {
+		if (newModel == null)
+			return;
+		
 		model = newModel;
 		
 		setTables(rows, columns);
