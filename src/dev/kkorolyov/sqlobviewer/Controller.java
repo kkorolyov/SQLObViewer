@@ -69,8 +69,6 @@ public class Controller implements GuiListener, TableRequestListener {
 			viewScreen.addListener(this);
 			viewScreen.setTables(dbConn.getTables());
 			viewScreen.setTableModel(tableModel);
-			viewScreen.spawnTable();
-			viewScreen.spawnTable();
 		}
 		viewScreen.setTables(dbConn.getTables());
 		viewScreen.setTableModel(tableModel);

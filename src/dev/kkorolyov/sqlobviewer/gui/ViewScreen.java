@@ -28,7 +28,7 @@ import net.miginfocom.swing.MigLayout;
 public class ViewScreen extends JPanel implements GuiSubject {
 	private static final long serialVersionUID = -7570749964472465310L;
 	
-	private TablesScreen tables;
+	private TablesScreen tablesScreen;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
@@ -57,8 +57,8 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void mouseClicked(MouseEvent e) {				
-				if (!tables.getPanel().contains(e.getPoint())) {
-					for (SQLObTable table : tables.getTables())
+				if (!tablesScreen.getPanel().contains(e.getPoint())) {
+					for (SQLObTable table : tablesScreen.getTables())
 						table.deselect();
 				}
 			}
@@ -67,7 +67,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
-		tables = new TablesScreen(null);
+		tablesScreen = new TablesScreen(null);
 		
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
@@ -129,7 +129,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 		add(refreshTableButton);
 		add(tableComboBox);
 		add(tableButtonPanel, "gap 0");
-		add(tables.getPanel(), "spanx 2, grow");
+		add(tablesScreen.getPanel(), "spanx 2, grow");
 		add(rowButtonPanel, "top, gap 0");
 		add(lastStatementLabel, "spanx");
 		add(backButton, "span, center, grow 0");
@@ -155,14 +155,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	
 	/** @param newModel new table model */
 	public void setTableModel(SQLObTableModel newModel) {
-		tables.setModel(newModel);
-	}
-	
-	/**
-	 * Spawns a new table matching this screen's current table model.
-	 */
-	public void spawnTable() {
-		tables.spawnTable();
+		tablesScreen.setModel(newModel);
 	}
 	
 	/** @param statement new statement to display */
@@ -171,7 +164,7 @@ public class ViewScreen extends JPanel implements GuiSubject {
 	}
 	
 	private void displayAddRowDialog() {
-		SQLObTable addRowTable = new SQLObTable(tables.getModel().getEmptyTableModel());
+		SQLObTable addRowTable = new SQLObTable(tablesScreen.getModel().getEmptyTableModel());
 		
 		int selectedOption = JOptionPane.showOptionDialog(this, addRowTable.getScrollPane(), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 		
@@ -179,19 +172,19 @@ public class ViewScreen extends JPanel implements GuiSubject {
 			if (addRowTable.getCellEditor() != null)
 				addRowTable.getCellEditor().stopCellEditing();
 			
-			tables.getModel().insertRow(addRowTable.getRow(0));
+			tablesScreen.getModel().insertRow(addRowTable.getRow(0));
 		}
 	}
 	
 	private void deleteSelected() {
 		List<RowEntry[]> toDelete = new LinkedList<>();
 		
-		for (SQLObTable table : tables.getTables()) {
+		for (SQLObTable table : tablesScreen.getTables()) {
 			for (int index : table.getSelectedRows())
 				toDelete.add(table.getRow(index));
 		}
 		for (RowEntry[] toDel : toDelete)
-			tables.getModel().deleteRow(toDel);
+			tablesScreen.getModel().deleteRow(toDel);
 	}
 	
 	private void notifyBackButtonPressed() {
