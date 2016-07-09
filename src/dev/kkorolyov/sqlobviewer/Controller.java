@@ -70,6 +70,7 @@ public class Controller implements GuiListener, TableRequestListener {
 			viewScreen.setTables(dbConn.getTables());
 			viewScreen.setTableModel(tableModel);
 			viewScreen.spawnTable();
+			viewScreen.spawnTable();
 		}
 		viewScreen.setTables(dbConn.getTables());
 		viewScreen.setTableModel(tableModel);
@@ -179,7 +180,8 @@ public class Controller implements GuiListener, TableRequestListener {
 		log.debug("Updating " + newValues.length + " row");
 		
 		int result = tableConn.update(newValues, criteria);
-		updateTableModel();
+		if (result > 1)
+			updateTableModel();
 		
 		String statement = String.valueOf(result);
 		

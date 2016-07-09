@@ -19,8 +19,8 @@ public class SQLObTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 8155987048579413913L;
 	private static final Logger log = Logger.getLogger(SQLObTableModel.class.getName());
 
-	private Column[] columns;
-	private RowEntry[][] data;
+	private List<Column> columns = new LinkedList<>();
+	private List<RowEntry[]> data = new LinkedList<>();
 	
 	private List<TableRequestListener> requestListeners = new CopyOnWriteArrayList<>();
 	private List<ChangeListener> changeListeners = new CopyOnWriteArrayList<>();
@@ -34,22 +34,6 @@ public class SQLObTableModel extends AbstractTableModel {
 		setData(columns, data);
 	}
 	
-	/** @param newRow row to insert */
-	public void insertRow(RowEntry[] newRow) {
-		requestInsertRow(newRow);
-	}
-	/**
-	 * @param newValues new values
-	 * @param criteria criteria to match
-	 */
-	public void updateRow(RowEntry[] newValues, RowEntry[] criteria) {
-		requestUpdateRow(newValues, criteria);
-	}
-	/** @param criteria criteria to match */
-	public void deleteRow(RowEntry[] criteria) {
-		requestDeleteRow(criteria);
-	}
-	
 	/**
 	 * @param column column index
 	 * @return all unique values under the specified column, sorted in ascending order
@@ -60,7 +44,7 @@ public class SQLObTableModel extends AbstractTableModel {
 		for (RowEntry[] row : data)
 			uniqueValues.add(row[column].getValue());
 		
-		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + columns[column].getName().toUpperCase());
+		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + getColumnName(column).toUpperCase());
 		return uniqueValues.toArray(new Object[uniqueValues.size()]);
 	}
 	
@@ -70,11 +54,16 @@ public class SQLObTableModel extends AbstractTableModel {
 	 * @param newData new data
 	 */
 	public void setData(Column[] newColumns, RowEntry[][] newData) {
-		boolean columnsChanged = !Arrays.equals(columns, newColumns),
-						dataChanged = !Arrays.deepEquals(data, newData);
+		boolean columnsChanged = !Arrays.equals(columns.toArray(), newColumns),
+						dataChanged = !Arrays.deepEquals(data.toArray(), newData);
 		
-		columns = newColumns;
-		data = newData;
+		columns.clear();
+		for (Column column : newColumns)
+			columns.add(column);
+		
+		data.clear();
+		for (RowEntry[] datum : newData)
+			data.add(datum);
 		
 		if (columnsChanged) {
 			log.debug(this + " - columns changed");
@@ -87,15 +76,16 @@ public class SQLObTableModel extends AbstractTableModel {
 	
 	/** @return	a model with a single row of empty data matching this model's data types */
 	public SQLObTableModel getEmptyTableModel() {
-		return new SQLObTableModel(columns, buildEmptyData());
+		return new SQLObTableModel(columns.toArray(new Column[columns.size()]), buildEmptyData());
 	}
 	private RowEntry[][] buildEmptyData() {
-		RowEntry[][] emptyData = new RowEntry[1][columns.length];
+		RowEntry[][] emptyData = new RowEntry[1][columns.size()];
 		
 		for (int i = 0; i < emptyData[0].length; i++) {
+			Column currentColumn = columns.get(i);
 			Object currentEmptyData = null;
 
-			switch (columns[i].getType()) {			
+			switch (currentColumn.getType()) {			
 				case BOOLEAN:
 					currentEmptyData = false;
 					break;
@@ -121,7 +111,7 @@ public class SQLObTableModel extends AbstractTableModel {
 					currentEmptyData = "";
 			}
 			try {
-				emptyData[0][i] = new RowEntry(columns[i], currentEmptyData);
+				emptyData[0][i] = new RowEntry(currentColumn, currentEmptyData);
 			} catch (MismatchedTypeException e) {
 				throw new RuntimeException(e);
 			}
@@ -131,24 +121,24 @@ public class SQLObTableModel extends AbstractTableModel {
 	
 	@Override
 	public int getColumnCount() {
-		return columns.length;
+		return columns.size();
 	}
 	@Override
 	public int getRowCount() {
-		return data.length;
+		return data.size();
 	}
 	
 	/** @return column at the specified index */
 	public Column getColumn(int index) {
-		return columns[index];
+		return columns.get(index);
 	}
 	@Override
 	public String getColumnName(int column) {
-		return columns[column].getName();
+		return columns.get(column).getName();
 	}
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		return columns[columnIndex].getType().getTypeClass();
+		return columns.get(columnIndex).getType().getTypeClass();
 	}
 	
 	/** 
@@ -156,7 +146,7 @@ public class SQLObTableModel extends AbstractTableModel {
 	 * @return row at the specified index
 	 */
 	public RowEntry[] getRow(int index) {
-		return data[index];
+		return data.get(index);
 	}
 	/**
 	 * @param row row to search for
@@ -165,8 +155,8 @@ public class SQLObTableModel extends AbstractTableModel {
 	public int getIndex(RowEntry[] row) {
 		log.debug("Searching for row: " + row);
 		
-		for (int i = 0; i < data.length; i++) {
-			if (Arrays.equals(data[i], row)) {
+		for (int i = 0; i < data.size(); i++) {
+			if (Arrays.equals(data.get(i), row)) {
 				log.debug("Found a matching row at index: " + i);
 				return i;
 			}
@@ -177,7 +167,7 @@ public class SQLObTableModel extends AbstractTableModel {
 	
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return data[rowIndex][columnIndex].getValue();
+		return data.get(rowIndex)[columnIndex].getValue();
 	}
 	@Override
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
@@ -185,14 +175,38 @@ public class SQLObTableModel extends AbstractTableModel {
 			RowEntry[] criteria = saveRow(rowIndex);
 			
 			try {
-				data[rowIndex][columnIndex] = new RowEntry(columns[columnIndex], value);
+				data.get(rowIndex)[columnIndex] = new RowEntry(columns.get(columnIndex), value);
 			} catch (MismatchedTypeException e) {
 				throw new RuntimeException(e);
 			}
-			RowEntry[] newValues = new RowEntry[]{data[rowIndex][columnIndex]};	// New values after updating table value
+			RowEntry[] newValues = new RowEntry[]{data.get(rowIndex)[columnIndex]};	// New values after updating table value
 			
+			fireTableRowsUpdated(rowIndex, rowIndex);
 			requestUpdateRow(newValues, criteria);
 		}
+	}
+	
+	/**
+	 * Inserts a new row
+	 * @param newRow row to insert
+	 */
+	public void insertRow(RowEntry[] newRow) {
+		data.add(newRow);
+		
+		fireTableRowsInserted(data.size() - 1, data.size() - 1);
+		requestInsertRow(newRow);
+	}
+	/**
+	 * Deletes all rows matching the specified criteria.
+	 * @param criteria criteria to match
+	 */
+	public void deleteRow(RowEntry[] criteria) {
+		int index;
+		while ((index = getIndex(criteria)) >= 0) {
+			data.remove(index);
+			fireTableRowsDeleted(index, index);
+		}
+		requestDeleteRow(criteria);
 	}
 	
 	@Override
@@ -201,10 +215,10 @@ public class SQLObTableModel extends AbstractTableModel {
 	}
 	
 	private RowEntry[] saveRow(int rowIndex) {
-		RowEntry[] savedRow = new RowEntry[data[rowIndex].length];
+		RowEntry[] savedRow = new RowEntry[data.get(rowIndex).length];
 		
 		for (int i = 0; i < savedRow.length; i++)
-			savedRow[i] = data[rowIndex][i];
+			savedRow[i] = data.get(rowIndex)[i];
 		
 		return savedRow;
 	}
