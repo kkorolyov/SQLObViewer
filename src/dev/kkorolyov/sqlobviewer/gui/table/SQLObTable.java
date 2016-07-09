@@ -277,7 +277,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 	
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
-		return new Dimension((int) super.getPreferredScrollableViewportSize().getWidth(), getRowHeight());
+		return new Dimension((int) super.getPreferredScrollableViewportSize().getWidth(), (getRowHeight() * getRowCount()));
 	}
 	@Override
 	public boolean getFillsViewportHeight() {

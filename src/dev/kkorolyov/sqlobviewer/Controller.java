@@ -5,6 +5,8 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_HOST;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_PASSWORD;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_USER;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +29,7 @@ import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements GuiListener, SubmitListener, CancelListener, SqlRequestListener {
+public class Controller implements SubmitListener, CancelListener, SqlRequestListener {
 	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
@@ -37,8 +39,7 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 	private Stack<UndoStatement> undoStatements;
 	
 	private MainWindow window;	// View
-	private LoginScreen loginScreen;
-	private MainScreen mainScreen;	// TODO Getters which initialize these
+	private MainScreen mainScreen;
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -46,39 +47,143 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 	 */
 	public Controller(MainWindow window) {
 		this.window = window;
-		this.window.addListener(this);
-		
+		this.window.addWindowListener(new WindowAdapter() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void windowClosing(WindowEvent e) {
+				log.debug("Received WINDOW CLOSING event from: " + e.getSource());
+				setDatabaseConnection(null);
+			}
+		});
 		goToLoginScreen();
 	}
 	
-	private void goToLoginScreen() {
-		if (loginScreen != null)
-			loginScreen.clearListeners();
+	private void setLastStatement(String statement) {
+		pushUndoStatement(new UndoStatement());
+		mainScreen.setLastStatement(statement);
+	}
+	/**
+	 * Pushes a new undo statement
+	 * @param statement undo statement to push
+	 */
+	public void pushUndoStatement(UndoStatement statement) {
+		if (undoStatements == null) {
+			undoStatements = new Stack<>();
+			
+			log.debug("Created new undo statements Stack");
+		}
+		if (undoStatements.size() >= MAX_UNDO_STATEMENTS) {
+			log.debug("Number of undo statements (" + undoStatements.size() + ") has reached MAX_UNDO_STATEMENTS=" + MAX_UNDO_STATEMENTS + "; removing oldest undo statement");
+			
+			undoStatements.remove(0);
+		}
+		undoStatements.push(statement);
 		
-		loginScreen = new LoginScreen();
+		log.debug("Pushed new undo statement = '" + statement + "'");
+	}
+	/**
+	 * Undoes the last SQL statement.
+	 */
+	public void undoLastStatement() {
+		if (undoStatements != null && undoStatements.size() > 0) {
+			UndoStatement statement = undoStatements.pop();
+			
+			// TODO
+		}
+	}
+	
+	private Column[] getTableColumns() {
+		return tableConn != null ? tableConn.getColumns() : new Column[0];
+	}
+	private RowEntry[][] getTableData() {
+		if (tableConn == null)
+			return new RowEntry[0][0];
+		
+		List<RowEntry[]> data = new LinkedList<>();
+
+		Results allResults = tableConn.select(null);
+		
+		RowEntry[] currentRow;
+		while ((currentRow = allResults.getNextRow()) != null)				
+			data.add(currentRow);
+			
+		return data.toArray(new RowEntry[data.size()][]);
+	}
+	
+	/** @param newDatabaseConnection new database connection */
+	public void setDatabaseConnection(DatabaseConnection newDatabaseConnection) {
+		if (dbConn != null)
+			dbConn.close();
+		tableConn = null;
+		
+		dbConn = newDatabaseConnection;
+		log.debug("Set new database connection = " + dbConn);
+		
+		updateTableModel();
+	}
+	/** @param newTableConnection new table connection */
+	public void setTableConnection(TableConnection newTableConnection) {
+		tableConn = newTableConnection;
+		log.debug("Set new table connection = " + tableConn);
+		
+		updateTableModel();
+	}
+	
+	private void goToLoginScreen() {
+		window.setScreen(buildLoginScreen(), true);
+	}
+	private LoginScreen buildLoginScreen() {
+		LoginScreen loginScreen = new LoginScreen();
 		loginScreen.addSubmitListener(this);
 		
-		window.setScreen(loginScreen, true);
+		return loginScreen;
 	}
-	private void goToViewScreen() {
+	
+	private void goToMainScreen() {
+		window.setScreen(updateMainScreen(), false);
+	}
+	
+	private void updateTableModel() {
+		log.debug("Updating table model...");
+		
+		if (tableModel == null) {
+			tableModel = new SQLObTableModel(getTableColumns(), getTableData(), true);
+			tableModel.addSqlRequestListener(this);
+		}
+		else
+			tableModel.setData(getTableColumns(), getTableData());
+		
+		log.debug("Done updating table model");
+	}
+	
+	private void updateView() {
+		log.debug("Updating view...");
+		
+		updateMainScreen();
+		
+		log.debug("Done updating view");
+	}
+	private MainScreen updateMainScreen() {
+		log.debug("Updating main screen...");
+		
 		if (mainScreen == null) {
 			mainScreen = new MainScreen();		
-			mainScreen.addListener(this);
 			mainScreen.addCancelListener(this);
 			mainScreen.addSqlRequestListener(this);
-			mainScreen.setTables(dbConn.getTables());
-			mainScreen.setTableModel(tableModel);
 		}
 		mainScreen.setTables(dbConn.getTables());
 		mainScreen.setTableModel(tableModel);
 		
-		window.setScreen(mainScreen, false);
+		log.debug("Done updating main screen");
+		return mainScreen;
 	}
 	
 	@Override
-	public void submitted(SubmitSubject context) {
-		if (context instanceof LoginScreen) {
-			LoginScreen loginContext = (LoginScreen) context;
+	public void submitted(SubmitSubject source) {
+		log.debug("Received SUBMITTED event from: " + source);
+		
+		if (source instanceof LoginScreen) {
+			LoginScreen loginContext = (LoginScreen) source;
 			String 	host = loginContext.getHost(),
 							database = loginContext.getDatabase(),
 							user = loginContext.getUser(),
@@ -98,185 +203,91 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 				
 				return;
 			}
-			String[] dbTables = dbConn.getTables();
-			
-			setTableConnection(dbTables.length > 0 ? dbConn.connect(dbTables[0]) : null);
-						
-			goToViewScreen();
-		}
-		else if (context instanceof CreateTableScreen) {
-			CreateTableScreen createTableContext = (CreateTableScreen) context;
-			
-			dbConn.createTable(createTableContext.getName(), createTableContext.getColumns());
-			
-			goToViewScreen();
+			loginContext.removeSubmitListener(this);
+
+			goToMainScreen();
 		}
 	}
 	@Override
-	public void canceled(CancelSubject context) {
-		if (context instanceof MainScreen) {
+	public void canceled(CancelSubject source) {
+		log.debug("Received CANCELED event from: " + source);
+
+		if (source instanceof MainScreen) {
 			setDatabaseConnection(null);
 			
 			goToLoginScreen();
 		}
-		else if (context instanceof CreateTableScreen) {
-			goToViewScreen();
-		}
-	}
-	@Override
-	public void submitButtonPressed(GuiSubject context) {
-		
-	}
-	@Override
-	public void backButtonPressed(GuiSubject context) {
-		
-	}
-	@Override
-	public void refreshTableButtonPressed(GuiSubject context) {
-		updateTableModel();
-	}
-	@Override
-	public void undoStatementButtonPressed(GuiSubject context) {
-		undoLastStatement();
 	}
 	
 	@Override
-	public void tableSelected(String table, GuiSubject context) {
+	public void update(SqlRequestSubject source) {
+		log.debug("Received UPDATE event from: " + source);
+
+		updateTableModel();
+	}
+	
+	@Override
+	public void selectTable(String table, SqlRequestSubject source) {
+		log.debug("Received SELECT TABLE event from: " + source);
+
 		setTableConnection(dbConn.connect(table));
-				
-		goToViewScreen();
 	}
 	
 	@Override
 	public void createTable(String table, Column[] columns, SqlRequestSubject source) {
+		log.debug("Received CREATE TABLE event from: " + source);
+
 		dbConn.createTable(table, columns);
+		
+		updateView();
 	}
 	@Override
 	public void dropTable(String table, SqlRequestSubject source) {
-		
-	}
-	@Override
-	public void removeTable(String table, GuiSubject context) {
+		log.debug("Received DROP TABLE event from: " + source);
+
 		dbConn.dropTable(table);
 		
 		if (tableConn.getTableName().equals(table))
 			setTableConnection(null);
 		
-		mainScreen.setTables(dbConn.getTables());
-		goToViewScreen();
+		updateView();
 	}
 	
 	@Override
-	public void insertRow(RowEntry[] rowValues, SqlRequestSubject context) {
-		String statement = String.valueOf(tableConn.insert(rowValues));
-		updateTableModel();
+	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
+		log.debug("Received INSERT ROW event from: " + source);
 
-		pushUndoStatement(new UndoStatement());
-		
-		mainScreen.setLastStatement(statement);
-	}
-	@Override
-	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject context) {
-		log.debug("Updating " + newValues.length + " row");
-		
-		int result = tableConn.update(newValues, criteria);
+		int result = tableConn.insert(rowValues);
 		if (result > 1)
 			updateTableModel();
 		
-		String statement = String.valueOf(result);
-		
-		pushUndoStatement(new UndoStatement());
-		
-		mainScreen.setLastStatement(statement);
+		setLastStatement(String.valueOf(result));
 	}
 	@Override
-	public void deleteRow(RowEntry[] criteria, SqlRequestSubject context) {
-		String statement = String.valueOf(tableConn.delete(criteria));
-		updateTableModel();
-		
-		pushUndoStatement(new UndoStatement());
-		
-		mainScreen.setLastStatement(statement);
-	}
-	
-	@Override
-	public void closed(GuiSubject context) {
-		setDatabaseConnection(null);
-	}
-	
-	/**
-	 * Pushes a new undo statement
-	 * @param statement undo statement to push
-	 */
-	public void pushUndoStatement(UndoStatement statement) {
-		if (undoStatements == null) {
-			undoStatements = new Stack<>();
-			
-			log.debug("Created new undoStatements Stack");
-		}
-		if (undoStatements.size() >= MAX_UNDO_STATEMENTS) {
-			log.debug("Number of undo statements (" + undoStatements.size() + ") has reached MAX_UNDO_STATEMENTS=" + MAX_UNDO_STATEMENTS + ", removing oldest undo statement");
-			
-			undoStatements.remove(0);
-		}
-		undoStatements.push(statement);
-		
-		log.debug("Pushed new undo statement = '" + statement + "'");
-	}
-	/**
-	 * Undoes the last SQL statement.
-	 */
-	public void undoLastStatement() {
-		if (undoStatements != null && undoStatements.size() > 0) {
-			UndoStatement statement = undoStatements.pop();
-			
-			// TODO
-		}
-	}
-	
-	/** @param newDatabaseConnection new database connection */
-	public void setDatabaseConnection(DatabaseConnection newDatabaseConnection) {
-		if (dbConn != null) {
-			dbConn.close();
-			
-			log.debug("Closed old dbConn: " + dbConn);
-		}
-		dbConn = newDatabaseConnection;
-		
-		log.debug("Set dbConn=" + dbConn);
-	}
-	/** @param newTableConnection new table connection */
-	public void setTableConnection(TableConnection newTableConnection) {
-		tableConn = newTableConnection;
-		
-		resetTableModel();
-	}
-	private void resetTableModel() {
-		if (tableModel != null)
-			tableModel.clearListeners();
-		
-		tableModel = new SQLObTableModel(getTableColumns(), getTableData(), true);
-		tableModel.addSqlRequestListener(this);
-	}
-	private void updateTableModel() {
-		tableModel.setData(getTableColumns(), getTableData());
-	}
-	
-	private Column[] getTableColumns() {
-		return tableConn != null ? tableConn.getColumns() : new Column[0];
-	}
-	private RowEntry[][] getTableData() {
-		if (tableConn == null)
-			return new RowEntry[0][0];
-		
-		List<RowEntry[]> data = new LinkedList<>();
+	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
+		log.debug("Received UPDATE ROW event from: " + source);
 
-		Results allResults = tableConn.select(null);
-		
-		RowEntry[] currentRow;
-		while ((currentRow = allResults.getNextRow()) != null)				
-			data.add(currentRow);
-			
-		return data.toArray(new RowEntry[data.size()][]);
+		int result = tableConn.update(newValues, criteria);
+		if (result > 1)
+			updateTableModel();
+						
+		setLastStatement(String.valueOf(result));
+	}
+	@Override
+	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
+		log.debug("Received DELETE ROW event from: " + source);
+
+		int result = tableConn.delete(criteria);
+		if (result > 1)
+			updateTableModel();
+				
+		setLastStatement(String.valueOf(result));
+	}
+	
+	@Override
+	public void revertStatement(String statement, SqlRequestSubject source) {
+		log.debug("Received REVERT STATEMENT event from: " + source);
+
+		undoLastStatement();
 	}
 }

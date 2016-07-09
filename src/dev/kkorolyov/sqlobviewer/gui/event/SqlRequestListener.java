@@ -8,6 +8,19 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
  */
 public interface SqlRequestListener {
 	/**
+	 * Invoked when a general update of data is requested.
+	 * @param source entity requesting this operation
+	 */
+	void update(SqlRequestSubject source);
+	
+	/**
+	 * Invoked when a table is requested.
+	 * @param name name of table requested
+	 * @param source entity requesting this operation
+	 */
+	void selectTable(String name, SqlRequestSubject source);
+	
+	/**
 	 * Invoked when a {@code CREATE TABLE} operation is requested.
 	 * @param name name of table to create
 	 * @param columns table columns
@@ -20,6 +33,7 @@ public interface SqlRequestListener {
 	 * @param source entity requesting this operation
 	 */
 	void dropTable(String table, SqlRequestSubject source);
+	
 	/**
 	 * Invoked when an {@code UPDATE TABLE} operation is requested.
 	 * @param newValues new values to set
@@ -39,4 +53,11 @@ public interface SqlRequestListener {
 	 * @param source entity requesting this operation
 	 */
 	void deleteRow(RowEntry[] criteria, SqlRequestSubject source);
+	
+	/**
+	 * Invoked when a SQL statement reversion is requested.
+	 * @param statement statement to revert
+	 * @param source entity requesting this operation
+	 */
+	void revertStatement(String statement, SqlRequestSubject source);
 }

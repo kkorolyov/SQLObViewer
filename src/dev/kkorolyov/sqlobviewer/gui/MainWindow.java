@@ -1,34 +1,30 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.APPLICATION_CLOSING_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ERROR_TITLE_SUFFIX;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.EXCEPTION_TITLE_SUFFIX;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.EXPAND_ERROR_TEXT;
 
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
 
 /**
  * Main SQLObViewer application window.
  */
-public class MainWindow implements Window, GuiSubject {
+public class MainWindow implements Window {
 	private String title;
 	private int width,
 							height;
 	
 	private JFrame frame;
 
-	private Set<GuiListener> 	listeners = new HashSet<>(),
-														listenersToRemove = new HashSet<>();
-	
 	/**
 	 * Constructs a new main application window.
 	 * @param title window title
@@ -45,37 +41,11 @@ public class MainWindow implements Window, GuiSubject {
 		frame = new JFrame(title);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		frame.addWindowListener(new WindowListener() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void windowClosing(WindowEvent e) {
-				notifyClosed();
-			}
-			@Override
-			public void windowClosed(WindowEvent e) {
-				//
-			}
-			@Override
-			public void windowOpened(WindowEvent e) {
-				//
-			}
-			@Override
-			public void windowIconified(WindowEvent e) {
-				//
-			}
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				//
-			}
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				//
-			}
-			@Override
-			public void windowActivated(WindowEvent e) {
-				//
-			}
-		});
+	}
+	
+	/** @param listener window listener to add */
+	public void addWindowListener(WindowListener listener) {
+		frame.addWindowListener(listener);
 	}
 	
 	/**
@@ -86,9 +56,7 @@ public class MainWindow implements Window, GuiSubject {
 	}
 	
 	@Override
-	public void setScreen(Screen screen, boolean fitToScreen) {
-		frame.setVisible(false);
-		
+	public void setScreen(Screen screen, boolean fitToScreen) {		
 		frame.getContentPane().removeAll();
 		frame.add(screen.getPanel());
 		
@@ -165,33 +133,5 @@ public class MainWindow implements Window, GuiSubject {
 	public void setSize(int newWidth, int newHeight) {
 		width = newWidth;
 		height = newHeight;
-	}
-	
-	private void notifyClosed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.closed(this);
-	}
-	
-	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
-	}
-	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
-	}
-	
-	@Override
-	public void clearListeners() {
-		listeners.clear();
-	}
-	
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
 	}
 }

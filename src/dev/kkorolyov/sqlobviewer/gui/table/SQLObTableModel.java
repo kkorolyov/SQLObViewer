@@ -80,11 +80,11 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 			data.add(datum);
 		
 		if (columnsChanged) {
-			log.debug(this + " - columns changed");
+			log.debug(this + ": COLUMNS CHANGED (current column count=" + getColumnCount() + ")");
 			fireTableChanged(null);
 		}
 		if (dataChanged)
-			log.debug(this + " - data changed");
+			log.debug(this + ": DATA CHANGED (current row count=" + getRowCount() + ")");
 			fireStateChanged();
 	}
 	

@@ -24,7 +24,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequestSubject {	
+public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {	
 	private JPanel panel;
 	private TablesScreen tablesScreen;
 	private JComboBox<String> tableComboBox;
@@ -37,16 +37,14 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
 	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
-	private Set<GuiListener> 	listeners = new HashSet<>(),
-														listenersToRemove = new HashSet<>();
 	
 	/**
 	 * Constructs a new view screen.
 	 */
-	public MainScreen() {		
+	public MainScreen() {
 		initComponents();
 		addTableDeselectionListener();
-
+		
 		buildComponents();
 	}
 	private void addTableDeselectionListener() {
@@ -81,7 +79,7 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 		});
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Strings.get(UNDO_STATEMENT_TEXT));
-		undoItem.addActionListener(e -> notifyUndoStatementButtonPressed());
+		undoItem.addActionListener(e -> fireRevertStatement(""));
 		lastStatementPopup.add(undoItem);
 		
 		tableButtonPanel = new JHoverButtonPanel(Strings.get(TABLE_OPTIONS_TEXT), Orientation.X, ExpandTrigger.HOVER);
@@ -93,10 +91,15 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 			rowButtonPanel.addButton(rowButton);
 		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
-		refreshTableButton.addActionListener(e -> notifyRefreshTableButtonPressed());
+		refreshTableButton.addActionListener(e -> fireUpdate());
 		
 		tableComboBox = new JComboBox<String>();
-		tableComboBox.addActionListener(e -> notifyTableSelected());
+		tableComboBox.addActionListener(e -> {
+			String selectedTable = (String) tableComboBox.getSelectedItem();
+			
+			if (selectedTable != null)
+				fireSelectTable(selectedTable);
+		});
 		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> fireCanceled());
@@ -142,14 +145,30 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
-	/** @param tables table names to display */
-	public void setTables(String[] tables) {
-		tableComboBox.removeAllItems();
-		for (String table : tables)
-			tableComboBox.addItem(table);
+	/** @param name name of table to add to combo box */
+	public void addTable(String name) {
+		tableComboBox.addItem(name);
+	}
+	/** @param name name of table to remove from combo box */
+	public void removeTable(String name) {
+		tableComboBox.removeItem(name);
+	}
+	
+	/** @return names of all tables in combo box */
+	public String[] getTables() {
+		String[] tables = new String[tableComboBox.getItemCount()];
 		
-		tableComboBox.revalidate();
-		tableComboBox.repaint();
+		for (int i = 0; i < tables.length; i++)
+			tables[i] = tableComboBox.getItemAt(i);
+		
+		return tables;
+	}
+	/** @param tableNames new table names to display in combo box */
+	public void setTables(String[] tableNames) {
+		tableComboBox.removeAllItems();
+		
+		for (String table : tableNames)
+			tableComboBox.addItem(table);
 	}
 	
 	/** @param newModel new table model */
@@ -247,18 +266,17 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 		for (CancelListener listener : cancelListeners)
 			listener.canceled(this);
 	}
-	private void notifyRefreshTableButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.refreshTableButtonPressed(this);
+	
+	private void fireUpdate() {		
+		for (SqlRequestListener listener : sqlRequestListeners)
+			listener.update(this);
 	}
-	private void notifyUndoStatementButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.undoStatementButtonPressed(this);
+	
+	private void fireSelectTable(String name) {		
+		for (SqlRequestListener listener : sqlRequestListeners)
+			listener.selectTable(name, this);
 	}
+	
 	private void fireCreateTable(String name, Column[] columns) {
 		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.createTable(name, columns, this);
@@ -268,22 +286,9 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 			listener.dropTable(name, this);
 	}
 	
-	private void notifyTableSelected() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners) {
-			if (tableComboBox.getSelectedItem() != null)
-				listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
-		}
-	}
-	
-	@Override
-	public void addListener(GuiListener listener) {
-		listeners.add(listener);
-	}
-	@Override
-	public void removeListener(GuiListener listener) {
-		listenersToRemove.add(listener);
+	private void fireRevertStatement(String statement) {		
+		for (SqlRequestListener listener : sqlRequestListeners)
+			listener.revertStatement(statement, this);
 	}
 	
 	@Override
@@ -306,14 +311,7 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 	
 	@Override
 	public void clearListeners() {
-		listeners.clear();
 		cancelListeners.clear();
-	}
-	
-	private void removeQueuedListeners() {
-		for (GuiListener listener : listenersToRemove)
-			listeners.remove(listener);
-		
-		listenersToRemove.clear();
+		sqlRequestListeners.clear();
 	}
 }
