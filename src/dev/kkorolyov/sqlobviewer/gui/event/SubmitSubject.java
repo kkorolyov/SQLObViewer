@@ -1,4 +1,6 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.event;
+
+import dev.kkorolyov.sqlobviewer.gui.Subject;
 
 /**
  * Fires submission events.

@@ -23,11 +23,6 @@ public interface GuiListener {
 	 */
 	void refreshTableButtonPressed(GuiSubject context);
 	/**
-	 * Invoked when the new table button is pressed.
-	 * @param context GUI component firing this event
-	 */
-	void addTableButtonPressed(GuiSubject context);
-	/**
 	 * Invoked when the undo statement button is pressed.
 	 * @param context GUI component firing this event
 	 */

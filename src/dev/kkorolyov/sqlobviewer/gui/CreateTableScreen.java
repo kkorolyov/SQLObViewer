@@ -13,6 +13,10 @@ import javax.swing.Box.Filler;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
+import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
+import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
+import dev.kkorolyov.sqlobviewer.gui.event.SubmitSubject;
 import dev.kkorolyov.swingplus.JPlaceholderTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -103,7 +107,7 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 		columnsPanel.repaint();
 	}
 	
-	/** @return current text in column name field */
+	/** @return current text in table name field */
 	public String getName() {
 		return nameField.getText();
 	}

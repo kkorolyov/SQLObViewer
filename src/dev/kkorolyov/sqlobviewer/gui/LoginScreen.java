@@ -9,6 +9,8 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
+import dev.kkorolyov.sqlobviewer.gui.event.SubmitSubject;
 import net.miginfocom.swing.MigLayout;
 
 /**

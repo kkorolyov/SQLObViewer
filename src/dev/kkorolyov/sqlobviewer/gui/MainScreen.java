@@ -2,20 +2,18 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTable;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.swingplus.JHoverButtonPanel;
@@ -26,7 +24,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements GuiSubject, Screen, CancelSubject {	
+public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequestSubject {	
 	private JPanel panel;
 	private TablesScreen tablesScreen;
 	private JComboBox<String> tableComboBox;
@@ -38,6 +36,7 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 	private JPopupMenu lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
+	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
 	private Set<GuiListener> 	listeners = new HashSet<>(),
 														listenersToRemove = new HashSet<>();
 	
@@ -105,11 +104,11 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 	private JButton[] initTableButtons() {
 		JButton addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT));		
 		addTableButton.setToolTipText(Strings.get(ADD_TABLE_TIP));
-		addTableButton.addActionListener(e -> notifyAddTableButtonPressed());
+		addTableButton.addActionListener(e -> displayAddTableDialog());
 
 		JButton removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
 		removeTableButton.setToolTipText(Strings.get(REMOVE_TABLE_TIP));
-		removeTableButton.addActionListener(e -> notifyRemoveTable());
+		removeTableButton.addActionListener(e -> displayConfirmRemoveTableDialog());
 		
 		return new JButton[]{addTableButton, removeTableButton};
 	}
@@ -120,7 +119,7 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 		
 		JButton removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
 		removeRowButton.setToolTipText(Strings.get(REMOVE_ROW_TIP));
-		removeRowButton.addActionListener(e -> deleteSelected());
+		removeRowButton.addActionListener(e -> displayConfirmRemoveRowDialog());
 		
 		return new JButton[]{addRowButton, removeRowButton};
 	}
@@ -163,28 +162,75 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 		lastStatementLabel.setText(statement);
 	}
 	
-	private void displayAddRowDialog() {
-		SQLObTable addRowTable = new SQLObTable(tablesScreen.getModel().getEmptyTableModel());
+	private void displayAddTableDialog() {		
+		String title = Strings.get(ADD_TABLE_TIP);
+		CreateTableScreen message = new CreateTableScreen();
+
+		int selectedOption = displayOkCancelDialog(title, message.getPanel());
 		
-		int selectedOption = JOptionPane.showOptionDialog(getPanel(), addRowTable.getScrollPane(), Strings.get(ADD_ROW_TEXT), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		if (selectedOption == JOptionPane.OK_OPTION)
+			fireCreateTable(message.getName(), message.getColumns());
+	}
+	private void displayAddRowDialog() {		
+		String title = Strings.get(ADD_ROW_TIP);
+		SQLObTable message = new SQLObTable(tablesScreen.getModel().getEmptyTableModel());
+
+		int selectedOption = displayOkCancelDialog(title, message.getScrollPane());
 		
 		if (selectedOption == JOptionPane.OK_OPTION) {
-			if (addRowTable.getCellEditor() != null)
-				addRowTable.getCellEditor().stopCellEditing();
+			if (message.getCellEditor() != null)
+				message.getCellEditor().stopCellEditing();
 			
-			tablesScreen.getModel().insertRow(addRowTable.getRow(0));
+			tablesScreen.getModel().insertRow(message.getRow(0));
 		}
 	}
+	private int displayOkCancelDialog(String title, Object message) {
+		return JOptionPane.showOptionDialog(getPanel(), message, Strings.get(title), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+	}
 	
-	private void deleteSelected() {
-		List<RowEntry[]> toDelete = new LinkedList<>();
+	private void displayConfirmRemoveTableDialog() {
+		String selectedTableName = (String) tableComboBox.getSelectedItem();
+		
+		String 	title = Strings.get(REMOVE_TABLE_TIP),
+						message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
+		
+		if (displayConfirmDialog(title, message) == JOptionPane.YES_OPTION)
+			fireDropTable(selectedTableName);
+	}
+	private void displayConfirmRemoveRowDialog() {
+		RowEntry[][] selectedRows = getSelectedRows();
+
+		String title = Strings.get(REMOVE_ROW_TIP);
+		JPanel message = new JPanel(new GridLayout(0, 1));
+		
+		JLabel selectedRowsLabel = new JLabel(Strings.get(CONFIRM_REMOVE_ROW_TEXT));
+		SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(tablesScreen.getModel().getColumns(), selectedRows, false));
+		
+		message.add(selectedRowsLabel);
+		message.add(selectedRowsTable.getScrollPane());
+		
+		if (displayConfirmDialog(title, message) == JOptionPane.YES_OPTION)
+			deleteRows(selectedRows);
+	}
+	private int displayConfirmDialog(String title, Object message) {
+		return JOptionPane.showConfirmDialog(getPanel(), message, title, JOptionPane.YES_NO_OPTION);
+	}
+	
+	private RowEntry[][] getSelectedRows() {
+		List<RowEntry[]> selectedRows = new LinkedList<>();
 		
 		for (SQLObTable table : tablesScreen.getTables()) {
 			for (int index : table.getSelectedRows())
-				toDelete.add(table.getRow(index));
+				selectedRows.add(table.getRow(index));
 		}
-		for (RowEntry[] toDel : toDelete)
+		return selectedRows.toArray(new RowEntry[selectedRows.size()][]);
+	}
+	
+	private void deleteRows(RowEntry[][] toDelete) {
+		for (RowEntry[] toDel : toDelete) {
+			System.out.println("Deleting " + Arrays.toString(toDel));
 			tablesScreen.getModel().deleteRow(toDel);
+		}
 	}
 	
 	@Override
@@ -202,17 +248,19 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 		for (GuiListener listener : listeners)
 			listener.refreshTableButtonPressed(this);
 	}
-	private void notifyAddTableButtonPressed() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.addTableButtonPressed(this);
-	}
 	private void notifyUndoStatementButtonPressed() {
 		removeQueuedListeners();
 		
 		for (GuiListener listener : listeners)
 			listener.undoStatementButtonPressed(this);
+	}
+	private void fireCreateTable(String name, Column[] columns) {
+		for (SqlRequestListener listener : sqlRequestListeners)
+			listener.createTable(name, columns, this);
+	}
+	private void fireDropTable(String name) {
+		for (SqlRequestListener listener : sqlRequestListeners)
+			listener.dropTable(name, this);
 	}
 	
 	private void notifyTableSelected() {
@@ -222,13 +270,6 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 			if (tableComboBox.getSelectedItem() != null)
 				listener.tableSelected((String) tableComboBox.getSelectedItem(), this);
 		}
-	}
-	
-	private void notifyRemoveTable() {
-		removeQueuedListeners();
-		
-		for (GuiListener listener : listeners)
-			listener.removeTable((String) tableComboBox.getSelectedItem(), this);
 	}
 	
 	@Override
@@ -247,6 +288,15 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject {
 	@Override
 	public void removeCancelListener(CancelListener listener) {
 		cancelListeners.remove(listener);
+	}
+	
+	@Override
+	public void addSqlRequestListener(SqlRequestListener listener) {
+		sqlRequestListeners.add(listener);
+	}
+	@Override
+	public void removeSqlRequestListener(SqlRequestListener listener) {
+		sqlRequestListeners.remove(listener);
 	}
 	
 	@Override

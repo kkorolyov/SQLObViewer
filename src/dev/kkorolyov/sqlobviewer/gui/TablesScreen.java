@@ -10,7 +10,7 @@ import dev.kkorolyov.sqlobviewer.gui.table.SQLObTable;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 
 /**
- * A screen containing multiple {@code SQLobTables} using the same backing {@code SQLObTableModel}.
+ * A screen containing multiple {@code SQLObTables} using the same backing {@code SQLObTableModel}.
  */
 public class TablesScreen implements Screen {
 	private SQLObTableModel model;

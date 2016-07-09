@@ -11,27 +11,32 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.MismatchedTypeException;
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestListener;
+import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestSubject;
 
 /**
  * A {@code TableModel} backed by {@code SQLOb} data.
  */
-public class SQLObTableModel extends AbstractTableModel {
+public class SQLObTableModel extends AbstractTableModel implements SqlRequestSubject {
 	private static final long serialVersionUID = 8155987048579413913L;
 	private static final Logger log = Logger.getLogger(SQLObTableModel.class.getName());
 
 	private List<Column> columns = new LinkedList<>();
 	private List<RowEntry[]> data = new LinkedList<>();
+	private boolean editable;
 	
-	private Set<TableRequestListener> requestListeners = new CopyOnWriteArraySet<>();
+	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
 	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new model.
 	 * @param columns model columns
 	 * @param data model data
+	 * @param editable if {@code true} this model may be edited
 	 */
-	public SQLObTableModel(Column[] columns, RowEntry[][] data) {
+	public SQLObTableModel(Column[] columns, RowEntry[][] data, boolean editable) {	// TODO Table name
 		setData(columns, data);
+		setEditable(editable);
 	}
 	
 	/**
@@ -46,6 +51,15 @@ public class SQLObTableModel extends AbstractTableModel {
 		
 		log.debug("Returning " + uniqueValues.size() + " unique values for column=" + getColumnName(column).toUpperCase());
 		return uniqueValues.toArray(new Object[uniqueValues.size()]);
+	}
+	
+	/** @return all columns in this model */
+	public Column[] getColumns() {
+		return columns.toArray(new Column[columns.size()]);
+	}
+	/** @return all rows in this model */
+	public RowEntry[][] getRows() {
+		return data.toArray(new RowEntry[data.size()][]);
 	}
 	
 	/**
@@ -74,9 +88,14 @@ public class SQLObTableModel extends AbstractTableModel {
 			fireStateChanged();
 	}
 	
+	/** @param isEditable sets this model's editable state */
+	public void setEditable(boolean isEditable) {
+		editable = isEditable;
+	}
+	
 	/** @return	a model with a single row of empty data matching this model's data types */
 	public SQLObTableModel getEmptyTableModel() {
-		return new SQLObTableModel(columns.toArray(new Column[columns.size()]), buildEmptyData());
+		return new SQLObTableModel(columns.toArray(new Column[columns.size()]), buildEmptyData(), true);
 	}
 	private RowEntry[][] buildEmptyData() {
 		RowEntry[][] emptyData = new RowEntry[1][columns.size()];
@@ -128,7 +147,10 @@ public class SQLObTableModel extends AbstractTableModel {
 		return data.size();
 	}
 	
-	/** @return column at the specified index */
+	/**
+	 * @param index column index
+	 * @return column at the specified index
+	 */
 	public Column getColumn(int index) {
 		return columns.get(index);
 	}
@@ -142,7 +164,7 @@ public class SQLObTableModel extends AbstractTableModel {
 	}
 	
 	/** 
-	 * @param index data index
+	 * @param index row index
 	 * @return row at the specified index
 	 */
 	public RowEntry[] getRow(int index) {
@@ -211,7 +233,7 @@ public class SQLObTableModel extends AbstractTableModel {
 	
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return true;
+		return editable;
 	}
 	
 	private RowEntry[] saveRow(int rowIndex) {
@@ -224,15 +246,15 @@ public class SQLObTableModel extends AbstractTableModel {
 	}
 	
 	private void requestUpdateRow(RowEntry[] newValues, RowEntry[] criteria) {		
-		for (TableRequestListener listener : requestListeners)
+		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.updateRow(newValues, criteria, this);
 	}
 	private void requestInsertRow(RowEntry[] rowValues) {		
-		for (TableRequestListener listener : requestListeners)
+		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.insertRow(rowValues, this);
 	}
 	private void requestDeleteRow(RowEntry[] criteria) {		
-		for (TableRequestListener listener : requestListeners)
+		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.deleteRow(criteria, this);
 	}
 	
@@ -242,12 +264,12 @@ public class SQLObTableModel extends AbstractTableModel {
 	}
 	
 	/** @param listener	request listener to add */
-	public void addRequestListener(TableRequestListener listener) {
-		requestListeners.add(listener);
+	public void addSqlRequestListener(SqlRequestListener listener) {
+		sqlRequestListeners.add(listener);
 	}
 	/** @param listener	request listener to remove */
-	public void removeRequestListener(TableRequestListener listener) {
-		requestListeners.remove(listener);
+	public void removeSqlRequestListener(SqlRequestListener listener) {
+		sqlRequestListeners.remove(listener);
 	}
 	
 	/** @param listener change listener to add */
@@ -263,7 +285,7 @@ public class SQLObTableModel extends AbstractTableModel {
 	 * Clears all listeners.
 	 */
 	public void clearListeners() {
-		requestListeners.clear();
+		sqlRequestListeners.clear();
 		changeListeners.clear();
 	}
 }

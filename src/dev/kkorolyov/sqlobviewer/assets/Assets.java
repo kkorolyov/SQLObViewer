@@ -96,12 +96,14 @@ public class Assets {
 																ADD_TABLE_TIP = "ADD_TABLE_TIP",
 																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
 																REMOVE_TABLE_TIP = "REMOVE_TABLE_TIP",
+																CONFIRM_REMOVE_TABLE_TEXT = "CONFIRM_REMOVE_TABLE_TEXT",
 																TABLE_NAME_TIP = "TABLE_NAME_TIP",
 																ROW_OPTIONS_TEXT = "ROW_OPTIONS_TEXT",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																ADD_ROW_TIP = "ADD_ROW_TIP",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
 																REMOVE_ROW_TIP = "REMOVE_ROW_TIP",
+																CONFIRM_REMOVE_ROW_TEXT = "CONFIRM_REMOVE_ROW_TEXT",
 																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
 																ADD_COLUMN_TIP = "ADD_COLUMN_TIP",
 																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
@@ -142,12 +144,14 @@ public class Assets {
 																ADD_TABLE_TIP = "Create table",
 																REMOVE_TABLE_TEXT = "-",
 																REMOVE_TABLE_TIP = "Drop table",
+																CONFIRM_REMOVE_TABLE_TEXT = "Are you sure you want to drop the selected table?",
 																TABLE_NAME_TIP = "Table name",
 																ROW_OPTIONS_TEXT = "Row",
 																ADD_ROW_TEXT = "+",
 																ADD_ROW_TIP = "Add row",
 																REMOVE_ROW_TEXT = "-",
 																REMOVE_ROW_TIP = "Delete row(s)",
+																CONFIRM_REMOVE_ROW_TEXT = "Are you sure you want to drop the selected row(s)?",
 																ADD_COLUMN_TEXT = "+",
 																ADD_COLUMN_TIP = "Add Column",
 																REMOVE_COLUMN_TEXT = "Remove Column",
@@ -196,12 +200,14 @@ public class Assets {
 			defaults.put(Keys.ADD_TABLE_TIP, ADD_TABLE_TIP);
 			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
 			defaults.put(Keys.REMOVE_TABLE_TIP, REMOVE_TABLE_TIP);
+			defaults.put(Keys.CONFIRM_REMOVE_TABLE_TEXT, CONFIRM_REMOVE_TABLE_TEXT);
 			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
 			defaults.put(Keys.ROW_OPTIONS_TEXT, ROW_OPTIONS_TEXT);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.ADD_ROW_TIP, ADD_ROW_TIP);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
 			defaults.put(Keys.REMOVE_ROW_TIP, REMOVE_ROW_TIP);
+			defaults.put(Keys.CONFIRM_REMOVE_ROW_TEXT, CONFIRM_REMOVE_ROW_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
 			defaults.put(Keys.ADD_COLUMN_TIP, ADD_COLUMN_TIP);
 			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);

@@ -1,4 +1,4 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.event;
 
 /**
  * Listens for cancellation events.
@@ -6,7 +6,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 public interface CancelListener {
 	/**
 	 * Invoked when a cancel action occurs.
-	 * @param context entity firing this event
+	 * @param source entity firing this event
 	 */
-	void canceled(CancelSubject context);
+	void canceled(CancelSubject source);
 }

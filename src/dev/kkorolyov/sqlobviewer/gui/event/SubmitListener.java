@@ -1,4 +1,4 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.event;
 
 /**
  * Listens for information submission events.
@@ -6,7 +6,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 public interface SubmitListener {
 	/**
 	 * Invoked when information has been submitted in some way.
-	 * @param context entity firing this event
+	 * @param source entity firing this event
 	 */
-	void submitted(SubmitSubject context);
+	void submitted(SubmitSubject source);
 }

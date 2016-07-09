@@ -20,16 +20,14 @@ import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.*;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiListener;
-import dev.kkorolyov.sqlobviewer.gui.event.GuiSubject;
+import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
-import dev.kkorolyov.sqlobviewer.gui.table.TableRequestListener;
 import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements GuiListener, SubmitListener, CancelListener, TableRequestListener {
+public class Controller implements GuiListener, SubmitListener, CancelListener, SqlRequestListener {
 	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
@@ -40,8 +38,7 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 	
 	private MainWindow window;	// View
 	private LoginScreen loginScreen;
-	private MainScreen viewScreen;
-	private CreateTableScreen createTableScreen;
+	private MainScreen mainScreen;	// TODO Getters which initialize these
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -64,27 +61,17 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 		window.setScreen(loginScreen, true);
 	}
 	private void goToViewScreen() {
-		if (viewScreen == null) {
-			viewScreen = new MainScreen();		
-			viewScreen.addListener(this);
-			viewScreen.addCancelListener(this);
-			viewScreen.setTables(dbConn.getTables());
-			viewScreen.setTableModel(tableModel);
+		if (mainScreen == null) {
+			mainScreen = new MainScreen();		
+			mainScreen.addListener(this);
+			mainScreen.addCancelListener(this);
+			mainScreen.setTables(dbConn.getTables());
+			mainScreen.setTableModel(tableModel);
 		}
-		viewScreen.setTables(dbConn.getTables());
-		viewScreen.setTableModel(tableModel);
+		mainScreen.setTables(dbConn.getTables());
+		mainScreen.setTableModel(tableModel);
 		
-		window.setScreen(viewScreen, false);
-	}
-	private void goToCreateTableScreen() {
-		if (createTableScreen != null)
-			createTableScreen.clearListeners();
-		
-		createTableScreen = new CreateTableScreen();
-		createTableScreen.addSubmitListener(this);
-		createTableScreen.addCancelListener(this);
-		
-		window.setScreen(createTableScreen, true);
+		window.setScreen(mainScreen, false);
 	}
 	
 	@Override
@@ -148,10 +135,6 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 		updateTableModel();
 	}
 	@Override
-	public void addTableButtonPressed(GuiSubject context) {
-		goToCreateTableScreen();
-	}
-	@Override
 	public void undoStatementButtonPressed(GuiSubject context) {
 		undoLastStatement();
 	}
@@ -164,27 +147,35 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 	}
 	
 	@Override
+	public void createTable(String table, Column[] columns, SqlRequestSubject source) {
+		dbConn.createTable(table, columns);
+	}
+	@Override
+	public void dropTable(String table, SqlRequestSubject source) {
+		
+	}
+	@Override
 	public void removeTable(String table, GuiSubject context) {
 		dbConn.dropTable(table);
 		
 		if (tableConn.getTableName().equals(table))
 			setTableConnection(null);
 		
-		viewScreen.setTables(dbConn.getTables());
+		mainScreen.setTables(dbConn.getTables());
 		goToViewScreen();
 	}
 	
 	@Override
-	public void insertRow(RowEntry[] rowValues, SQLObTableModel context) {
+	public void insertRow(RowEntry[] rowValues, SqlRequestSubject context) {
 		String statement = String.valueOf(tableConn.insert(rowValues));
 		updateTableModel();
 
 		pushUndoStatement(new UndoStatement());
 		
-		viewScreen.setLastStatement(statement);
+		mainScreen.setLastStatement(statement);
 	}
 	@Override
-	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SQLObTableModel context) {
+	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject context) {
 		log.debug("Updating " + newValues.length + " row");
 		
 		int result = tableConn.update(newValues, criteria);
@@ -195,16 +186,16 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 		
 		pushUndoStatement(new UndoStatement());
 		
-		viewScreen.setLastStatement(statement);
+		mainScreen.setLastStatement(statement);
 	}
 	@Override
-	public void deleteRow(RowEntry[] criteria, SQLObTableModel context) {
+	public void deleteRow(RowEntry[] criteria, SqlRequestSubject context) {
 		String statement = String.valueOf(tableConn.delete(criteria));
 		updateTableModel();
 		
 		pushUndoStatement(new UndoStatement());
 		
-		viewScreen.setLastStatement(statement);
+		mainScreen.setLastStatement(statement);
 	}
 	
 	@Override
@@ -263,8 +254,8 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 		if (tableModel != null)
 			tableModel.clearListeners();
 		
-		tableModel = new SQLObTableModel(getTableColumns(), getTableData());
-		tableModel.addRequestListener(this);
+		tableModel = new SQLObTableModel(getTableColumns(), getTableData(), true);
+		tableModel.addSqlRequestListener(this);
 	}
 	private void updateTableModel() {
 		tableModel.setData(getTableColumns(), getTableData());
