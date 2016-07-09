@@ -15,6 +15,7 @@ import javax.swing.*;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.SqlType;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.swingplus.JPlaceholderTextField;
 
 /**
  * Contains editable info for a single column.
@@ -65,7 +66,7 @@ public class ColumnPanel extends JPanel {
 	}
 	
 	private void initComponents() {
-		columnNameField = new JTextField();
+		columnNameField = new JPlaceholderTextField(Strings.get(COLUMN_NAME_TIP), 0);
 		columnNameField.setToolTipText(Strings.get(COLUMN_NAME_TIP));
 		
 		columnTypeComboBox = new JComboBox<>(SqlType.values());

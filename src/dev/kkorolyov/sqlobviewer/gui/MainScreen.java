@@ -164,12 +164,17 @@ public class MainScreen implements GuiSubject, Screen, CancelSubject, SqlRequest
 	
 	private void displayAddTableDialog() {		
 		String title = Strings.get(ADD_TABLE_TIP);
-		CreateTableScreen message = new CreateTableScreen();
+		CreateTableScreen message = new CreateTableScreen(false);
 
 		int selectedOption = displayOkCancelDialog(title, message.getPanel());
 		
-		if (selectedOption == JOptionPane.OK_OPTION)
-			fireCreateTable(message.getName(), message.getColumns());
+		if (selectedOption == JOptionPane.OK_OPTION) {
+			String name = message.getName();
+			Column[] columns = message.getColumns();
+			
+			if (name.length() > 0 && columns.length > 0)
+				fireCreateTable(name, columns);
+		}
 	}
 	private void displayAddRowDialog() {		
 		String title = Strings.get(ADD_ROW_TIP);

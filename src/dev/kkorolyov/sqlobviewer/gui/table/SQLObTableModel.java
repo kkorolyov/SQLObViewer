@@ -32,11 +32,11 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 	 * Constructs a new model.
 	 * @param columns model columns
 	 * @param data model data
-	 * @param editable if {@code true} this model may be edited
+	 * @param isEditable whether the data in this model may be edited
 	 */
-	public SQLObTableModel(Column[] columns, RowEntry[][] data, boolean editable) {	// TODO Table name
+	public SQLObTableModel(Column[] columns, RowEntry[][] data, boolean isEditable) {	// TODO Table name
 		setData(columns, data);
-		setEditable(editable);
+		setEditable(isEditable);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 			fireStateChanged();
 	}
 	
-	/** @param isEditable sets this model's editable state */
+	/** @param isEditable whether the data in this model may be edited */
 	public void setEditable(boolean isEditable) {
 		editable = isEditable;
 	}

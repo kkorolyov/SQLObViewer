@@ -65,6 +65,7 @@ public class Controller implements GuiListener, SubmitListener, CancelListener, 
 			mainScreen = new MainScreen();		
 			mainScreen.addListener(this);
 			mainScreen.addCancelListener(this);
+			mainScreen.addSqlRequestListener(this);
 			mainScreen.setTables(dbConn.getTables());
 			mainScreen.setTableModel(tableModel);
 		}
