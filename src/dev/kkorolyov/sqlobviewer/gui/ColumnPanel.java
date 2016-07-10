@@ -77,9 +77,9 @@ public class ColumnPanel extends JPanel {
 		deleteMenu.add(deleteMenuItem);
 	}
 	
-	/** @param e action invoked when a deletion event occurs on this component */
-	public void addDeletionListener(ActionListener e) {
-		deleteMenuItem.addActionListener(e);
+	/** @param listener listener to notify when a deletion event is fired by this component */
+	public void addDeletionListener(ActionListener listener) {
+		deleteMenuItem.addActionListener(listener);
 	}
 	
 	/** @return	a {@code Column} matching the data specified in this panel, or {@code null} if not enough data */

@@ -21,7 +21,7 @@ public class TablesScreen implements Screen {
 	private JPanel panel = new JPanel(new GridLayout(rows, columns));
 	
 	/**
-	 * Constructs a new tables screen.
+	 * Constructs a new tables screen with 1 displayed table.
 	 * @param model table model to use
 	 */
 	public TablesScreen(SQLObTableModel model) {
