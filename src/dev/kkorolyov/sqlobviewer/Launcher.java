@@ -1,6 +1,8 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_HEIGHT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_TITLE;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_WIDTH;
 
 import java.sql.SQLException;
 
