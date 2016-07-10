@@ -33,7 +33,6 @@ import net.miginfocom.swing.MigLayout;
 public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {	
 	private JPanel panel;
 	private TablesScreen tablesScreen;
-	private FilterInfoScreen tableFiltersScreen;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
@@ -72,9 +71,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
 		
 		tablesScreen = new TablesScreen(null);
-		
-		tableFiltersScreen = new FilterInfoScreen(null);
-		
+				
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -142,7 +139,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(tableButtonPanel, "gap 0");
 		panel.add(tablesScreen.getPanel(), "spanx 2, grow");
 		panel.add(rowButtonPanel, "top, gap 0");
-		panel.add(tableFiltersScreen.getPanel(), "spanx");
 		panel.add(lastStatementLabel, "spanx");
 		panel.add(backButton, "span, center, grow 0");
 	}
@@ -184,8 +180,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	/** @param newModel new table model */
 	public void setTableModel(SQLObTableModel newModel) {
 		tablesScreen.setModel(newModel);
-		
-		tableFiltersScreen.setTables(tablesScreen.getTables().toArray(new SQLObTable[tablesScreen.getTables().size()]));
 	}
 	
 	/** @param statement new statement to display */

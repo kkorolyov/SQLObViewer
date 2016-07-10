@@ -14,8 +14,6 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,14 +25,12 @@ import javax.swing.text.JTextComponent;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
-import dev.kkorolyov.sqlobviewer.gui.event.FilterChangeListener;
-import dev.kkorolyov.sqlobviewer.gui.event.FilterChangeSubject;
 import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 
 /**
  * A {@code JTable} displaying database information. 
  */
-public class SQLObTable extends JTable implements ChangeListener, FilterChangeSubject {
+public class SQLObTable extends JTable implements ChangeListener {
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
@@ -45,8 +41,6 @@ public class SQLObTable extends JTable implements ChangeListener, FilterChangeSu
 	private Map<Integer, RowFilter<SQLObTableModel, Integer>> filters = new HashMap<>();
 	
 	private JScrollPane scrollPane;
-	
-	private Set<FilterChangeListener> filterChangeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new database table.
@@ -151,8 +145,6 @@ public class SQLObTable extends JTable implements ChangeListener, FilterChangeSu
 		filters.put(column, RowFilter.regexFilter(exactFilter, column));
 		log.debug("Added filter=" + exactFilter + " for column=" + getModel().getColumnName(column).toUpperCase());
 		
-		fireFilterAdded(column, getColumnName(column), exactFilter);
-		
 		applyFilters();
 	}
 	/**
@@ -162,10 +154,9 @@ public class SQLObTable extends JTable implements ChangeListener, FilterChangeSu
 	public void removeFilter(int column) {		
 		if (filters.remove(column) == null)
 			log.debug("No filter to remove for column=" + getModel().getColumnName(column).toUpperCase());
-		else {
+		else
 			log.debug("Removed filter for column=" + getModel().getColumnName(column).toUpperCase());
-			fireFilterRemoved(column, getColumnName(column), null);
-		}
+		
 		applyFilters();
 	}
 	/**
@@ -317,27 +308,5 @@ public class SQLObTable extends JTable implements ChangeListener, FilterChangeSu
 		
 		revalidate();
 		repaint();
-	}
-	
-	private void fireFilterAdded(int column, String columnName, String filterText) {
-		for (FilterChangeListener listener : filterChangeListeners)
-			listener.filterAdded(column, columnName, filterText, this);
-	}
-	private void fireFilterRemoved(int column, String columnName, String filterText) {
-		for (FilterChangeListener listener : filterChangeListeners)
-			listener.filterRemoved(column, columnName, filterText, this);
-	}
-	
-	@Override
-	public void addFilterChangeListener(FilterChangeListener listener) {
-		filterChangeListeners.add(listener);
-	}
-	@Override
-	public void removeFilterChangeListener(FilterChangeListener listener) {
-		filterChangeListeners.remove(listener);
-	}
-	@Override
-	public void clearListeners() {
-		filterChangeListeners.clear();
 	}
 }

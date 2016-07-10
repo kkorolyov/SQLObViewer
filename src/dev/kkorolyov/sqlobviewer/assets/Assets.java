@@ -111,7 +111,6 @@ public class Assets {
 																COLUMN_TYPE_TIP = "COLUMN_TYPE_TIP",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
 																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
-																MINIMAL_REMOVE_TEXT = "MINIMAL_REMOVE_TEXT",
 																COPY_TEXT = "COPY_TEXT",
 																SUBMIT_TEXT = "SUBMIT_TEXT",
 																BACK_TEXT = "BACK_TEXT",
@@ -160,7 +159,6 @@ public class Assets {
 																COLUMN_TYPE_TIP = "Column type",
 																UNDO_STATEMENT_TEXT = "Undo",
 																REMOVE_FILTER_TEXT = "Remove Filter",
-																MINIMAL_REMOVE_TEXT = "-",
 																COPY_TEXT = "Copy",
 																SUBMIT_TEXT = "Submit",
 																BACK_TEXT = "Back",
@@ -217,7 +215,6 @@ public class Assets {
 			defaults.put(Keys.COLUMN_TYPE_TIP, COLUMN_TYPE_TIP);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
 			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
-			defaults.put(Keys.MINIMAL_REMOVE_TEXT, MINIMAL_REMOVE_TEXT);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
 			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
 			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
