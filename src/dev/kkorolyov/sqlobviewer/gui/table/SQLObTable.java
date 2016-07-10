@@ -1,7 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui.table;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COPY_TEXT;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_FILTER_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -18,6 +17,8 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
@@ -32,13 +33,15 @@ import dev.kkorolyov.swingplus.JScrollablePopupMenu;
  */
 public class SQLObTable extends JTable implements ChangeListener {
 	private static final long serialVersionUID = 899876032885503098L;
-	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
-	
+	private static final String FILTER_MARKER = "*";
+	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
+
 	private int lastSelectedRow,
 							lastSelectedColumn;
 	private boolean selectionListenerActive = true;
 	private Map<Integer, RowFilter<SQLObTableModel, Integer>> filters = new HashMap<>();
+	private Map<Integer, String> filterStrings = new HashMap<>();
 	
 	private JScrollPane scrollPane;
 	
@@ -135,6 +138,15 @@ public class SQLObTable extends JTable implements ChangeListener {
 	}
 	
 	/**
+	 * Returns the filter value of a column.
+	 * @param column index of column
+	 * @return column's filter value, or {@code null} if not filtered
+	 */
+	public String getFilterValue(int column) {
+		return filterStrings.get(column);
+	}
+	
+	/**
 	 * Adds a filter to this table.
 	 * @param filter value to filter by
 	 * @param column index of column to apply filter on
@@ -143,6 +155,10 @@ public class SQLObTable extends JTable implements ChangeListener {
 		String exactFilter = '^' + filter + '$';
 		
 		filters.put(column, RowFilter.regexFilter(exactFilter, column));
+		filterStrings.put(column, filter);
+		
+		applyFilterMarker(column, true);
+		
 		log.debug("Added filter=" + exactFilter + " for column=" + getModel().getColumnName(column).toUpperCase());
 		
 		applyFilters();
@@ -151,11 +167,16 @@ public class SQLObTable extends JTable implements ChangeListener {
 	 * Removes the filter for a specified column.
 	 * @param column index of column to remove filter of
 	 */
-	public void removeFilter(int column) {		
-		if (filters.remove(column) == null)
+	public void removeFilter(int column) {
+		RowFilter<SQLObTableModel, Integer> removedFilter = filters.remove(column);
+		String removedFilterString = filterStrings.remove(column);
+		
+		applyFilterMarker(column, false);
+		
+		if (removedFilter == null)
 			log.debug("No filter to remove for column=" + getModel().getColumnName(column).toUpperCase());
 		else
-			log.debug("Removed filter for column=" + getModel().getColumnName(column).toUpperCase());
+			log.debug("Removed filter=" + removedFilterString + " for column=" + getModel().getColumnName(column).toUpperCase());
 		
 		applyFilters();
 	}
@@ -169,6 +190,17 @@ public class SQLObTable extends JTable implements ChangeListener {
 	
 	private void applyFilters() {
 		getCastedRowSorter().setRowFilter(RowFilter.andFilter(filters.values()));
+	}
+	
+	private void applyFilterMarker(int column, boolean enabled) {
+		TableColumn currentColumn = getColumnModel().getColumn(column);
+		String currentColumnValue = (String) currentColumn.getHeaderValue();
+		
+		boolean hasMarker = currentColumnValue.regionMatches((currentColumnValue.length() - FILTER_MARKER.length()), FILTER_MARKER, 0, FILTER_MARKER.length());
+		if (enabled ? !hasMarker : hasMarker)
+			currentColumn.setHeaderValue(enabled ? currentColumnValue + FILTER_MARKER : currentColumnValue.substring(0, currentColumnValue.length() - 1));
+		
+		getTableHeader().repaint();
 	}
 	
 	/**
@@ -242,17 +274,29 @@ public class SQLObTable extends JTable implements ChangeListener {
 
 		JPopupMenu headerPopup = new JScrollablePopupMenu(popupHeight);
 		
-		JMenuItem removeFilterItem = new JMenuItem(Strings.get(REMOVE_FILTER_TEXT));
-		removeFilterItem.addActionListener(e -> removeFilter(column));
+		JMenuItem valueItem = new JMenuItem(getColumnName(column));
+		valueItem.setEnabled(false);
 		
-		headerPopup.add(removeFilterItem);
+		headerPopup.add(valueItem);
+		
+		String filterValue = getFilterValue(column);
+		if (filterValue != null) {
+			JMenuItem removeFilterItem = new JMenuItem(filterValue);
+			removeFilterItem.setToolTipText(Strings.get(REMOVE_FILTER_TIP) + ": " + filterValue);
+			removeFilterItem.addActionListener(e -> removeFilter(column));
+			
+			headerPopup.add(removeFilterItem);
+		}
 		headerPopup.addSeparator();
 		
 		for (Object value : getCastedModel().getUniqueValues(column)) {
-			JMenuItem currentFilterItem = new JMenuItem(value.toString());
-			currentFilterItem.addActionListener(e -> addFilter(value.toString(), column));
-			
-			headerPopup.add(currentFilterItem);
+			if (!value.toString().equals(filterValue)) {
+				JMenuItem currentFilterItem = new JMenuItem(value.toString());
+				currentFilterItem.setToolTipText(Strings.get(ADD_FILTER_TIP) + ": " + value);
+				currentFilterItem.addActionListener(e -> addFilter(value.toString(), column));
+				
+				headerPopup.add(currentFilterItem);
+			}
 		}
 		return headerPopup;
 	}
@@ -308,5 +352,21 @@ public class SQLObTable extends JTable implements ChangeListener {
 		
 		revalidate();
 		repaint();
+	}
+	
+	@Override
+	protected JTableHeader createDefaultTableHeader() {
+		return new JTableHeader(getColumnModel()) {
+			private static final long serialVersionUID = -4913911112753388076L;
+
+			@Override
+			public String getToolTipText(MouseEvent event) {
+				int viewColumnIndex = columnAtPoint(event.getPoint()),
+						modelColumnIndex = (viewColumnIndex < 0) ? -1 : convertColumnIndexToModel(viewColumnIndex);
+								
+				String filterString = (modelColumnIndex < 0) ? null : getFilterValue(modelColumnIndex);
+				return filterString == null ? filterString : (Strings.get(CURRENT_FILTER_TIP) + ": " + filterString);
+			};
+		};
 	}
 }

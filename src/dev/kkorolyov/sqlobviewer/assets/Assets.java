@@ -110,7 +110,9 @@ public class Assets {
 																COLUMN_NAME_TIP = "COLUMN_NAME_TIP",
 																COLUMN_TYPE_TIP = "COLUMN_TYPE_TIP",
 																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
-																REMOVE_FILTER_TEXT = "REMOVE_FILTER_TEXT",
+																CURRENT_FILTER_TIP = "CURRENT_FILTER_TIP",
+																ADD_FILTER_TIP = "ADD_FILTER_TIP",
+																REMOVE_FILTER_TIP = "REMOVE_FILTER_TIP",
 																COPY_TEXT = "COPY_TEXT",
 																SUBMIT_TEXT = "SUBMIT_TEXT",
 																BACK_TEXT = "BACK_TEXT",
@@ -158,7 +160,9 @@ public class Assets {
 																COLUMN_NAME_TIP = "Column name",
 																COLUMN_TYPE_TIP = "Column type",
 																UNDO_STATEMENT_TEXT = "Undo",
-																REMOVE_FILTER_TEXT = "Remove Filter",
+																CURRENT_FILTER_TIP = "Current filter",
+																ADD_FILTER_TIP = "Set filter",
+																REMOVE_FILTER_TIP = "Remove filter",
 																COPY_TEXT = "Copy",
 																SUBMIT_TEXT = "Submit",
 																BACK_TEXT = "Back",
@@ -214,7 +218,9 @@ public class Assets {
 			defaults.put(Keys.COLUMN_NAME_TIP, COLUMN_NAME_TIP);
 			defaults.put(Keys.COLUMN_TYPE_TIP, COLUMN_TYPE_TIP);
 			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
-			defaults.put(Keys.REMOVE_FILTER_TEXT, REMOVE_FILTER_TEXT);
+			defaults.put(Keys.CURRENT_FILTER_TIP, CURRENT_FILTER_TIP);
+			defaults.put(Keys.ADD_FILTER_TIP, ADD_FILTER_TIP);
+			defaults.put(Keys.REMOVE_FILTER_TIP, REMOVE_FILTER_TIP);
 			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
 			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
 			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
