@@ -74,6 +74,9 @@ public class Assets {
 		public static final String	WINDOW_WIDTH = "WINDOW_WIDTH",
 																WINDOW_HEIGHT = "WINDOW_HEIGHT";
 		
+		public static final String	MAX_TABLES_X = "MAX_TABLES_X",
+																MAX_TABLES_Y = "MAX_TABLES_Y";
+		
 		public static final String	SAVED_HOST = "SAVED_HOST",
 																SAVED_DATABASE = "SAVED_DATABASE",
 																SAVED_USER = "SAVED_USER",
@@ -94,15 +97,17 @@ public class Assets {
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
 																PASSWORD_TEXT = "PASSWORD_TEXT",
-																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
 																TABLE_OPTIONS_TEXT = "TABLE_OPTIONS_TEXT",
+																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
+																REFRESH_TABLE_TIP = "REFRESH_TABLE_TIP",
+																DYNAMIC_TABLE_BUTTON_TEXT = "DYNAMIC_TABLE_BUTTON_TEXT",
 																ADD_TABLE_TEXT = "ADD_TABLE_TEXT",
 																ADD_TABLE_TIP = "ADD_TABLE_TIP",
 																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
 																REMOVE_TABLE_TIP = "REMOVE_TABLE_TIP",
 																CONFIRM_REMOVE_TABLE_TEXT = "CONFIRM_REMOVE_TABLE_TEXT",
 																TABLE_NAME_TIP = "TABLE_NAME_TIP",
-																ROW_OPTIONS_TEXT = "ROW_OPTIONS_TEXT",
+																DYNAMIC_ROW_BUTTON_TEXT = "DYNAMIC_ROW_BUTTON_TEXT",
 																ADD_ROW_TEXT = "ADD_ROW_TEXT",
 																ADD_ROW_TIP = "ADD_ROW_TIP",
 																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
@@ -127,7 +132,9 @@ public class Assets {
 	
 	private static class Defaults {
 		private static final String WINDOW_WIDTH = "720",
-																WINDOW_HEIGHT = "480";
+																WINDOW_HEIGHT = "480",
+																MAX_TABLES_X = "4",
+																MAX_TABLES_Y = "4";
 		private static final String	SAVED_HOST = "",
 																SAVED_DATABASE = "",
 																SAVED_USER = "",
@@ -148,15 +155,17 @@ public class Assets {
 																DATABASE_TEXT = "Database",
 																USER_TEXT = "User",
 																PASSWORD_TEXT = "Password",
+																TABLE_OPTIONS_TEXT = "Table options",
 																REFRESH_TABLE_TEXT = "R",
-																TABLE_OPTIONS_TEXT = "Table",
+																REFRESH_TABLE_TIP = "Refresh table",
+																DYNAMIC_TABLE_BUTTON_TEXT = "Table",
 																ADD_TABLE_TEXT = "+",
 																ADD_TABLE_TIP = "Create table",
 																REMOVE_TABLE_TEXT = "-",
 																REMOVE_TABLE_TIP = "Drop table",
 																CONFIRM_REMOVE_TABLE_TEXT = "Are you sure you want to drop the selected table?",
 																TABLE_NAME_TIP = "Table name",
-																ROW_OPTIONS_TEXT = "Row",
+																DYNAMIC_ROW_BUTTON_TEXT = "Row",
 																ADD_ROW_TEXT = "+",
 																ADD_ROW_TIP = "Add row",
 																REMOVE_ROW_TEXT = "-",
@@ -184,6 +193,9 @@ public class Assets {
 			defaults.put(Keys.WINDOW_WIDTH, WINDOW_WIDTH);
 			defaults.put(Keys.WINDOW_HEIGHT, WINDOW_HEIGHT);
 			
+			defaults.put(Keys.MAX_TABLES_X, MAX_TABLES_X);
+			defaults.put(Keys.MAX_TABLES_Y, MAX_TABLES_Y);
+			
 			defaults.put(Keys.SAVED_HOST, SAVED_HOST);
 			defaults.put(Keys.SAVED_DATABASE, SAVED_DATABASE);
 			defaults.put(Keys.SAVED_USER, SAVED_USER);
@@ -210,15 +222,17 @@ public class Assets {
 			defaults.put(Keys.USER_TEXT, USER_TEXT);
 			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
 			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
-			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
 			defaults.put(Keys.TABLE_OPTIONS_TEXT, TABLE_OPTIONS_TEXT);
+			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
+			defaults.put(Keys.REFRESH_TABLE_TIP, REFRESH_TABLE_TIP);
+			defaults.put(Keys.DYNAMIC_TABLE_BUTTON_TEXT, DYNAMIC_TABLE_BUTTON_TEXT);
 			defaults.put(Keys.ADD_TABLE_TEXT, ADD_TABLE_TEXT);
 			defaults.put(Keys.ADD_TABLE_TIP, ADD_TABLE_TIP);
 			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
 			defaults.put(Keys.REMOVE_TABLE_TIP, REMOVE_TABLE_TIP);
 			defaults.put(Keys.CONFIRM_REMOVE_TABLE_TEXT, CONFIRM_REMOVE_TABLE_TEXT);
 			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
-			defaults.put(Keys.ROW_OPTIONS_TEXT, ROW_OPTIONS_TEXT);
+			defaults.put(Keys.DYNAMIC_ROW_BUTTON_TEXT, DYNAMIC_ROW_BUTTON_TEXT);
 			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
 			defaults.put(Keys.ADD_ROW_TIP, ADD_ROW_TIP);
 			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);

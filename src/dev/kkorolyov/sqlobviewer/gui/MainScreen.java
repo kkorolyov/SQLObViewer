@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
@@ -38,7 +39,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private JButton refreshTableButton,
 									backButton;
 	private JLabel lastStatementLabel;
-	private JPopupMenu lastStatementPopup;
+	private JPopupMenu 	tableComboBoxPopup,
+											lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
 	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
@@ -87,16 +89,17 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		undoItem.addActionListener(e -> fireRevertStatement(""));
 		lastStatementPopup.add(undoItem);
 		
-		tableButtonPanel = new JHoverButtonPanel(Strings.get(TABLE_OPTIONS_TEXT), Orientation.X, ExpandTrigger.HOVER);
+		tableButtonPanel = new JHoverButtonPanel(Strings.get(DYNAMIC_TABLE_BUTTON_TEXT), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton tableButton : initTableButtons())
 			tableButtonPanel.addButton(tableButton);
 		
-		rowButtonPanel = new JHoverButtonPanel(Strings.get(ROW_OPTIONS_TEXT), Orientation.X, ExpandTrigger.HOVER);
+		rowButtonPanel = new JHoverButtonPanel(Strings.get(DYNAMIC_ROW_BUTTON_TEXT), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton rowButton : initRowButtons())
 			rowButtonPanel.addButton(rowButton);
 		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> fireUpdate());
+		refreshTableButton.setToolTipText(Strings.get(REFRESH_TABLE_TIP));
 		
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> {
@@ -105,6 +108,20 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			if (selectedTable != null)
 				fireSelectTable(selectedTable);
 		});
+		tableComboBox.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowTableComboBoxPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowTableComboBoxPopup(e);
+			}
+		});
+		tableComboBoxPopup = new JPopupMenu();
+		JMenuItem tableOptionsItem = new JMenuItem(Strings.get(TABLE_OPTIONS_TEXT));
+		tableOptionsItem.addActionListener(e -> displayTableOptions());
+		tableComboBoxPopup.add(tableOptionsItem);
 		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> fireCanceled());
@@ -140,6 +157,14 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(rowButtonPanel, "top, gap 0");
 		panel.add(lastStatementLabel, "spanx");
 		panel.add(backButton, "span, center, grow 0");
+	}
+	
+	private void tryShowTableComboBoxPopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showTableComboBoxPopup(e);
+	}
+	private void showTableComboBoxPopup(MouseEvent e) {
+		tableComboBoxPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	private void tryShowLastStatementPopup(MouseEvent e) {
@@ -184,6 +209,14 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	/** @param statement new statement to display */
 	public void setLastStatement(String statement) {		
 		lastStatementLabel.setText(statement);
+	}
+	
+	private void displayTableOptions() {
+		String title = Strings.get(TABLE_OPTIONS_TEXT);
+		TableOptionsScreen message = new TableOptionsScreen();
+		
+		if (displayDialog(title, message.getPanel(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0)
+			tablesScreen.setTables(message.getXTables(), message.getYTables());
 	}
 	
 	private void displayAddTableDialog() {		

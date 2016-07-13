@@ -73,7 +73,7 @@ public class TablesScreen implements Screen {
 		panel.repaint();
 	}
 	private void createTables(int numTables) {
-		for (int i = 0; i < rows * columns; i++) {
+		for (int i = 0; i < numTables; i++) {
 			SQLObTable newTable = new SQLObTable(model);
 			
 			tables.add(newTable);
