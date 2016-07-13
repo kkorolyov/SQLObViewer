@@ -88,6 +88,10 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 			fireStateChanged();
 	}
 	
+	/** @return {@code true} if the data in this model may be edited */
+	public boolean isEditable() {
+		return editable;
+	}
 	/** @param isEditable whether the data in this model may be edited */
 	public void setEditable(boolean isEditable) {
 		editable = isEditable;

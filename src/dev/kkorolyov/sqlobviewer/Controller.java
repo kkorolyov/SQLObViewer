@@ -256,16 +256,6 @@ public class Controller implements SubmitListener, CancelListener, SqlRequestLis
 	}
 	
 	@Override
-	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
-		log.debug("Received INSERT ROW event from: " + source);
-
-		int result = tableConn.insert(rowValues);
-		if (result > 1)
-			updateTableModel();
-		
-		setLastStatement(String.valueOf(result));
-	}
-	@Override
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received UPDATE ROW event from: " + source);
 
@@ -273,6 +263,16 @@ public class Controller implements SubmitListener, CancelListener, SqlRequestLis
 		if (result > 1)
 			updateTableModel();
 						
+		setLastStatement(String.valueOf(result));
+	}
+	@Override
+	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
+		log.debug("Received INSERT ROW event from: " + source);
+
+		int result = tableConn.insert(rowValues);
+		if (result > 1)
+			updateTableModel();
+		
 		setLastStatement(String.valueOf(result));
 	}
 	@Override

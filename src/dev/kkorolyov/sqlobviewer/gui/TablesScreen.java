@@ -82,6 +82,11 @@ public class TablesScreen implements Screen {
 	}
 	
 	@Override
+	public boolean focusDefaultComponent() {
+		return getPanel().requestFocusInWindow();
+	}
+	
+	@Override
 	public JPanel getPanel() {
 		return panel;
 	}

@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
-import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
@@ -190,10 +189,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private void displayAddTableDialog() {		
 		String title = Strings.get(ADD_TABLE_TIP);
 		CreateTableScreen message = new CreateTableScreen(false);
-
-		int selectedOption = displayOkCancelDialog(title, message.getPanel());
 		
-		if (selectedOption == JOptionPane.OK_OPTION) {
+		if (displayDialog(title, message.getPanel(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0) {
 			String name = message.getName();
 			Column[] columns = message.getColumns();
 			
@@ -204,46 +201,46 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private void displayAddRowDialog() {		
 		String title = Strings.get(ADD_ROW_TIP);
 		SQLObTable message = new SQLObTable(tablesScreen.getModel().getEmptyTableModel());
-
-		int selectedOption = displayOkCancelDialog(title, message.getScrollPane());
 		
-		if (selectedOption == JOptionPane.OK_OPTION) {
+		if (displayDialog(title, message.getScrollPane(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0) {
 			if (message.getCellEditor() != null)
 				message.getCellEditor().stopCellEditing();
 			
 			tablesScreen.getModel().insertRow(message.getRow(0));
 		}
 	}
-	private int displayOkCancelDialog(String title, Object message) {
-		return JOptionPane.showOptionDialog(getPanel(), message, Strings.get(title), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-	}
 	
 	private void displayConfirmRemoveTableDialog() {
 		String selectedTableName = (String) tableComboBox.getSelectedItem();
 		
-		String 	title = Strings.get(REMOVE_TABLE_TIP),
-						message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
-		
-		if (displayConfirmDialog(title, message) == JOptionPane.YES_OPTION)
-			fireDropTable(selectedTableName);
+		if (selectedTableName != null) {		
+			String 	title = Strings.get(REMOVE_TABLE_TIP),
+							message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
+			
+			if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
+				fireDropTable(selectedTableName);
+		}
 	}
 	private void displayConfirmRemoveRowDialog() {
 		RowEntry[][] selectedRows = getSelectedRows();
-
-		String title = Strings.get(REMOVE_ROW_TIP);
-		JPanel message = new JPanel(new GridLayout(0, 1));
 		
-		JLabel selectedRowsLabel = new JLabel(Strings.get(CONFIRM_REMOVE_ROW_TEXT));
-		SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(tablesScreen.getModel().getColumns(), selectedRows, false));
-		
-		message.add(selectedRowsLabel);
-		message.add(selectedRowsTable.getScrollPane());
-		
-		if (displayConfirmDialog(title, message) == JOptionPane.YES_OPTION)
-			deleteRows(selectedRows);
+		if (selectedRows.length > 0) {
+			String title = Strings.get(REMOVE_ROW_TIP);
+			JPanel message = new JPanel(new MigLayout("insets 0, gap 4px, flowy"));
+			
+			JLabel selectedRowsLabel = new JLabel(Strings.get(CONFIRM_REMOVE_ROW_TEXT));
+			SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(tablesScreen.getModel().getColumns(), selectedRows, false));
+			
+			message.add(selectedRowsLabel);
+			message.add(selectedRowsTable.getScrollPane());
+			
+			if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
+				deleteRows(selectedRows);
+		}
 	}
-	private int displayConfirmDialog(String title, Object message) {
-		return JOptionPane.showConfirmDialog(getPanel(), message, title, JOptionPane.YES_NO_OPTION);
+	
+	private int displayDialog(String title, Object message, Object... options) {
+		return JOptionPane.showOptionDialog(getPanel(), message, Strings.get(title), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
 	}
 	
 	private RowEntry[][] getSelectedRows() {
@@ -263,6 +260,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		}
 	}
 	
+	@Override
+	public boolean focusDefaultComponent() {
+		return false;
+	}
 	@Override
 	public JPanel getPanel() {
 		return panel;

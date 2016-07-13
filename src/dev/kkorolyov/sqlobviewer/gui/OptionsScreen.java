@@ -13,6 +13,11 @@ public class OptionsScreen implements Screen {
 	PropsScreen screen;
 	
 	@Override
+	public boolean focusDefaultComponent() {
+		return getPanel().requestFocusInWindow();
+	}
+	
+	@Override
 	public JPanel getPanel() {
 		return screen.getPanel();
 	}

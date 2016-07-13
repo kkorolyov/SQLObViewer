@@ -56,9 +56,10 @@ public class MainWindow implements Window {
 	}
 	
 	@Override
-	public void setScreen(Screen screen, boolean fitToScreen) {		
+	public void setScreen(Screen screen, boolean fitToScreen) {
 		frame.getContentPane().removeAll();
 		frame.add(screen.getPanel());
+		screen.focusDefaultComponent();
 		
 		frame.setPreferredSize(fitToScreen ? null : new Dimension(width, height));
 		frame.pack();

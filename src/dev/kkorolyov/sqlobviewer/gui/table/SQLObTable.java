@@ -331,8 +331,16 @@ public class SQLObTable extends JTable implements ChangeListener {
 	@Override
 	public void setModel(TableModel dataModel) {
 		super.setModel(dataModel);
-		if (dataModel instanceof SQLObTableModel)
-			((SQLObTableModel) dataModel).addChangeListener(this);
+		
+		if (dataModel instanceof SQLObTableModel) {
+			SQLObTableModel castedModel = (SQLObTableModel) dataModel;
+			castedModel.addChangeListener(this);
+			
+			if (!castedModel.isEditable()) {
+				setFocusable(false);
+				setCellSelectionEnabled(false);
+			}
+		}
 	}
 	
 	/** @return	casted table model */

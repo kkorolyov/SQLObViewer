@@ -146,6 +146,11 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 	}
 	
 	@Override
+	public boolean focusDefaultComponent() {
+		return nameField.requestFocusInWindow();
+	}
+	
+	@Override
 	public JPanel getPanel() {
 		return panel;
 	}

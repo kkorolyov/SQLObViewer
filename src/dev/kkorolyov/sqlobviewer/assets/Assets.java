@@ -86,6 +86,10 @@ public class Assets {
 																ERROR_TITLE_SUFFIX = "ERROR_TITLE_SUFFIX",
 																EXPAND_ERROR_TEXT = "EXPAND_ERROR_TEXT",
 																APPLICATION_CLOSING_TEXT = "APPLICATION_CLOSING_TEXT",
+																OPTION_SUBMIT = "OPTION_SUBMIT",
+																OPTION_CANCEL = "OPTION_CANCEL",
+																OPTION_YES = "OPTION_YES",
+																OPTION_NO = "OPTION_NO",
 																HOST_TEXT = "HOST_TEXT",
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
@@ -136,6 +140,10 @@ public class Assets {
 																ERROR_TITLE_SUFFIX = "FATAL ERROR",
 																EXPAND_ERROR_TEXT = "CLICK TO EXPAND",
 																APPLICATION_CLOSING_TEXT = "The application will now exit",
+																OPTION_SUBMIT = "OK",
+																OPTION_CANCEL = "Cancel",
+																OPTION_YES = "Yes",
+																OPTION_NO = "No",
 																HOST_TEXT = "Host",
 																DATABASE_TEXT = "Database",
 																USER_TEXT = "User",
@@ -193,6 +201,10 @@ public class Assets {
 			defaults.put(Keys.ERROR_TITLE_SUFFIX, ERROR_TITLE_SUFFIX);
 			defaults.put(Keys.EXPAND_ERROR_TEXT, EXPAND_ERROR_TEXT);
 			defaults.put(Keys.APPLICATION_CLOSING_TEXT, APPLICATION_CLOSING_TEXT);
+			defaults.put(Keys.OPTION_SUBMIT, OPTION_SUBMIT);
+			defaults.put(Keys.OPTION_CANCEL, OPTION_CANCEL);
+			defaults.put(Keys.OPTION_YES, OPTION_YES);
+			defaults.put(Keys.OPTION_NO, OPTION_NO);
 			
 			defaults.put(Keys.HOST_TEXT, HOST_TEXT);
 			defaults.put(Keys.USER_TEXT, USER_TEXT);

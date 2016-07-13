@@ -2,6 +2,9 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -37,8 +40,30 @@ public class LoginScreen implements Screen, SubmitSubject {
 	 */
 	public LoginScreen() {
 		initComponents();
+		addSubmitListeners();
+		
 		buildComponents();
 	}
+	private void addSubmitListeners() {
+		KeyListener submitKeyListener = buildSubmitListener();
+		
+		panel.addKeyListener(submitKeyListener);
+		hostField.addKeyListener(submitKeyListener);
+		databaseField.addKeyListener(submitKeyListener);
+		userField.addKeyListener(submitKeyListener);
+		passwordField.addKeyListener(submitKeyListener);
+	}
+	private KeyListener buildSubmitListener() {
+		return new KeyAdapter() {
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					fireSubmitted();
+			}
+		};
+	}
+	
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]"));
 		
@@ -84,6 +109,10 @@ public class LoginScreen implements Screen, SubmitSubject {
 		return passwordField.getText();
 	}
 	
+	@Override
+	public boolean focusDefaultComponent() {
+		return hostField.requestFocusInWindow();
+	}
 	@Override
 	public JPanel getPanel() {
 		return panel;
