@@ -64,6 +64,7 @@ public class MainWindow implements Window {
 		frame.setPreferredSize(fitToScreen ? null : new Dimension(width, height));
 		frame.pack();
 		
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 	

@@ -38,9 +38,9 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 															rowButtonPanel;
 	private JButton refreshTableButton,
 									backButton;
+	private GridSelector tableGridSelector;
 	private JLabel lastStatementLabel;
-	private JPopupMenu 	tableComboBoxPopup,
-											lastStatementPopup;
+	private JPopupMenu lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
 	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
@@ -71,7 +71,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
 		
-		tablesScreen = new TablesScreen(null);
+		tablesScreen = new TablesScreen(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 				
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
@@ -97,6 +97,9 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		for (JButton rowButton : initRowButtons())
 			rowButtonPanel.addButton(rowButton);
 		
+		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
+		tableGridSelector.addChangeListener(e -> tablesScreen.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y)));	// TODO Move to syncTables()
+		
 		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
 		refreshTableButton.addActionListener(e -> fireUpdate());
 		refreshTableButton.setToolTipText(Strings.get(REFRESH_TABLE_TIP));
@@ -108,21 +111,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			if (selectedTable != null)
 				fireSelectTable(selectedTable);
 		});
-		tableComboBox.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				tryShowTableComboBoxPopup(e);
-			}
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				tryShowTableComboBoxPopup(e);
-			}
-		});
-		tableComboBoxPopup = new JPopupMenu();
-		JMenuItem tableOptionsItem = new JMenuItem(Strings.get(TABLE_OPTIONS_TEXT));
-		tableOptionsItem.addActionListener(e -> displayTableOptions());
-		tableComboBoxPopup.add(tableOptionsItem);
-		
 		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
 		backButton.addActionListener(e -> fireCanceled());
 	}
@@ -154,17 +142,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(tableComboBox);
 		panel.add(tableButtonPanel, "gap 0");
 		panel.add(tablesScreen.getPanel(), "spanx 2, grow");
-		panel.add(rowButtonPanel, "top, gap 0");
+		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
+		panel.add(tableGridSelector, "gap 0");
 		panel.add(lastStatementLabel, "spanx");
 		panel.add(backButton, "span, center, grow 0");
-	}
-	
-	private void tryShowTableComboBoxPopup(MouseEvent e) {
-		if (e.isPopupTrigger())
-			showTableComboBoxPopup(e);
-	}
-	private void showTableComboBoxPopup(MouseEvent e) {
-		tableComboBoxPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	private void tryShowLastStatementPopup(MouseEvent e) {
@@ -209,14 +190,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	/** @param statement new statement to display */
 	public void setLastStatement(String statement) {		
 		lastStatementLabel.setText(statement);
-	}
-	
-	private void displayTableOptions() {
-		String title = Strings.get(TABLE_OPTIONS_TEXT);
-		TableOptionsScreen message = new TableOptionsScreen();
-		
-		if (displayDialog(title, message.getPanel(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0)
-			tablesScreen.setTables(message.getXTables(), message.getYTables());
 	}
 	
 	private void displayAddTableDialog() {		

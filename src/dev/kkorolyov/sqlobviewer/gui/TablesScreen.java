@@ -12,7 +12,7 @@ import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 /**
  * A screen containing multiple {@code SQLObTables} using the same backing {@code SQLObTableModel}.
  */
-public class TablesScreen implements Screen {
+public class TablesScreen implements Screen {	// TODO Clean
 	private SQLObTableModel model;
 	private List<SQLObTable> tables = new LinkedList<>();
 	private int rows = 1,
@@ -22,9 +22,21 @@ public class TablesScreen implements Screen {
 	
 	/**
 	 * Constructs a new tables screen with 1 displayed table.
-	 * @param model table model to use
+	 * @see #TablesScreen(SQLObTableModel, int, int)
 	 */
 	public TablesScreen(SQLObTableModel model) {
+		setModel(model);
+	}
+	/**
+	 * Constructs a new tables screen.
+	 * @param model table model to use
+	 * @param rows number of rows of tables on this screen
+	 * @param columns number of columns of tables on this screen
+	 */
+	public TablesScreen(SQLObTableModel model, int rows, int columns) {
+		this.rows = rows;
+		this.columns = columns;
+		
 		setModel(model);
 	}
 	

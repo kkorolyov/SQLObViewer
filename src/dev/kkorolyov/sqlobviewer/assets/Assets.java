@@ -75,7 +75,9 @@ public class Assets {
 																WINDOW_HEIGHT = "WINDOW_HEIGHT";
 		
 		public static final String	MAX_TABLES_X = "MAX_TABLES_X",
-																MAX_TABLES_Y = "MAX_TABLES_Y";
+																MAX_TABLES_Y = "MAX_TABLES_Y",
+																CURRENT_TABLES_X = "CURRENT_TABLES_X",
+																CURRENT_TABLES_Y = "CURRENT_TABLES_Y";
 		
 		public static final String	SAVED_HOST = "SAVED_HOST",
 																SAVED_DATABASE = "SAVED_DATABASE",
@@ -97,7 +99,6 @@ public class Assets {
 																DATABASE_TEXT = "DATABASE_TEXT",
 																USER_TEXT = "USER_TEXT",
 																PASSWORD_TEXT = "PASSWORD_TEXT",
-																TABLE_OPTIONS_TEXT = "TABLE_OPTIONS_TEXT",
 																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
 																REFRESH_TABLE_TIP = "REFRESH_TABLE_TIP",
 																DYNAMIC_TABLE_BUTTON_TEXT = "DYNAMIC_TABLE_BUTTON_TEXT",
@@ -134,7 +135,9 @@ public class Assets {
 		private static final String WINDOW_WIDTH = "720",
 																WINDOW_HEIGHT = "480",
 																MAX_TABLES_X = "4",
-																MAX_TABLES_Y = "4";
+																MAX_TABLES_Y = "4",
+																CURRENT_TABLES_X = "1",
+																CURRENT_TABLES_Y = "1";
 		private static final String	SAVED_HOST = "",
 																SAVED_DATABASE = "",
 																SAVED_USER = "",
@@ -155,7 +158,6 @@ public class Assets {
 																DATABASE_TEXT = "Database",
 																USER_TEXT = "User",
 																PASSWORD_TEXT = "Password",
-																TABLE_OPTIONS_TEXT = "Table options",
 																REFRESH_TABLE_TEXT = "R",
 																REFRESH_TABLE_TIP = "Refresh table",
 																DYNAMIC_TABLE_BUTTON_TEXT = "Table",
@@ -195,6 +197,8 @@ public class Assets {
 			
 			defaults.put(Keys.MAX_TABLES_X, MAX_TABLES_X);
 			defaults.put(Keys.MAX_TABLES_Y, MAX_TABLES_Y);
+			defaults.put(Keys.CURRENT_TABLES_X, CURRENT_TABLES_X);
+			defaults.put(Keys.CURRENT_TABLES_Y, CURRENT_TABLES_Y);
 			
 			defaults.put(Keys.SAVED_HOST, SAVED_HOST);
 			defaults.put(Keys.SAVED_DATABASE, SAVED_DATABASE);
@@ -222,7 +226,6 @@ public class Assets {
 			defaults.put(Keys.USER_TEXT, USER_TEXT);
 			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
 			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
-			defaults.put(Keys.TABLE_OPTIONS_TEXT, TABLE_OPTIONS_TEXT);
 			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
 			defaults.put(Keys.REFRESH_TABLE_TIP, REFRESH_TABLE_TIP);
 			defaults.put(Keys.DYNAMIC_TABLE_BUTTON_TEXT, DYNAMIC_TABLE_BUTTON_TEXT);
@@ -265,11 +268,20 @@ public class Assets {
 		/**
 		 * Retrieves the configuration value for a key.
 		 * @param key key to use
-		 * @return value for the specified key.
+		 * @return value of the specified key.
 		 */
 		public static String get(String key) {
 			return Assets.get(key, config);
 		}
+		/**
+		 * Retrieves the integer value of a key.
+		 * @param key key to use
+		 * @return integer value of specified key
+		 */
+		public static int getInt(String key) {
+			return Integer.parseInt(get(key));
+		}
+		
 		/**
 		 * Sets the configuration value for a specified key. If such a key is not found within the loaded configuration, it is added instead.
 		 * @param key key to use
