@@ -90,7 +90,7 @@ public class TableGrid implements Screen {
 		panel.repaint();
 	}
 	private void trimGrid(int rows, int columns) {
-		for (int i = rows; i < tableGrid.size(); i++) {
+		for (int i = (tableGrid.size() - 1); i >= rows ; i--) {
 			for (SQLObTable table : tableGrid.remove(i))
 				table.setModel(null);
 		}
@@ -98,14 +98,14 @@ public class TableGrid implements Screen {
 			for (int j = 0; j < columns; j++)
 				panel.add(tableGrid.get(i).get(j).getScrollPane());	// Add current tables to panel
 			
-			for (int j = columns; j < tableGrid.get(i).size(); j++)
+			for (int j = (tableGrid.get(i).size() - 1); j >= columns; j--)
 				tableGrid.get(i).remove(j).setModel(null);
 		}
 	}
 	private void fillGrid(int rows, int columns) {
 		for (int i = tableGrid.size(); i < rows; i++)
 			tableGrid.add(new ArrayList<SQLObTable>());
-
+		
 		for (int i = 0; i < rows; i++) {
 			for (int j = tableGrid.get(i).size(); j < columns; j++)
 				tableGrid.get(i).add(new SQLObTable(model));
