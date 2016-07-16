@@ -17,10 +17,7 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.*;
 import javax.swing.text.JTextComponent;
 
 import dev.kkorolyov.simplelogs.Logger;
@@ -330,7 +327,10 @@ public class SQLObTable extends JTable implements ChangeListener {
 	
 	@Override
 	public void setModel(TableModel dataModel) {
-		super.setModel(dataModel);
+		if (getCastedModel() != null)
+			getCastedModel().removeChangeListener(this);
+		
+		super.setModel(dataModel != null ? dataModel : new DefaultTableModel());
 		
 		if (dataModel instanceof SQLObTableModel) {
 			SQLObTableModel castedModel = (SQLObTableModel) dataModel;
@@ -343,9 +343,9 @@ public class SQLObTable extends JTable implements ChangeListener {
 		}
 	}
 	
-	/** @return	casted table model */
+	/** @return	table model as a {@code SQLObTableModel}, or {@code null} if no model or model is not a {@code SQLObTableModel} */
 	private SQLObTableModel getCastedModel() {
-		return (SQLObTableModel) super.getModel();
+		return ((super.getModel() != null) && (super.getModel() instanceof SQLObTableModel)) ? (SQLObTableModel) super.getModel() : null;
 	}
 	@SuppressWarnings("unchecked")
 	private TableRowSorter<SQLObTableModel> getCastedRowSorter() {

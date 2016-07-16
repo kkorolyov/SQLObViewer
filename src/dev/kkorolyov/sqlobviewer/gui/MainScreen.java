@@ -32,7 +32,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {	
 	private JPanel panel;
-	private TablesScreen tablesScreen;
+	private TableGrid tablesScreen;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
@@ -71,7 +71,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
 		
-		tablesScreen = new TablesScreen(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+		tablesScreen = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 				
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
