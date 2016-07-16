@@ -146,6 +146,12 @@ public class Controller implements SubmitListener, CancelListener, SqlRequestLis
 	}
 	
 	private void updateTableModel() {
+		if (tableConn == null) {
+			tableModel = null;
+			
+			log.warning("No table connection set, aborting table model update");
+			return;
+		}
 		log.debug("Updating table model...");
 		
 		if (tableModel == null) {

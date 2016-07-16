@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 
+import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
@@ -30,7 +31,9 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {	
+public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
+	private static final Logger log = Logger.getLogger(MainScreen.class.getName());
+	
 	private JPanel panel;
 	private TableGrid tablesScreen;
 	private JComboBox<String> tableComboBox;
@@ -156,16 +159,20 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
-	/** @param name name of table to add to combo box */
+	/** @return name of currently-selected table */
+	public String getTable() {
+		return (String) tableComboBox.getSelectedItem();
+	}
+	/** @param name name of table to add to table selector */
 	public void addTable(String name) {
 		tableComboBox.addItem(name);
 	}
-	/** @param name name of table to remove from combo box */
+	/** @param name name of table to remove from table selector */
 	public void removeTable(String name) {
 		tableComboBox.removeItem(name);
 	}
 	
-	/** @return names of all tables in combo box */
+	/** @return names of all tables in table selector */
 	public String[] getTables() {
 		String[] tables = new String[tableComboBox.getItemCount()];
 		
@@ -174,14 +181,24 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		
 		return tables;
 	}
-	/** @param tableNames new table names to display in combo box */
+	/** @param tableNames new table names to display in table selector */
 	public void setTables(String[] tableNames) {
-		tableComboBox.removeAllItems();
+		clearTables();
 		
 		for (String table : tableNames)
-			tableComboBox.addItem(table);
+			addTable(table);
+	}
+	/**
+	 * Clears all tables from table selector.
+	 */
+	public void clearTables() {
+		tableComboBox.removeAllItems();
 	}
 	
+	/** @return table model backing all displayed tables */
+	public SQLObTableModel getTableModel() {
+		return tablesScreen.getModel();
+	}
 	/** @param newModel new table model */
 	public void setTableModel(SQLObTableModel newModel) {
 		tablesScreen.setModel(newModel);
@@ -192,7 +209,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		lastStatementLabel.setText(statement);
 	}
 	
-	private void displayAddTableDialog() {		
+	private void displayAddTableDialog() {
 		String title = Strings.get(ADD_TABLE_TIP);
 		CreateTableScreen message = new CreateTableScreen(false);
 		
@@ -204,9 +221,13 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 				fireCreateTable(name, columns);
 		}
 	}
-	private void displayAddRowDialog() {		
+	private void displayAddRowDialog() {
+		if (getTableModel() == null) {
+			log.warning("No table model set, aborting AddRowDialog creation");
+			return;
+		}
 		String title = Strings.get(ADD_ROW_TIP);
-		SQLObTable message = new SQLObTable(tablesScreen.getModel().getEmptyTableModel());
+		SQLObTable message = new SQLObTable(getTableModel().getEmptyTableModel());
 		
 		if (displayDialog(title, message.getScrollPane(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0) {
 			if (message.getCellEditor() != null)
@@ -217,17 +238,22 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	}
 	
 	private void displayConfirmRemoveTableDialog() {
-		String selectedTableName = (String) tableComboBox.getSelectedItem();
-		
-		if (selectedTableName != null) {		
-			String 	title = Strings.get(REMOVE_TABLE_TIP),
-							message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
-			
-			if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
-				fireDropTable(selectedTableName);
+		String selectedTableName = getTable();
+		if (selectedTableName == null) {
+			log.warning("No table selected, aborting RemoveTableDialog creation");
+			return;
 		}
+		String 	title = Strings.get(REMOVE_TABLE_TIP),
+						message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
+		
+		if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
+			fireDropTable(selectedTableName);
 	}
 	private void displayConfirmRemoveRowDialog() {
+		if (getTableModel() == null) {
+			log.warning("No table model set, aborting RemoveRowDialog creation");
+			return;
+		}		
 		RowEntry[][] selectedRows = getSelectedRows();
 		
 		if (selectedRows.length > 0) {
@@ -235,7 +261,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			JPanel message = new JPanel(new MigLayout("insets 0, gap 4px, flowy"));
 			
 			JLabel selectedRowsLabel = new JLabel(Strings.get(CONFIRM_REMOVE_ROW_TEXT));
-			SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(tablesScreen.getModel().getColumns(), selectedRows, false));
+			SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(getTableModel().getColumns(), selectedRows, false));
 			
 			message.add(selectedRowsLabel);
 			message.add(selectedRowsTable.getScrollPane());
