@@ -56,8 +56,8 @@ public class Launcher {
 	}
 	private static MainWindow buildWindow() {
 		String title = Strings.get(WINDOW_TITLE);
-		int width = Integer.parseInt(Config.get(WINDOW_WIDTH)),
-				height = Integer.parseInt(Config.get(WINDOW_HEIGHT));
+		int width = Config.getInt(WINDOW_WIDTH),
+				height = Config.getInt(WINDOW_HEIGHT);
 		
 		log.debug("Built application window with title=" + title + ", width=" + width + ", height=" + height);
 		
