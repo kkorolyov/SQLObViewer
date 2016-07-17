@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitSubject;
 import net.miginfocom.swing.MigLayout;
@@ -67,17 +67,17 @@ public class LoginScreen implements Screen, SubmitSubject {
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]"));
 		
-		hostLabel = new JLabel(Strings.get(HOST_TEXT));
-		databaseLabel = new JLabel(Strings.get(DATABASE_TEXT));
-		userLabel = new JLabel(Strings.get(USER_TEXT));
-		passwordLabel = new JLabel(Strings.get(PASSWORD_TEXT));
+		hostLabel = new JLabel(Lang.get(MESSAGE_HOST));
+		databaseLabel = new JLabel(Lang.get(MESSAGE_DATABASE));
+		userLabel = new JLabel(Lang.get(MESSAGE_USER));
+		passwordLabel = new JLabel(Lang.get(MESSAGE_PASSWORD));
 		
 		hostField = new JTextField(Config.get(SAVED_HOST), DEFAULT_FIELD_COLUMNS);
 		databaseField = new JTextField(Config.get(SAVED_DATABASE), DEFAULT_FIELD_COLUMNS);
 		userField = new JTextField(Config.get(SAVED_USER), DEFAULT_FIELD_COLUMNS);
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
 		
-		loginButton = new JButton(Strings.get(LOG_IN_TEXT));
+		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());
 	}
 	private void buildComponents() {

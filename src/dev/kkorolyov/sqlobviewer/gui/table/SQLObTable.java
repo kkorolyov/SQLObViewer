@@ -22,7 +22,7 @@ import javax.swing.text.JTextComponent;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.RowEntry;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 
 /**
@@ -240,7 +240,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 		JPopupMenu cellPopup = new JPopupMenu();
 		
 		JMenuItem valueItem = new JMenuItem(value.toString()),
-							copyItem = new JMenuItem(Strings.get(COPY_TEXT));
+							copyItem = new JMenuItem(Lang.get(ACTION_COPY));
 		valueItem.setEnabled(false);
 		copyItem.addActionListener(e -> copyToClipboard(value));
 		
@@ -279,7 +279,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 		String filterValue = getFilterValue(column);
 		if (filterValue != null) {
 			JMenuItem removeFilterItem = new JMenuItem(filterValue);
-			removeFilterItem.setToolTipText(Strings.get(REMOVE_FILTER_TIP) + ": " + filterValue);
+			removeFilterItem.setToolTipText(Lang.get(ACTION_TIP_REMOVE_FILTER) + ": " + filterValue);
 			removeFilterItem.addActionListener(e -> removeFilter(column));
 			
 			headerPopup.add(removeFilterItem);
@@ -289,7 +289,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 		for (Object value : getCastedModel().getUniqueValues(column)) {
 			if (!value.toString().equals(filterValue)) {
 				JMenuItem currentFilterItem = new JMenuItem(value.toString());
-				currentFilterItem.setToolTipText(Strings.get(ADD_FILTER_TIP) + ": " + value);
+				currentFilterItem.setToolTipText(Lang.get(ACTION_TIP_ADD_FILTER) + ": " + value);
 				currentFilterItem.addActionListener(e -> addFilter(value.toString(), column));
 				
 				headerPopup.add(currentFilterItem);
@@ -373,7 +373,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 						modelColumnIndex = (viewColumnIndex < 0) ? -1 : convertColumnIndexToModel(viewColumnIndex);
 								
 				String filterString = (modelColumnIndex < 0) ? null : getFilterValue(modelColumnIndex);
-				return filterString == null ? filterString : (Strings.get(CURRENT_FILTER_TIP) + ": " + filterString);
+				return filterString == null ? filterString : (Lang.get(MESSAGE_TIP_CURRENT_FILTER) + ": " + filterString);
 			};
 		};
 	}

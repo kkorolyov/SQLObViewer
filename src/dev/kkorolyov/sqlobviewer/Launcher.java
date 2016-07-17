@@ -1,7 +1,7 @@
 package dev.kkorolyov.sqlobviewer;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_HEIGHT;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_TITLE;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_WINDOW;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_WIDTH;
 
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlobviewer.assets.Assets;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 
 /**
@@ -55,7 +55,7 @@ public class Launcher {
 		});
 	}
 	private static MainWindow buildWindow() {
-		String title = Strings.get(WINDOW_TITLE);
+		String title = Lang.get(TITLE_WINDOW);
 		int width = Config.getInt(WINDOW_WIDTH),
 				height = Config.getInt(WINDOW_HEIGHT);
 		

@@ -16,7 +16,7 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestListener;
@@ -88,24 +88,24 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			}
 		});
 		lastStatementPopup = new JPopupMenu();
-		JMenuItem undoItem = new JMenuItem(Strings.get(UNDO_STATEMENT_TEXT));
+		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e -> fireRevertStatement(""));
 		lastStatementPopup.add(undoItem);
 		
-		tableButtonPanel = new JHoverButtonPanel(Strings.get(DYNAMIC_TABLE_BUTTON_TEXT), Orientation.X, ExpandTrigger.HOVER);
+		tableButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_TABLE), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton tableButton : initTableButtons())
 			tableButtonPanel.addButton(tableButton);
 		
-		rowButtonPanel = new JHoverButtonPanel(Strings.get(DYNAMIC_ROW_BUTTON_TEXT), Orientation.X, ExpandTrigger.HOVER);
+		rowButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_ROW), Orientation.X, ExpandTrigger.HOVER);
 		for (JButton rowButton : initRowButtons())
 			rowButtonPanel.addButton(rowButton);
 		
 		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
 		tableGridSelector.addChangeListener(e -> tablesScreen.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y)));	// TODO Move to syncTables()
 		
-		refreshTableButton = new JButton(Strings.get(REFRESH_TABLE_TEXT));
+		refreshTableButton = new JButton(Lang.get(ACTION_REFRESH_TABLE));
 		refreshTableButton.addActionListener(e -> fireUpdate());
-		refreshTableButton.setToolTipText(Strings.get(REFRESH_TABLE_TIP));
+		refreshTableButton.setToolTipText(Lang.get(ACTION_TIP_REFRESH_TABLE));
 		
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> {
@@ -114,27 +114,27 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			if (selectedTable != null)
 				fireSelectTable(selectedTable);
 		});
-		backButton = new JButton(Strings.get(LOG_OUT_TEXT));
+		backButton = new JButton(Lang.get(ACTION_LOG_OUT));
 		backButton.addActionListener(e -> fireCanceled());
 	}
 	private JButton[] initTableButtons() {
-		JButton addTableButton = new JButton(Strings.get(ADD_TABLE_TEXT));		
-		addTableButton.setToolTipText(Strings.get(ADD_TABLE_TIP));
+		JButton addTableButton = new JButton(Lang.get(ACTION_ADD_TABLE));		
+		addTableButton.setToolTipText(Lang.get(ACTION_TIP_ADD_TABLE));
 		addTableButton.addActionListener(e -> displayAddTableDialog());
 
-		JButton removeTableButton = new JButton(Strings.get(REMOVE_TABLE_TEXT));
-		removeTableButton.setToolTipText(Strings.get(REMOVE_TABLE_TIP));
+		JButton removeTableButton = new JButton(Lang.get(ACTION_REMOVE_TABLE));
+		removeTableButton.setToolTipText(Lang.get(ACTION_TIP_REMOVE_TABLE));
 		removeTableButton.addActionListener(e -> displayConfirmRemoveTableDialog());
 		
 		return new JButton[]{addTableButton, removeTableButton};
 	}
 	private JButton[] initRowButtons() {
-		JButton addRowButton = new JButton(Strings.get(ADD_ROW_TEXT));
-		addRowButton.setToolTipText(Strings.get(ADD_ROW_TIP));
+		JButton addRowButton = new JButton(Lang.get(ACTION_ADD_ROW));
+		addRowButton.setToolTipText(Lang.get(ACTION_TIP_ADD_ROW));
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
-		JButton removeRowButton = new JButton(Strings.get(REMOVE_ROW_TEXT));
-		removeRowButton.setToolTipText(Strings.get(REMOVE_ROW_TIP));
+		JButton removeRowButton = new JButton(Lang.get(ACTION_REMOVE_ROW));
+		removeRowButton.setToolTipText(Lang.get(ACTION_TIP_REMOVE_ROW));
 		removeRowButton.addActionListener(e -> displayConfirmRemoveRowDialog());
 		
 		return new JButton[]{addRowButton, removeRowButton};
@@ -210,10 +210,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	}
 	
 	private void displayAddTableDialog() {
-		String title = Strings.get(ADD_TABLE_TIP);
+		String title = Lang.get(ACTION_TIP_ADD_TABLE);
 		CreateTableScreen message = new CreateTableScreen(false);
 		
-		if (displayDialog(title, message.getPanel(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0) {
+		if (displayDialog(title, message.getPanel(), Lang.get(OPTION_SUBMIT), Lang.get(OPTION_CANCEL)) == 0) {
 			String name = message.getName();
 			Column[] columns = message.getColumns();
 			
@@ -226,10 +226,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			log.warning("No table model set, aborting AddRowDialog creation");
 			return;
 		}
-		String title = Strings.get(ADD_ROW_TIP);
+		String title = Lang.get(ACTION_TIP_ADD_ROW);
 		SQLObTable message = new SQLObTable(getTableModel().getEmptyTableModel());
 		
-		if (displayDialog(title, message.getScrollPane(), Strings.get(OPTION_SUBMIT), Strings.get(OPTION_CANCEL)) == 0) {
+		if (displayDialog(title, message.getScrollPane(), Lang.get(OPTION_SUBMIT), Lang.get(OPTION_CANCEL)) == 0) {
 			if (message.getCellEditor() != null)
 				message.getCellEditor().stopCellEditing();
 			
@@ -243,10 +243,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			log.warning("No table selected, aborting RemoveTableDialog creation");
 			return;
 		}
-		String 	title = Strings.get(REMOVE_TABLE_TIP),
-						message = Strings.get(CONFIRM_REMOVE_TABLE_TEXT) + System.lineSeparator() + selectedTableName;
+		String 	title = Lang.get(ACTION_TIP_REMOVE_TABLE),
+						message = Lang.get(MESSAGE_CONFIRM_REMOVE_TABLE) + System.lineSeparator() + selectedTableName;
 		
-		if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
+		if (displayDialog(title, message, Lang.get(OPTION_YES), Lang.get(OPTION_NO)) == 0)
 			fireDropTable(selectedTableName);
 	}
 	private void displayConfirmRemoveRowDialog() {
@@ -257,22 +257,22 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		RowEntry[][] selectedRows = getSelectedRows();
 		
 		if (selectedRows.length > 0) {
-			String title = Strings.get(REMOVE_ROW_TIP);
+			String title = Lang.get(ACTION_TIP_REMOVE_ROW);
 			JPanel message = new JPanel(new MigLayout("insets 0, gap 4px, flowy"));
 			
-			JLabel selectedRowsLabel = new JLabel(Strings.get(CONFIRM_REMOVE_ROW_TEXT));
+			JLabel selectedRowsLabel = new JLabel(Lang.get(MESSAGE_CONFIRM_REMOVE_ROW));
 			SQLObTable selectedRowsTable = new SQLObTable(new SQLObTableModel(getTableModel().getColumns(), selectedRows, false));
 			
 			message.add(selectedRowsLabel);
 			message.add(selectedRowsTable.getScrollPane());
 			
-			if (displayDialog(title, message, Strings.get(OPTION_YES), Strings.get(OPTION_NO)) == 0)
+			if (displayDialog(title, message, Lang.get(OPTION_YES), Lang.get(OPTION_NO)) == 0)
 				deleteRows(selectedRows);
 		}
 	}
 	
 	private int displayDialog(String title, Object message, Object... options) {
-		return JOptionPane.showOptionDialog(getPanel(), message, Strings.get(title), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
+		return JOptionPane.showOptionDialog(getPanel(), message, Lang.get(title), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
 	}
 	
 	private RowEntry[][] getSelectedRows() {

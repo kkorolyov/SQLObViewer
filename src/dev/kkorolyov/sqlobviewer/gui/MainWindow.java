@@ -1,9 +1,9 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.APPLICATION_CLOSING_TEXT;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ERROR_TITLE_SUFFIX;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.EXCEPTION_TITLE_SUFFIX;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.EXPAND_ERROR_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_APPLICATION_CLOSING;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_ERROR;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_EXCEPTION;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_EXPAND_ERROR;
 
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -13,7 +13,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 
 /**
  * Main SQLObViewer application window.
@@ -73,7 +73,7 @@ public class MainWindow implements Window {
 	 * @param e exception to display
 	 */
 	public void displayException(Throwable e) {
-		String title = frame.getTitle() + " - " + Strings.get(EXCEPTION_TITLE_SUFFIX);
+		String title = frame.getTitle() + " - " + Lang.get(TITLE_EXCEPTION);
 		JOptionPane.showMessageDialog(frame, buildExceptionPanel(e), title, JOptionPane.WARNING_MESSAGE);
 	}
 	/**
@@ -82,11 +82,11 @@ public class MainWindow implements Window {
 	 * @param terminate if {@code true} this window will dispose itself after displaying the error message
 	 */
 	public void displayError(Throwable e, boolean terminate) {
-		String 	title = frame.getTitle() + " - " + Strings.get(ERROR_TITLE_SUFFIX);
+		String 	title = frame.getTitle() + " - " + Lang.get(TITLE_ERROR);
 		JOptionPane.showMessageDialog(frame, buildExceptionPanel(e), title, JOptionPane.ERROR_MESSAGE);
 		
 		if (terminate) {
-			String closeMessage = Strings.get(APPLICATION_CLOSING_TEXT);
+			String closeMessage = Lang.get(MESSAGE_APPLICATION_CLOSING);
 			JOptionPane.showMessageDialog(frame, closeMessage, title, JOptionPane.ERROR_MESSAGE);
 			
 			exit();
@@ -108,7 +108,7 @@ public class MainWindow implements Window {
 				text.setCaretPosition(0);
 			}
 		});
-		text.setText(basicMessage + System.lineSeparator() + Strings.get(EXPAND_ERROR_TEXT));
+		text.setText(basicMessage + System.lineSeparator() + Lang.get(MESSAGE_EXPAND_ERROR));
 
 		JPanel panel = new JPanel();
 		panel.add(scrollPane);

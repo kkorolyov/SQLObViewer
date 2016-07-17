@@ -1,8 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COLUMN_NAME_TIP;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.COLUMN_TYPE_TIP;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.REMOVE_COLUMN_TEXT;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_NAME;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_TYPE;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_REMOVE_COLUMN;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.SqlType;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.swingplus.JPlaceholderTextField;
 
 /**
@@ -66,14 +66,14 @@ public class ColumnPanel extends JPanel {
 	}
 	
 	private void initComponents() {
-		columnNameField = new JPlaceholderTextField(Strings.get(COLUMN_NAME_TIP), 0);
-		columnNameField.setToolTipText(Strings.get(COLUMN_NAME_TIP));
+		columnNameField = new JPlaceholderTextField(Lang.get(MESSAGE_TIP_COLUMN_NAME), 0);
+		columnNameField.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_NAME));
 		
 		columnTypeComboBox = new JComboBox<>(SqlType.values());
-		columnTypeComboBox.setToolTipText(Strings.get(COLUMN_TYPE_TIP));
+		columnTypeComboBox.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_TYPE));
 		
 		deleteMenu = new JPopupMenu();
-		deleteMenuItem = new JMenuItem(Strings.get(REMOVE_COLUMN_TEXT));
+		deleteMenuItem = new JMenuItem(Lang.get(ACTION_REMOVE_COLUMN));
 		deleteMenu.add(deleteMenuItem);
 	}
 	

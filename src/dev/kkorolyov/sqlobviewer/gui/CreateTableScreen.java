@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.Box.Filler;
 
 import dev.kkorolyov.sqlob.construct.Column;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Strings;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
@@ -65,18 +65,18 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 		
 		columnsPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, (int) columnsScrollPane.getHorizontalScrollBar().getPreferredSize().getHeight(), 0));
 		
-		nameField = new JPlaceholderTextField(Strings.get(TABLE_NAME_TIP), 0);
-		nameField.setToolTipText(Strings.get(TABLE_NAME_TIP));
+		nameField = new JPlaceholderTextField(Lang.get(MESSAGE_TIP_TABLE_NAME), 0);
+		nameField.setToolTipText(Lang.get(MESSAGE_TIP_TABLE_NAME));
 		
 		if (standalone) {	// Not required if in a dialog
-			submitButton = new JButton(Strings.get(SUBMIT_TEXT));
+			submitButton = new JButton(Lang.get(ACTION_SUBMIT));
 			submitButton.addActionListener(e -> fireSubmitted());
 			
-			backButton = new JButton(Strings.get(CANCEL_TEXT));
+			backButton = new JButton(Lang.get(ACTION_CANCEL));
 			backButton.addActionListener(e -> fireCanceled());
 		}
-		addColumnButton = new JButton(Strings.get(ADD_COLUMN_TEXT));
-		addColumnButton.setToolTipText(Strings.get(ADD_COLUMN_TIP));
+		addColumnButton = new JButton(Lang.get(ACTION_ADD_COLUMN));
+		addColumnButton.setToolTipText(Lang.get(ACTION_TIP_ADD_COLUMN));
 		addColumnButton.addActionListener(e -> addColumn());
 	}
 	private void buildComponents() {		panel.add(nameField, "grow, split 2, flowx, gapx 0");

@@ -71,124 +71,163 @@ public class Assets {
 	 * All configuration and string keys.
 	 */
 	public static class Keys {
-		public static final String	WINDOW_WIDTH = "WINDOW_WIDTH",
-																WINDOW_HEIGHT = "WINDOW_HEIGHT";
-		
-		public static final String	MAX_TABLES_X = "MAX_TABLES_X",
+		public static final String	WINDOW_WIDTH = "WINDOW_WIDTH",	// Config keys
+																WINDOW_HEIGHT = "WINDOW_HEIGHT",
+																
+																MAX_TABLES_X = "MAX_TABLES_X",
 																MAX_TABLES_Y = "MAX_TABLES_Y",
 																CURRENT_TABLES_X = "CURRENT_TABLES_X",
-																CURRENT_TABLES_Y = "CURRENT_TABLES_Y";
-		
-		public static final String	SAVED_HOST = "SAVED_HOST",
+																CURRENT_TABLES_Y = "CURRENT_TABLES_Y",
+																
+																SAVED_HOST = "SAVED_HOST",
 																SAVED_DATABASE = "SAVED_DATABASE",
 																SAVED_USER = "SAVED_USER",
-																SAVED_PASSWORD = "SAVED_PASSWORD";
+																SAVED_PASSWORD = "SAVED_PASSWORD",
+																
+																STRINGS_FILENAME = "LANG_FILE";
 		
-		public static final String STRINGS_FILENAME = "LANG_FILE";
-		
-		public static final String 	WINDOW_TITLE = "WINDOW_TITLE",
-																EXCEPTION_TITLE_SUFFIX = "EXCEPTION_TITLE_SUFFIX",
-																ERROR_TITLE_SUFFIX = "ERROR_TITLE_SUFFIX",
-																EXPAND_ERROR_TEXT = "EXPAND_ERROR_TEXT",
-																APPLICATION_CLOSING_TEXT = "APPLICATION_CLOSING_TEXT",
+		public static final String 	TITLE_WINDOW = "TITLE_WINDOW",	// Lang keys
+				
+																TITLE_EXCEPTION = "TITLE_EXCEPTION",
+																TITLE_ERROR = "TITLE_ERROR",
+																
+																MESSAGE_EXPAND_ERROR = "MESSAGE_EXPAND_ERROR",
+																MESSAGE_APPLICATION_CLOSING = "MESSAGE_APPLICATION_CLOSING",
+																
+																MESSAGE_HOST = "MESSAGE_HOST",
+																MESSAGE_DATABASE = "MESSAGE_DATABASE",
+																MESSAGE_USER = "MESSAGE_USER",
+																MESSAGE_PASSWORD = "MESSAGE_PASSWORD",
+																
+																MESSAGE_TIP_TABLE_NAME = "MESSAGE_TIP_TABLE_NAME",
+																
+																MESSAGE_TIP_COLUMN_NAME = "MESSAGE_TIP_COLUMN_NAME",
+																MESSAGE_TIP_COLUMN_TYPE = "MESSAGE_TIP_COLUMN_TYPE",
+																
+																MESSAGE_TIP_CURRENT_FILTER = "MESSAGE_TIP_CURRENT_FILTER",
+																
+																MESSAGE_CONFIRM_REMOVE_TABLE = "MESSAGE_CONFIRM_REMOVE_TABLE",
+																MESSAGE_CONFIRM_REMOVE_ROW = "MESSAGE_CONFIRM_REMOVE_ROW",
+																
 																OPTION_SUBMIT = "OPTION_SUBMIT",
 																OPTION_CANCEL = "OPTION_CANCEL",
 																OPTION_YES = "OPTION_YES",
 																OPTION_NO = "OPTION_NO",
-																HOST_TEXT = "HOST_TEXT",
-																DATABASE_TEXT = "DATABASE_TEXT",
-																USER_TEXT = "USER_TEXT",
-																PASSWORD_TEXT = "PASSWORD_TEXT",
-																REFRESH_TABLE_TEXT = "REFRESH_TABLE_TEXT",
-																REFRESH_TABLE_TIP = "REFRESH_TABLE_TIP",
-																DYNAMIC_TABLE_BUTTON_TEXT = "DYNAMIC_TABLE_BUTTON_TEXT",
-																ADD_TABLE_TEXT = "ADD_TABLE_TEXT",
-																ADD_TABLE_TIP = "ADD_TABLE_TIP",
-																REMOVE_TABLE_TEXT = "REMOVE_TABLE_TEXT",
-																REMOVE_TABLE_TIP = "REMOVE_TABLE_TIP",
-																CONFIRM_REMOVE_TABLE_TEXT = "CONFIRM_REMOVE_TABLE_TEXT",
-																TABLE_NAME_TIP = "TABLE_NAME_TIP",
-																DYNAMIC_ROW_BUTTON_TEXT = "DYNAMIC_ROW_BUTTON_TEXT",
-																ADD_ROW_TEXT = "ADD_ROW_TEXT",
-																ADD_ROW_TIP = "ADD_ROW_TIP",
-																REMOVE_ROW_TEXT = "REMOVE_ROW_TEXT",
-																REMOVE_ROW_TIP = "REMOVE_ROW_TIP",
-																CONFIRM_REMOVE_ROW_TEXT = "CONFIRM_REMOVE_ROW_TEXT",
-																ADD_COLUMN_TEXT = "ADD_COLUMN_TEXT",
-																ADD_COLUMN_TIP = "ADD_COLUMN_TIP",
-																REMOVE_COLUMN_TEXT = "REMOVE_COLUMN_TEXT",
-																COLUMN_NAME_TIP = "COLUMN_NAME_TIP",
-																COLUMN_TYPE_TIP = "COLUMN_TYPE_TIP",
-																UNDO_STATEMENT_TEXT = "UNDO_STATEMENT_TEXT",
-																CURRENT_FILTER_TIP = "CURRENT_FILTER_TIP",
-																ADD_FILTER_TIP = "ADD_FILTER_TIP",
-																REMOVE_FILTER_TIP = "REMOVE_FILTER_TIP",
-																COPY_TEXT = "COPY_TEXT",
-																SUBMIT_TEXT = "SUBMIT_TEXT",
-																BACK_TEXT = "BACK_TEXT",
-																CANCEL_TEXT = "CANCEL_TEXT",
-																LOG_IN_TEXT = "LOG_IN_TEXT",
-																LOG_OUT_TEXT = "LOG_OUT_TEXT";
+																
+																DYNAMIC_ACTION_TABLE = "DYNAMIC_ACTION_TABLE",
+																DYNAMIC_ACTION_ROW = "DYNAMIC_ACTION_ROW",
+																
+																ACTION_SUBMIT = "ACTION_SUBMIT",
+																ACTION_BACK = "ACTION_BACK",
+																ACTION_CANCEL = "ACTION_CANCEL",
+																
+																ACTION_COPY = "ACTION_COPY",
+																
+																ACTION_LOG_IN = "ACTION_LOG_IN",
+																ACTION_LOG_OUT = "ACTION_LOG_OUT",
+																
+																ACTION_REFRESH_TABLE = "ACTION_REFRESH_TABLE",
+																ACTION_TIP_REFRESH_TABLE = "ACTION_TIP_REFRESH_TABLE",
+																
+																ACTION_ADD_TABLE = "ACTION_ADD_TABLE",
+																ACTION_TIP_ADD_TABLE = "ACTION_TIP_ADD_TABLE",
+																ACTION_REMOVE_TABLE = "ACTION_REMOVE_TABLE",
+																ACTION_TIP_REMOVE_TABLE = "ACTION_TIP_REMOVE_TABLE",
+																
+																ACTION_ADD_ROW = "ACTION_ADD_ROW",
+																ACTION_TIP_ADD_ROW = "ACTION_TIP_ADD_ROW",
+																ACTION_REMOVE_ROW = "ACTION_REMOVE_ROW",
+																ACTION_TIP_REMOVE_ROW = "ACTION_TIP_REMOVE_ROW",
+																
+																ACTION_ADD_COLUMN = "ACTION_ADD_COLUMN",
+																ACTION_TIP_ADD_COLUMN = "ACTION_TIP_ADD_COLUMN",
+																ACTION_REMOVE_COLUMN = "ACTION_REMOVE_COLUMN",
+																
+																ACTION_TIP_ADD_FILTER = "ACTION_TIP_ADD_FILTER",
+																ACTION_TIP_REMOVE_FILTER = "ACTION_TIP_REMOVE_FILTER",
+																
+																ACTION_UNDO_STATEMENT = "ACTION_UNDO_STATEMENT";
 	}
 	
 	private static class Defaults {
-		private static final String WINDOW_WIDTH = "720",
+		private static final String WINDOW_WIDTH = "720",	// Config defaults
 																WINDOW_HEIGHT = "480",
+																
 																MAX_TABLES_X = "4",
 																MAX_TABLES_Y = "4",
 																CURRENT_TABLES_X = "1",
-																CURRENT_TABLES_Y = "1";
-		private static final String	SAVED_HOST = "",
+																CURRENT_TABLES_Y = "1",
+																
+																SAVED_HOST = "",
 																SAVED_DATABASE = "",
 																SAVED_USER = "",
-																SAVED_PASSWORD = "";
-		private static final String CONFIG_FILENAME = "assets/config.ini",
+																SAVED_PASSWORD = "",
+																
+																CONFIG_FILENAME = "assets/config.ini",
 																STRINGS_FILENAME = "assets/lang/en.lang";
 		
-		private static final String WINDOW_TITLE = "SQLObViewer",
-																EXCEPTION_TITLE_SUFFIX = "ERROR",
-																ERROR_TITLE_SUFFIX = "FATAL ERROR",
-																EXPAND_ERROR_TEXT = "CLICK TO EXPAND",
-																APPLICATION_CLOSING_TEXT = "The application will now exit",
+		private static final String TITLE_WINDOW = "SQLObViewer",	// Lang defaults
+																
+																TITLE_EXCEPTION = "ERROR",
+																TITLE_ERROR = "FATAL ERROR",
+																
+																MESSAGE_EXPAND_ERROR = "CLICK TO EXPAND",
+																MESSAGE_APPLICATION_CLOSING = "The application will now exit",
+																
+																MESSAGE_HOST = "Host",
+																MESSAGE_DATABASE = "Database",
+																MESSAGE_USER = "User",
+																MESSAGE_PASSWORD = "Password",
+																
+																MESSAGE_TIP_TABLE_NAME = "Table name",
+																
+																MESSAGE_TIP_COLUMN_NAME = "Column name",
+																MESSAGE_TIP_COLUMN_TYPE = "Column type",
+																
+																MESSAGE_TIP_CURRENT_FILTER = "Current filter",
+																
+																MESSAGE_CONFIRM_REMOVE_TABLE = "Are you sure you want to drop the selected table?",
+																MESSAGE_CONFIRM_REMOVE_ROW = "Are you sure you want to drop the selected row(s)?",
+																
 																OPTION_SUBMIT = "OK",
 																OPTION_CANCEL = "Cancel",
 																OPTION_YES = "Yes",
 																OPTION_NO = "No",
-																HOST_TEXT = "Host",
-																DATABASE_TEXT = "Database",
-																USER_TEXT = "User",
-																PASSWORD_TEXT = "Password",
-																REFRESH_TABLE_TEXT = "R",
-																REFRESH_TABLE_TIP = "Refresh table",
-																DYNAMIC_TABLE_BUTTON_TEXT = "Table",
-																ADD_TABLE_TEXT = "+",
-																ADD_TABLE_TIP = "Create table",
-																REMOVE_TABLE_TEXT = "-",
-																REMOVE_TABLE_TIP = "Drop table",
-																CONFIRM_REMOVE_TABLE_TEXT = "Are you sure you want to drop the selected table?",
-																TABLE_NAME_TIP = "Table name",
-																DYNAMIC_ROW_BUTTON_TEXT = "Row",
-																ADD_ROW_TEXT = "+",
-																ADD_ROW_TIP = "Add row",
-																REMOVE_ROW_TEXT = "-",
-																REMOVE_ROW_TIP = "Delete row(s)",
-																CONFIRM_REMOVE_ROW_TEXT = "Are you sure you want to drop the selected row(s)?",
-																ADD_COLUMN_TEXT = "+",
-																ADD_COLUMN_TIP = "Add Column",
-																REMOVE_COLUMN_TEXT = "Remove Column",
-																COLUMN_NAME_TIP = "Column name",
-																COLUMN_TYPE_TIP = "Column type",
-																UNDO_STATEMENT_TEXT = "Undo",
-																CURRENT_FILTER_TIP = "Current filter",
-																ADD_FILTER_TIP = "Set filter",
-																REMOVE_FILTER_TIP = "Remove filter",
-																COPY_TEXT = "Copy",
-																SUBMIT_TEXT = "Submit",
-																BACK_TEXT = "Back",
-																CANCEL_TEXT = "Cancel",
-																LOG_IN_TEXT = "Log In",
-																LOG_OUT_TEXT = "Log Out";
-		
+																
+																DYNAMIC_ACTION_TABLE = "Table",
+																DYNAMIC_ACTION_ROW = "Row",
+																
+																ACTION_SUBMIT = "Submit",
+																ACTION_BACK = "Back",
+																ACTION_CANCEL = "Cancel",
+																
+																ACTION_COPY = "Copy",
+																
+																ACTION_LOG_IN = "Log In",
+																ACTION_LOG_OUT = "Log Out",
+																
+																ACTION_REFRESH_TABLE = "R",
+																ACTION_TIP_REFRESH_TABLE = "Refresh table",
+																
+																ACTION_ADD_TABLE = "+",
+																ACTION_TIP_ADD_TABLE = "Create table",
+																ACTION_REMOVE_TABLE = "-",
+																ACTION_TIP_REMOVE_TABLE = "Drop table",
+																
+																ACTION_ADD_ROW = "+",
+																ACTION_TIP_ADD_ROW = "Add row",
+																ACTION_REMOVE_ROW = "-",
+																ACTION_TIP_REMOVE_ROW = "Delete row(s)",
+																
+																ACTION_ADD_COLUMN = "+",
+																ACTION_TIP_ADD_COLUMN = "Add Column",
+																ACTION_REMOVE_COLUMN = "Remove Column",
+																
+																ACTION_TIP_ADD_FILTER = "Set filter",
+																ACTION_TIP_REMOVE_FILTER = "Remove filter",
+																
+																ACTION_UNDO_STATEMENT = "Undo";
+																
 		private static Properties buildConfig() {
 			Properties defaults = new Properties();
 			
@@ -212,51 +251,68 @@ public class Assets {
 		private static Properties buildStrings() {
 			Properties defaults = new Properties();
 			
-			defaults.put(Keys.WINDOW_TITLE, WINDOW_TITLE);
-			defaults.put(Keys.EXCEPTION_TITLE_SUFFIX, EXCEPTION_TITLE_SUFFIX);
-			defaults.put(Keys.ERROR_TITLE_SUFFIX, ERROR_TITLE_SUFFIX);
-			defaults.put(Keys.EXPAND_ERROR_TEXT, EXPAND_ERROR_TEXT);
-			defaults.put(Keys.APPLICATION_CLOSING_TEXT, APPLICATION_CLOSING_TEXT);
+			defaults.put(Keys.TITLE_WINDOW, TITLE_WINDOW);
+			
+			defaults.put(Keys.TITLE_EXCEPTION, TITLE_EXCEPTION);
+			defaults.put(Keys.TITLE_ERROR, TITLE_ERROR);
+			
+			defaults.put(Keys.MESSAGE_EXPAND_ERROR, MESSAGE_EXPAND_ERROR);
+			defaults.put(Keys.MESSAGE_APPLICATION_CLOSING, MESSAGE_APPLICATION_CLOSING);
+			
+			defaults.put(Keys.MESSAGE_HOST, MESSAGE_HOST);
+			defaults.put(Keys.MESSAGE_USER, MESSAGE_USER);
+			defaults.put(Keys.MESSAGE_DATABASE, MESSAGE_DATABASE);
+			defaults.put(Keys.MESSAGE_PASSWORD, MESSAGE_PASSWORD);
+			
+			defaults.put(Keys.MESSAGE_TIP_TABLE_NAME, MESSAGE_TIP_TABLE_NAME);
+			
+			defaults.put(Keys.MESSAGE_TIP_COLUMN_NAME, MESSAGE_TIP_COLUMN_NAME);
+			defaults.put(Keys.MESSAGE_TIP_COLUMN_TYPE, MESSAGE_TIP_COLUMN_TYPE);
+			
+			defaults.put(Keys.MESSAGE_TIP_CURRENT_FILTER, MESSAGE_TIP_CURRENT_FILTER);
+			
+			defaults.put(Keys.MESSAGE_CONFIRM_REMOVE_TABLE, MESSAGE_CONFIRM_REMOVE_TABLE);
+			defaults.put(Keys.MESSAGE_CONFIRM_REMOVE_ROW, MESSAGE_CONFIRM_REMOVE_ROW);
+			
 			defaults.put(Keys.OPTION_SUBMIT, OPTION_SUBMIT);
 			defaults.put(Keys.OPTION_CANCEL, OPTION_CANCEL);
 			defaults.put(Keys.OPTION_YES, OPTION_YES);
 			defaults.put(Keys.OPTION_NO, OPTION_NO);
 			
-			defaults.put(Keys.HOST_TEXT, HOST_TEXT);
-			defaults.put(Keys.USER_TEXT, USER_TEXT);
-			defaults.put(Keys.DATABASE_TEXT, DATABASE_TEXT);
-			defaults.put(Keys.PASSWORD_TEXT, PASSWORD_TEXT);
-			defaults.put(Keys.REFRESH_TABLE_TEXT, REFRESH_TABLE_TEXT);
-			defaults.put(Keys.REFRESH_TABLE_TIP, REFRESH_TABLE_TIP);
-			defaults.put(Keys.DYNAMIC_TABLE_BUTTON_TEXT, DYNAMIC_TABLE_BUTTON_TEXT);
-			defaults.put(Keys.ADD_TABLE_TEXT, ADD_TABLE_TEXT);
-			defaults.put(Keys.ADD_TABLE_TIP, ADD_TABLE_TIP);
-			defaults.put(Keys.REMOVE_TABLE_TEXT, REMOVE_TABLE_TEXT);
-			defaults.put(Keys.REMOVE_TABLE_TIP, REMOVE_TABLE_TIP);
-			defaults.put(Keys.CONFIRM_REMOVE_TABLE_TEXT, CONFIRM_REMOVE_TABLE_TEXT);
-			defaults.put(Keys.TABLE_NAME_TIP, TABLE_NAME_TIP);
-			defaults.put(Keys.DYNAMIC_ROW_BUTTON_TEXT, DYNAMIC_ROW_BUTTON_TEXT);
-			defaults.put(Keys.ADD_ROW_TEXT, ADD_ROW_TEXT);
-			defaults.put(Keys.ADD_ROW_TIP, ADD_ROW_TIP);
-			defaults.put(Keys.REMOVE_ROW_TEXT, REMOVE_ROW_TEXT);
-			defaults.put(Keys.REMOVE_ROW_TIP, REMOVE_ROW_TIP);
-			defaults.put(Keys.CONFIRM_REMOVE_ROW_TEXT, CONFIRM_REMOVE_ROW_TEXT);
-			defaults.put(Keys.ADD_COLUMN_TEXT, ADD_COLUMN_TEXT);
-			defaults.put(Keys.ADD_COLUMN_TIP, ADD_COLUMN_TIP);
-			defaults.put(Keys.REMOVE_COLUMN_TEXT, REMOVE_COLUMN_TEXT);
-			defaults.put(Keys.COLUMN_NAME_TIP, COLUMN_NAME_TIP);
-			defaults.put(Keys.COLUMN_TYPE_TIP, COLUMN_TYPE_TIP);
-			defaults.put(Keys.UNDO_STATEMENT_TEXT, UNDO_STATEMENT_TEXT);
-			defaults.put(Keys.CURRENT_FILTER_TIP, CURRENT_FILTER_TIP);
-			defaults.put(Keys.ADD_FILTER_TIP, ADD_FILTER_TIP);
-			defaults.put(Keys.REMOVE_FILTER_TIP, REMOVE_FILTER_TIP);
-			defaults.put(Keys.COPY_TEXT, COPY_TEXT);
-			defaults.put(Keys.SUBMIT_TEXT, SUBMIT_TEXT);
-			defaults.put(Keys.BACK_TEXT, BACK_TEXT);
-			defaults.put(Keys.CANCEL_TEXT, CANCEL_TEXT);
-			defaults.put(Keys.LOG_IN_TEXT, LOG_IN_TEXT);
-			defaults.put(Keys.LOG_OUT_TEXT, LOG_OUT_TEXT);
-
+			defaults.put(Keys.DYNAMIC_ACTION_TABLE, DYNAMIC_ACTION_TABLE);
+			defaults.put(Keys.DYNAMIC_ACTION_ROW, DYNAMIC_ACTION_ROW);
+			
+			defaults.put(Keys.ACTION_SUBMIT, ACTION_SUBMIT);
+			defaults.put(Keys.ACTION_BACK, ACTION_BACK);
+			defaults.put(Keys.ACTION_CANCEL, ACTION_CANCEL);
+			
+			defaults.put(Keys.ACTION_COPY, ACTION_COPY);
+			
+			defaults.put(Keys.ACTION_LOG_IN, ACTION_LOG_IN);
+			defaults.put(Keys.ACTION_LOG_OUT, ACTION_LOG_OUT);
+			
+			defaults.put(Keys.ACTION_REFRESH_TABLE, ACTION_REFRESH_TABLE);
+			defaults.put(Keys.ACTION_TIP_REFRESH_TABLE, ACTION_TIP_REFRESH_TABLE);
+			
+			defaults.put(Keys.ACTION_ADD_TABLE, ACTION_ADD_TABLE);
+			defaults.put(Keys.ACTION_TIP_ADD_TABLE, ACTION_TIP_ADD_TABLE);
+			defaults.put(Keys.ACTION_REMOVE_TABLE, ACTION_REMOVE_TABLE);
+			defaults.put(Keys.ACTION_TIP_REMOVE_TABLE, ACTION_TIP_REMOVE_TABLE);
+			
+			defaults.put(Keys.ACTION_ADD_ROW, ACTION_ADD_ROW);
+			defaults.put(Keys.ACTION_TIP_ADD_ROW, ACTION_TIP_ADD_ROW);
+			defaults.put(Keys.ACTION_REMOVE_ROW, ACTION_REMOVE_ROW);
+			defaults.put(Keys.ACTION_TIP_REMOVE_ROW, ACTION_TIP_REMOVE_ROW);
+			
+			defaults.put(Keys.ACTION_ADD_COLUMN, ACTION_ADD_COLUMN);
+			defaults.put(Keys.ACTION_TIP_ADD_COLUMN, ACTION_TIP_ADD_COLUMN);
+			defaults.put(Keys.ACTION_REMOVE_COLUMN, ACTION_REMOVE_COLUMN);
+			
+			defaults.put(Keys.ACTION_TIP_ADD_FILTER, ACTION_TIP_ADD_FILTER);
+			defaults.put(Keys.ACTION_TIP_REMOVE_FILTER, ACTION_TIP_REMOVE_FILTER);
+			
+			defaults.put(Keys.ACTION_UNDO_STATEMENT, ACTION_UNDO_STATEMENT);
+			
 			return defaults;
 		}
 	}
@@ -266,7 +322,7 @@ public class Assets {
 	 */
 	public static class Config {
 		/**
-		 * Retrieves the configuration value for a key.
+		 * Retrieves the configuration value of a key.
 		 * @param key key to use
 		 * @return value of the specified key.
 		 */
@@ -283,7 +339,7 @@ public class Assets {
 		}
 		
 		/**
-		 * Sets the configuration value for a specified key. If such a key is not found within the loaded configuration, it is added instead.
+		 * Sets the configuration value of a key. If such a key is not found within the loaded configuration, it is added instead.
 		 * @param key key to use
 		 * @param value value to set
 		 * @return {@code true} if invoking this method results in a change to the backing properties
@@ -300,11 +356,11 @@ public class Assets {
 		}
 	}
 	/**
-	 * Provides access to displayed strings.
+	 * Provides access to language-specific strings.
 	 */
-	public static class Strings {		
+	public static class Lang {		
 		/**
-		 * Retrieves the loaded language file's value for a key.
+		 * Retrieves the loaded language file's value of a key.
 		 * @param key key to use
 		 * @return value for the specified key.
 		 */
