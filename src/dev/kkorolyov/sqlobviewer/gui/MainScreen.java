@@ -4,7 +4,6 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +34,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private static final Logger log = Logger.getLogger(MainScreen.class.getName());
 	
 	private JPanel panel;
-	private TableGrid tablesScreen;
+	private TableGrid tableGrid;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
@@ -52,41 +51,20 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	 * Constructs a new view screen.
 	 */
 	public MainScreen() {
-		initComponents();
-		addTableDeselectionListener();
-		
+		initComponents();		
 		buildComponents();
-	}
-	private void addTableDeselectionListener() {
-		panel.addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mouseClicked(MouseEvent e) {				
-				if (!tablesScreen.getPanel().contains(e.getPoint())) {
-					for (SQLObTable table : tablesScreen.getTables())
-						table.deselect();
-				}
-			}
-		});
 	}
 	
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
-		
-		tablesScreen = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+		panel.addMouseListener(new TableDeselectionListener());
+
+		tableGrid = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 				
 		lastStatementLabel = new JLabel();
-		lastStatementLabel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				tryShowLastStatementPopup(e);
-			}
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				tryShowLastStatementPopup(e);
-			}
-		});
+		lastStatementLabel.addMouseListener(new LastStatementPopupListener());
+		
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e -> fireRevertStatement(""));
@@ -101,7 +79,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			rowButtonPanel.addButton(rowButton);
 		
 		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
-		tableGridSelector.addChangeListener(e -> tablesScreen.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y)));	// TODO Move to syncTables()
+		tableGridSelector.addChangeListener(e -> tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y)));	// TODO Move to syncTables()
 		
 		refreshTableButton = new JButton(Lang.get(ACTION_REFRESH_TABLE));
 		refreshTableButton.addActionListener(e -> fireUpdate());
@@ -144,7 +122,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(refreshTableButton);
 		panel.add(tableComboBox);
 		panel.add(tableButtonPanel, "gap 0");
-		panel.add(tablesScreen.getPanel(), "spanx 2, grow");
+		panel.add(tableGrid.getPanel(), "spanx 2, grow");
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
 		panel.add(tableGridSelector, "gap 0");
 		panel.add(lastStatementLabel, "spanx");
@@ -197,11 +175,11 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	
 	/** @return table model backing all displayed tables */
 	public SQLObTableModel getTableModel() {
-		return tablesScreen.getModel();
+		return tableGrid.getModel();
 	}
 	/** @param newModel new table model */
 	public void setTableModel(SQLObTableModel newModel) {
-		tablesScreen.setModel(newModel);
+		tableGrid.setModel(newModel);
 	}
 	
 	/** @param statement new statement to display */
@@ -221,6 +199,19 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 				fireCreateTable(name, columns);
 		}
 	}
+	private void displayConfirmRemoveTableDialog() {
+		String selectedTableName = getTable();
+		if (selectedTableName == null) {
+			log.warning("No table selected, aborting RemoveTableDialog creation");
+			return;
+		}
+		String 	title = Lang.get(ACTION_TIP_REMOVE_TABLE),
+						message = Lang.get(MESSAGE_CONFIRM_REMOVE_TABLE) + System.lineSeparator() + selectedTableName;
+		
+		if (displayDialog(title, message, Lang.get(OPTION_YES), Lang.get(OPTION_NO)) == 0)
+			fireDropTable(selectedTableName);
+	}
+	
 	private void displayAddRowDialog() {
 		if (getTableModel() == null) {
 			log.warning("No table model set, aborting AddRowDialog creation");
@@ -233,21 +224,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			if (message.getCellEditor() != null)
 				message.getCellEditor().stopCellEditing();
 			
-			tablesScreen.getModel().insertRow(message.getRow(0));
+			tableGrid.getModel().insertRow(message.getRow(0));
 		}
-	}
-	
-	private void displayConfirmRemoveTableDialog() {
-		String selectedTableName = getTable();
-		if (selectedTableName == null) {
-			log.warning("No table selected, aborting RemoveTableDialog creation");
-			return;
-		}
-		String 	title = Lang.get(ACTION_TIP_REMOVE_TABLE),
-						message = Lang.get(MESSAGE_CONFIRM_REMOVE_TABLE) + System.lineSeparator() + selectedTableName;
-		
-		if (displayDialog(title, message, Lang.get(OPTION_YES), Lang.get(OPTION_NO)) == 0)
-			fireDropTable(selectedTableName);
 	}
 	private void displayConfirmRemoveRowDialog() {
 		if (getTableModel() == null) {
@@ -278,7 +256,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private RowEntry[][] getSelectedRows() {
 		List<RowEntry[]> selectedRows = new LinkedList<>();
 		
-		for (SQLObTable table : tablesScreen.getTables()) {
+		for (SQLObTable table : tableGrid.getTables()) {
 			for (int index : table.getSelectedRows())
 				selectedRows.add(table.getRow(index));
 		}
@@ -286,10 +264,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	}
 	
 	private void deleteRows(RowEntry[][] toDelete) {
-		for (RowEntry[] toDel : toDelete) {
-			System.out.println("Deleting " + Arrays.toString(toDel));
-			tablesScreen.getModel().deleteRow(toDel);
-		}
+		for (RowEntry[] toDel : toDelete)
+			getTableModel().deleteRow(toDel);
 	}
 	
 	@Override
@@ -352,5 +328,27 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	public void clearListeners() {
 		cancelListeners.clear();
 		sqlRequestListeners.clear();
+	}
+	
+	private class TableDeselectionListener extends MouseAdapter {
+		@SuppressWarnings("synthetic-access")
+		@Override
+		public void mouseClicked(MouseEvent e) {				
+			if (!tableGrid.getPanel().contains(e.getPoint())) {
+				for (SQLObTable table : tableGrid.getTables())
+					table.deselect();
+			}
+		}
+	}
+	@SuppressWarnings("synthetic-access")
+	private class LastStatementPopupListener extends MouseAdapter {
+		@Override
+		public void mousePressed(MouseEvent e) {
+			tryShowLastStatementPopup(e);
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			tryShowLastStatementPopup(e);
+		}
 	}
 }

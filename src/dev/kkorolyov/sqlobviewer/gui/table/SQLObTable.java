@@ -46,19 +46,10 @@ public class SQLObTable extends JTable implements ChangeListener {
 	 * Constructs a new database table.
 	 * @param model the model backing this table
 	 */
+	@SuppressWarnings("synthetic-access")
 	public SQLObTable(SQLObTableModel model) {		
 		setAutoCreateRowSorter(true);
 		
-		addListSelectionListener();
-		addDeselectionListeners();
-		addHeaderPopupListener();
-		addCellPopupListener();
-		
-		setModel(model);
-		
-		scrollPane = new JScrollPane(this);
-	}
-	private void addListSelectionListener() {
 		if (getSelectionModel() != null) {
 			getSelectionModel().addListSelectionListener(e -> {
 				if (selectionListenerActive) {
@@ -67,49 +58,15 @@ public class SQLObTable extends JTable implements ChangeListener {
 				}
 			});
 		}
-	}
-	private void addDeselectionListeners() {
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {				
-				if (rowAtPoint(e.getPoint()) < 0)
-					deselect();
-			}
-		});
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-					deselect();
-			}
-		});
-	}
-	private void addHeaderPopupListener() {
-		getTableHeader().addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mousePressed(MouseEvent e) {
-				tryShowHeaderPopup(e);
-			}
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				tryShowHeaderPopup(e);
-			}
-		});
-	}
-	@SuppressWarnings("synthetic-access")
-	private void addCellPopupListener() {
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				tryShowCellPopup(e);
-			}
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				tryShowCellPopup(e);
-			}
-		});
+		addMouseListener(new MouseDeselectionListener());
+		addKeyListener(new KeyDeselectionListener());
+		
+		getTableHeader().addMouseListener(new HeaderPopupListener());
+		addMouseListener(new CellPopupListener());
+		
+		setModel(model);
+		
+		scrollPane = new JScrollPane(this);
 	}
 	
 	/**
@@ -376,5 +333,41 @@ public class SQLObTable extends JTable implements ChangeListener {
 				return filterString == null ? filterString : (Lang.get(MESSAGE_TIP_CURRENT_FILTER) + ": " + filterString);
 			};
 		};
+	}
+	
+	private class MouseDeselectionListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {				
+			if (rowAtPoint(e.getPoint()) < 0)
+				deselect();
+		}
+	}
+	private class KeyDeselectionListener extends KeyAdapter {
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				deselect();
+		}
+	}
+	@SuppressWarnings("synthetic-access")
+	private class HeaderPopupListener extends MouseAdapter {
+		@Override
+		public void mousePressed(MouseEvent e) {
+			tryShowHeaderPopup(e);
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			tryShowHeaderPopup(e);
+		}
+	}
+	@SuppressWarnings("synthetic-access")
+	private class CellPopupListener extends MouseAdapter {
+		@Override
+		public void mousePressed(MouseEvent e) {
+			tryShowCellPopup(e);
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			tryShowCellPopup(e);
+		}
 	}
 }

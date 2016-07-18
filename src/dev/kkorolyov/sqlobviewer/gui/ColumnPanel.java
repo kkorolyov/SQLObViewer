@@ -20,7 +20,7 @@ import dev.kkorolyov.swingplus.JPlaceholderTextField;
 /**
  * Contains editable info for a single column.
  */
-public class ColumnPanel extends JPanel {
+public class ColumnPanel extends JPanel {	// TODO Encapsulate instead of extend
 	private static final long serialVersionUID = 3309134424336942020L;
 
 	private JTextField columnNameField;

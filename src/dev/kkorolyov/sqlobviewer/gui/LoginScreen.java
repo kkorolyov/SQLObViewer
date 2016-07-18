@@ -44,24 +44,15 @@ public class LoginScreen implements Screen, SubmitSubject {
 		
 		buildComponents();
 	}
+	@SuppressWarnings("synthetic-access")
 	private void addSubmitListeners() {
-		KeyListener submitKeyListener = buildSubmitListener();
+		KeyListener submitKeyListener = new EnterKeyListener();
 		
 		panel.addKeyListener(submitKeyListener);
 		hostField.addKeyListener(submitKeyListener);
 		databaseField.addKeyListener(submitKeyListener);
 		userField.addKeyListener(submitKeyListener);
 		passwordField.addKeyListener(submitKeyListener);
-	}
-	private KeyListener buildSubmitListener() {
-		return new KeyAdapter() {
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER)
-					fireSubmitted();
-			}
-		};
 	}
 	
 	private void initComponents() {
@@ -135,5 +126,14 @@ public class LoginScreen implements Screen, SubmitSubject {
 	@Override
 	public void clearListeners() {
 		submitListeners.clear();
+	}
+	
+	private class EnterKeyListener extends KeyAdapter {
+		@SuppressWarnings("synthetic-access")
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				fireSubmitted();
+		}
 	}
 }

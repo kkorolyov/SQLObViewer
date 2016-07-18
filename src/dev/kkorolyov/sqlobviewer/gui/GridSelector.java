@@ -18,9 +18,9 @@ import javax.swing.event.ChangeListener;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 
 /**
- * Used to select a span of grid
+ * Selects a span of cells in a grid.
  */
-public class GridSelector extends JPanel {
+public class GridSelector extends JPanel {	// TODO Encapsulate instead of extend
 	private static final long serialVersionUID = 1891318906413068180L;
 
 	private JButton[][] gridButtons;

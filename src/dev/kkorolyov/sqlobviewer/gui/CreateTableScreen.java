@@ -136,15 +136,6 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 		return columns.toArray(new Column[columns.size()]);
 	}
 	
-	private void fireSubmitted() {
-		for (SubmitListener listener : submitListeners)
-			listener.submitted(this);
-	}
-	private void fireCanceled() {		
-		for (CancelListener listener : cancelListeners)
-			listener.canceled(this);
-	}
-	
 	@Override
 	public boolean focusDefaultComponent() {
 		return nameField.requestFocusInWindow();
@@ -153,6 +144,15 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	private void fireSubmitted() {
+		for (SubmitListener listener : submitListeners)
+			listener.submitted(this);
+	}
+	private void fireCanceled() {
+		for (CancelListener listener : cancelListeners)
+			listener.canceled(this);
 	}
 	
 	@Override

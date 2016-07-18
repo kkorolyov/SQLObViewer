@@ -1,7 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 /**
- * Displays a single {@code Screen} at a time.
+ * Displays {@code Screens}.
+ * @see Screen
  */
 public interface Window {
 	/**
