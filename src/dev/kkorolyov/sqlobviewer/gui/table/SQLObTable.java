@@ -1,6 +1,9 @@
 package dev.kkorolyov.sqlobviewer.gui.table;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_COPY;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_TIP_ADD_FILTER;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_TIP_REMOVE_FILTER;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_CURRENT_FILTER;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -13,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -41,6 +46,8 @@ public class SQLObTable extends JTable implements ChangeListener {
 	private Map<Integer, String> filterStrings = new HashMap<>();
 	
 	private JScrollPane scrollPane;
+	
+	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new database table.
@@ -335,8 +342,9 @@ public class SQLObTable extends JTable implements ChangeListener {
 	private TableRowSorter<SQLObTableModel> getCastedRowSorter() {
 		return (TableRowSorter<SQLObTableModel>) super.getRowSorter();
 	}
+	
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(ChangeEvent e) {	// Invoked by backing model
 		deselect();
 		sort();
 		
@@ -344,6 +352,20 @@ public class SQLObTable extends JTable implements ChangeListener {
 		
 		revalidate();
 		repaint();
+	}
+	
+	@Override
+	public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+		super.changeSelection(rowIndex, columnIndex, toggle, extend);
+		
+		fireStateChanged();
+	}
+	@Override
+	public void clearSelection() {
+		super.clearSelection();
+		
+		if (changeListeners != null)
+			fireStateChanged();
 	}
 	
 	@Override
@@ -360,5 +382,26 @@ public class SQLObTable extends JTable implements ChangeListener {
 				return filterString == null ? filterString : (Lang.get(MESSAGE_TIP_CURRENT_FILTER) + ": " + filterString);
 			};
 		};
+	}
+	
+	private void fireStateChanged() {
+		for (ChangeListener listener : changeListeners)
+			listener.stateChanged(new ChangeEvent(this));
+	}
+	
+	/** @param listener change listener to add */
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+	}
+	/** @param listener change listener to remove */
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+	
+	/**
+	 * Clears all listeners.
+	 */
+	public void clearListeners() {
+		changeListeners.clear();
 	}
 }

@@ -35,13 +35,18 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	
 	private JPanel panel;
 	private TableGrid tableGrid;
+	private GridSelector tableGridSelector;
 	private JComboBox<String> tableComboBox;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
-	private JButton refreshTableButton,
-									backButton;
-	private GridSelector tableGridSelector;
-	private JLabel lastStatementLabel;
+	private JButton	backButton,
+									refreshTableButton,
+									addTableButton,
+									removeTableButton,
+									addRowButton,
+									removeRowButton;
+	private JLabel 	selectedRowsCounter,
+									lastStatementLabel;
 	private JPopupMenu lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
@@ -54,21 +59,24 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		initComponents();		
 		buildComponents();
 	}
-	
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
 		panel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!tableGrid.getPanel().contains(e.getPoint())) {
-					for (SQLObTable table : tableGrid.getTables())
-						table.deselect();
-				}
+				if (!tableGrid.contains(e.getPoint()))
+					tableGrid.deselect();
 			}
 		});
 		tableGrid = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
-				
+		tableGrid.addChangeListener(e -> syncSelectedRowsCounter());
+		
+		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
+		tableGridSelector.addChangeListener(e -> syncTableGrid());
+		
+		selectedRowsCounter = new JLabel();
+		
 		lastStatementLabel = new JLabel();
 		lastStatementLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -85,21 +93,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		undoItem.addActionListener(e -> fireRevertStatement(""));
 		lastStatementPopup.add(undoItem);
 		
-		tableButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_TABLE), Orientation.X, ExpandTrigger.HOVER);
-		for (JButton tableButton : initTableButtons())
-			tableButtonPanel.addButton(tableButton);
-		
-		rowButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_ROW), Orientation.X, ExpandTrigger.HOVER);
-		for (JButton rowButton : initRowButtons())
-			rowButtonPanel.addButton(rowButton);
-		
-		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
-		tableGridSelector.addChangeListener(e -> tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y)));	// TODO Move to syncTables()
-		
-		refreshTableButton = new JButton(Lang.get(ACTION_REFRESH_TABLE));
-		refreshTableButton.addActionListener(e -> fireUpdate());
-		refreshTableButton.setToolTipText(Lang.get(ACTION_TIP_REFRESH_TABLE));
-		
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> {
 			String selectedTable = (String) tableComboBox.getSelectedItem();
@@ -107,32 +100,44 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			if (selectedTable != null)
 				fireSelectTable(selectedTable);
 		});
+		refreshTableButton = new JButton(Lang.get(ACTION_REFRESH_TABLE));
+		refreshTableButton.addActionListener(e -> fireUpdate());
+		refreshTableButton.setToolTipText(Lang.get(ACTION_TIP_REFRESH_TABLE));
+		
+		initTableButtons();
+		initRowButtons();
+		
 		backButton = new JButton(Lang.get(ACTION_LOG_OUT));
 		backButton.addActionListener(e -> fireCanceled());
 	}
-	private JButton[] initTableButtons() {
-		JButton addTableButton = new JButton(Lang.get(ACTION_ADD_TABLE));		
+	private void initTableButtons() {
+		tableButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_TABLE), Orientation.X, ExpandTrigger.HOVER);
+		
+		addTableButton = new JButton(Lang.get(ACTION_ADD_TABLE));
 		addTableButton.setToolTipText(Lang.get(ACTION_TIP_ADD_TABLE));
 		addTableButton.addActionListener(e -> displayAddTableDialog());
 
-		JButton removeTableButton = new JButton(Lang.get(ACTION_REMOVE_TABLE));
+		removeTableButton = new JButton(Lang.get(ACTION_REMOVE_TABLE));
 		removeTableButton.setToolTipText(Lang.get(ACTION_TIP_REMOVE_TABLE));
 		removeTableButton.addActionListener(e -> displayConfirmRemoveTableDialog());
 		
-		return new JButton[]{addTableButton, removeTableButton};
+		tableButtonPanel.addButton(addTableButton);
+		tableButtonPanel.addButton(removeTableButton);
 	}
-	private JButton[] initRowButtons() {
-		JButton addRowButton = new JButton(Lang.get(ACTION_ADD_ROW));
+	private void initRowButtons() {
+		rowButtonPanel = new JHoverButtonPanel(Lang.get(DYNAMIC_ACTION_ROW), Orientation.X, ExpandTrigger.HOVER);
+
+		addRowButton = new JButton(Lang.get(ACTION_ADD_ROW));
 		addRowButton.setToolTipText(Lang.get(ACTION_TIP_ADD_ROW));
 		addRowButton.addActionListener(e -> displayAddRowDialog());
 		
-		JButton removeRowButton = new JButton(Lang.get(ACTION_REMOVE_ROW));
+		removeRowButton = new JButton(Lang.get(ACTION_REMOVE_ROW));
 		removeRowButton.setToolTipText(Lang.get(ACTION_TIP_REMOVE_ROW));
 		removeRowButton.addActionListener(e -> displayConfirmRemoveRowDialog());
 		
-		return new JButton[]{addRowButton, removeRowButton};
+		rowButtonPanel.addButton(addRowButton);
+		rowButtonPanel.addButton(removeRowButton);
 	}
-	
 	private void buildComponents() {
 		panel.add(refreshTableButton);
 		panel.add(tableComboBox);
@@ -140,16 +145,9 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(tableGrid.getPanel(), "spanx 2, grow");
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
 		panel.add(tableGridSelector.getPanel(), "gap 0");
+		panel.add(selectedRowsCounter, "spanx");
 		panel.add(lastStatementLabel, "spanx");
 		panel.add(backButton, "span, center, grow 0");
-	}
-	
-	private void tryShowLastStatementPopup(MouseEvent e) {
-		if (e.isPopupTrigger())
-			showLastStatementPopup(e);
-	}
-	private void showLastStatementPopup(MouseEvent e) {
-		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	/** @return name of currently-selected table */
@@ -200,6 +198,44 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	/** @param statement new statement to display */
 	public void setLastStatement(String statement) {		
 		lastStatementLabel.setText(statement);
+	}
+	
+	private void syncTableGrid() {
+		tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+	}
+	private void syncSelectedRowsCounter() {
+		selectedRowsCounter.setText(getNumSelectedRows() + " " + Lang.get(MESSAGE_ROWS_SELECTED));
+	}
+	
+	private int getNumSelectedRows() {
+		int totalSelected = 0;
+		
+		for (SQLObTable table : tableGrid.getTables())
+			totalSelected += table.getSelectedRowCount();
+		
+		return totalSelected;
+	}
+	private RowEntry[][] getSelectedRows() {
+		List<RowEntry[]> selectedRows = new LinkedList<>();
+		
+		for (SQLObTable table : tableGrid.getTables()) {
+			for (int index : table.getSelectedRows())
+				selectedRows.add(table.getRow(index));
+		}
+		return selectedRows.toArray(new RowEntry[selectedRows.size()][]);
+	}
+	
+	private void deleteRows(RowEntry[][] toDelete) {
+		for (RowEntry[] toDel : toDelete)
+			getTableModel().deleteRow(toDel);
+	}
+	
+	private void tryShowLastStatementPopup(MouseEvent e) {
+		if (e.isPopupTrigger())
+			showLastStatementPopup(e);
+	}
+	private void showLastStatementPopup(MouseEvent e) {
+		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	private void displayAddTableDialog() {
@@ -266,21 +302,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	
 	private int displayDialog(String title, Object message, Object... options) {
 		return JOptionPane.showOptionDialog(getPanel(), message, Lang.get(title), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
-	}
-	
-	private RowEntry[][] getSelectedRows() {
-		List<RowEntry[]> selectedRows = new LinkedList<>();
-		
-		for (SQLObTable table : tableGrid.getTables()) {
-			for (int index : table.getSelectedRows())
-				selectedRows.add(table.getRow(index));
-		}
-		return selectedRows.toArray(new RowEntry[selectedRows.size()][]);
-	}
-	
-	private void deleteRows(RowEntry[][] toDelete) {
-		for (RowEntry[] toDel : toDelete)
-			getTableModel().deleteRow(toDel);
 	}
 	
 	@Override

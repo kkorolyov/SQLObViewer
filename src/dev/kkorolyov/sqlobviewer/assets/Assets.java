@@ -99,6 +99,8 @@ public class Assets {
 																MESSAGE_USER = "MESSAGE_USER",
 																MESSAGE_PASSWORD = "MESSAGE_PASSWORD",
 																
+																MESSAGE_ROWS_SELECTED = "MESSAGE_ROWS_SELECTED",
+																
 																MESSAGE_TIP_TABLE_NAME = "MESSAGE_TIP_TABLE_NAME",
 																
 																MESSAGE_TIP_COLUMN_NAME = "MESSAGE_TIP_COLUMN_NAME",
@@ -178,6 +180,8 @@ public class Assets {
 																MESSAGE_DATABASE = "Database",
 																MESSAGE_USER = "User",
 																MESSAGE_PASSWORD = "Password",
+																
+																MESSAGE_ROWS_SELECTED = "Row(s) selected",
 																
 																MESSAGE_TIP_TABLE_NAME = "Table name",
 																
@@ -263,6 +267,8 @@ public class Assets {
 			defaults.put(Keys.MESSAGE_USER, MESSAGE_USER);
 			defaults.put(Keys.MESSAGE_DATABASE, MESSAGE_DATABASE);
 			defaults.put(Keys.MESSAGE_PASSWORD, MESSAGE_PASSWORD);
+			
+			defaults.put(Keys.MESSAGE_ROWS_SELECTED, MESSAGE_ROWS_SELECTED);
 			
 			defaults.put(Keys.MESSAGE_TIP_TABLE_NAME, MESSAGE_TIP_TABLE_NAME);
 			

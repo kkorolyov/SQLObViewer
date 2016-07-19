@@ -1,11 +1,15 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.JPanel;
+import javax.swing.event.ChangeListener;
 
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTable;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
@@ -18,6 +22,8 @@ public class TableGrid implements Screen {
 	private List<List<SQLObTable>> tableGrid = new ArrayList<>();
 	
 	private JPanel panel;
+	
+	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new tables screen with 1 displayed table.
@@ -37,6 +43,22 @@ public class TableGrid implements Screen {
 		
 		setModel(model);
 		setTables(rows, columns);
+	}
+	
+	/**
+	 * Deselects selected cells in all displayed tables.
+	 */
+	public void deselect() {
+		for (SQLObTable table : getTables())
+			table.deselect();
+	}
+	
+	/**
+	 * @param point point to test
+	 * @return {@code true} if coordinates of the specified point lie within this screen
+	 */
+	public boolean contains(Point point) {
+		return panel.contains(point);
 	}
 	
 	/** @return number of rows on this screen */
@@ -91,8 +113,10 @@ public class TableGrid implements Screen {
 	}
 	private void trimGrid(int rows, int columns) {
 		for (int i = (tableGrid.size() - 1); i >= rows ; i--) {
-			for (SQLObTable table : tableGrid.remove(i))
+			for (SQLObTable table : tableGrid.remove(i)) {
 				table.setModel(null);
+				table.clearListeners();
+			}
 		}
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < columns; j++)
@@ -107,8 +131,13 @@ public class TableGrid implements Screen {
 			tableGrid.add(new ArrayList<SQLObTable>());
 		
 		for (int i = 0; i < rows; i++) {
-			for (int j = tableGrid.get(i).size(); j < columns; j++)
-				tableGrid.get(i).add(new SQLObTable(model));
+			for (int j = tableGrid.get(i).size(); j < columns; j++) {
+				SQLObTable newTable = new SQLObTable(model);
+				for (ChangeListener listener : changeListeners)
+					newTable.addChangeListener(listener);
+				
+				tableGrid.get(i).add(newTable);
+			}
 		}
 	}
 	
@@ -120,5 +149,30 @@ public class TableGrid implements Screen {
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	/** @param listener change listener to add */
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+		
+		for (SQLObTable table : getTables())
+			table.addChangeListener(listener);
+	}
+	/** @param listener change listener to remove */
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
+
+		for (SQLObTable table : getTables())
+			table.removeChangeListener(listener);
+	}
+	
+	/**
+	 * Clears all listeners.
+	 */
+	public void clearListeners() {
+		changeListeners.clear();
+		
+		for (SQLObTable table : getTables())
+			table.clearListeners();
 	}
 }
