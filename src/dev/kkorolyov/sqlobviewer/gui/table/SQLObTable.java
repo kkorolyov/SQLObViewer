@@ -58,12 +58,39 @@ public class SQLObTable extends JTable implements ChangeListener {
 				}
 			});
 		}
-		addMouseListener(new MouseDeselectionListener());
-		addKeyListener(new KeyDeselectionListener());
-		
-		getTableHeader().addMouseListener(new HeaderPopupListener());
-		addMouseListener(new CellPopupListener());
-		
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (rowAtPoint(e.getPoint()) < 0)
+					deselect();
+			}
+		});
+		addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+					deselect();
+			}
+		});
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowCellPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowCellPopup(e);
+			}
+		});
+		getTableHeader().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowHeaderPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowHeaderPopup(e);
+			}
+		});
 		setModel(model);
 		
 		scrollPane = new JScrollPane(this);
@@ -333,41 +360,5 @@ public class SQLObTable extends JTable implements ChangeListener {
 				return filterString == null ? filterString : (Lang.get(MESSAGE_TIP_CURRENT_FILTER) + ": " + filterString);
 			};
 		};
-	}
-	
-	private class MouseDeselectionListener extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e) {				
-			if (rowAtPoint(e.getPoint()) < 0)
-				deselect();
-		}
-	}
-	private class KeyDeselectionListener extends KeyAdapter {
-		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-				deselect();
-		}
-	}
-	@SuppressWarnings("synthetic-access")
-	private class HeaderPopupListener extends MouseAdapter {
-		@Override
-		public void mousePressed(MouseEvent e) {
-			tryShowHeaderPopup(e);
-		}
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			tryShowHeaderPopup(e);
-		}
-	}
-	@SuppressWarnings("synthetic-access")
-	private class CellPopupListener extends MouseAdapter {
-		@Override
-		public void mousePressed(MouseEvent e) {
-			tryShowCellPopup(e);
-		}
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			tryShowCellPopup(e);
-		}
 	}
 }

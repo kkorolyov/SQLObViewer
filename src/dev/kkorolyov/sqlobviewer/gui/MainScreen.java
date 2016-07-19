@@ -58,13 +58,28 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, wrap 3, gap 4px", "[fill]0px[fill, grow]0px[fill]", "[fill][grow][fill]"));
-		panel.addMouseListener(new TableDeselectionListener());
-
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (!tableGrid.getPanel().contains(e.getPoint())) {
+					for (SQLObTable table : tableGrid.getTables())
+						table.deselect();
+				}
+			}
+		});
 		tableGrid = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 				
 		lastStatementLabel = new JLabel();
-		lastStatementLabel.addMouseListener(new LastStatementPopupListener());
-		
+		lastStatementLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tryShowLastStatementPopup(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				tryShowLastStatementPopup(e);
+			}
+		});
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e -> fireRevertStatement(""));
@@ -124,7 +139,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(tableButtonPanel, "gap 0");
 		panel.add(tableGrid.getPanel(), "spanx 2, grow");
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
-		panel.add(tableGridSelector, "gap 0");
+		panel.add(tableGridSelector.getPanel(), "gap 0");
 		panel.add(lastStatementLabel, "spanx");
 		panel.add(backButton, "span, center, grow 0");
 	}
@@ -328,27 +343,5 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	public void clearListeners() {
 		cancelListeners.clear();
 		sqlRequestListeners.clear();
-	}
-	
-	private class TableDeselectionListener extends MouseAdapter {
-		@SuppressWarnings("synthetic-access")
-		@Override
-		public void mouseClicked(MouseEvent e) {				
-			if (!tableGrid.getPanel().contains(e.getPoint())) {
-				for (SQLObTable table : tableGrid.getTables())
-					table.deselect();
-			}
-		}
-	}
-	@SuppressWarnings("synthetic-access")
-	private class LastStatementPopupListener extends MouseAdapter {
-		@Override
-		public void mousePressed(MouseEvent e) {
-			tryShowLastStatementPopup(e);
-		}
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			tryShowLastStatementPopup(e);
-		}
 	}
 }

@@ -40,21 +40,10 @@ public class LoginScreen implements Screen, SubmitSubject {
 	 */
 	public LoginScreen() {
 		initComponents();
-		addSubmitListeners();
 		
 		buildComponents();
 	}
 	@SuppressWarnings("synthetic-access")
-	private void addSubmitListeners() {
-		KeyListener submitKeyListener = new EnterKeyListener();
-		
-		panel.addKeyListener(submitKeyListener);
-		hostField.addKeyListener(submitKeyListener);
-		databaseField.addKeyListener(submitKeyListener);
-		userField.addKeyListener(submitKeyListener);
-		passwordField.addKeyListener(submitKeyListener);
-	}
-	
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]"));
 		
@@ -70,6 +59,19 @@ public class LoginScreen implements Screen, SubmitSubject {
 		
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());
+		
+		KeyListener submitKeyListener = new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					fireSubmitted();
+			}
+		};
+		panel.addKeyListener(submitKeyListener);
+		hostField.addKeyListener(submitKeyListener);
+		databaseField.addKeyListener(submitKeyListener);
+		userField.addKeyListener(submitKeyListener);
+		passwordField.addKeyListener(submitKeyListener);
 	}
 	private void buildComponents() {
 		panel.add(hostLabel);
@@ -126,14 +128,5 @@ public class LoginScreen implements Screen, SubmitSubject {
 	@Override
 	public void clearListeners() {
 		submitListeners.clear();
-	}
-	
-	private class EnterKeyListener extends KeyAdapter {
-		@SuppressWarnings("synthetic-access")
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_ENTER)
-				fireSubmitted();
-		}
 	}
 }

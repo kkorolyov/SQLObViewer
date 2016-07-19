@@ -3,6 +3,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.Component;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 									addColumnButton;
 	private JPanel columnsPanel;
 	private JScrollPane columnsScrollPane;
+	private Set<ColumnInfo> columns = new HashSet<>();
 	
 	private Set<SubmitListener> submitListeners = new CopyOnWriteArraySet<>();
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
@@ -55,7 +57,7 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 		panel = new JPanel(new MigLayout("insets 0, gap 4px, flowy", "[grow]", "[]push[]push[]"));
 		
 		columnsPanel = new JPanel();
-		int strutWidth = (int) new ColumnPanel().getPreferredSize().getWidth();
+		int strutWidth = (int) new ColumnInfo().getPanel().getPreferredSize().getWidth();
 		for (int i = 0; i < NUM_FILLER_COLUMNS; i++)
 			columnsPanel.add(Box.createHorizontalStrut(strutWidth));
 		
@@ -90,27 +92,29 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 	}
 	
 	private void addColumn() {
-		ColumnPanel newColumn = new ColumnPanel();
+		ColumnInfo newColumn = new ColumnInfo();
 		newColumn.addDeletionListener(e -> removeColumn(newColumn));
+		columns.add(newColumn);
 		
 		Component[] components = columnsPanel.getComponents();
 		columnsPanel.removeAll();
 		boolean foundFiller = false;
 		for (int i = 0; i < components.length; i++) {
 			if (!foundFiller && components[i] instanceof Filler) {
-				components[i] = newColumn;
+				components[i] = newColumn.getPanel();
 				foundFiller = true;
 			}
 			columnsPanel.add(components[i]);
 		}
 		if (!foundFiller)
-			columnsPanel.add(newColumn);
+			columnsPanel.add(newColumn.getPanel());
 		
 		columnsPanel.revalidate();
 		columnsPanel.repaint();
 	}
-	private void removeColumn(ColumnPanel column) {
-		columnsPanel.remove(column);
+	private void removeColumn(ColumnInfo column) {
+		columns.remove(column);
+		columnsPanel.remove(column.getPanel());
 		
 		columnsPanel.revalidate();
 		columnsPanel.repaint();
@@ -121,19 +125,17 @@ public class CreateTableScreen implements Screen, SubmitSubject, CancelSubject {
 		return nameField.getText();
 	}
 	
-	/** @return	an array of {@code Column} objects matching all the {@code ColumnPanel} objects currently on this screen */
+	/** @return	an array of {@code Column} objects matching all the {@code ColumnInfo} objects displayed on this screen */
 	public Column[] getColumns() {
-		List<Column> columns = new LinkedList<>();
+		List<Column> allColumns = new LinkedList<>();
 		
-		for (Component component : columnsPanel.getComponents()) {
-			if (component instanceof ColumnPanel) {
-				Column currentColumn = ((ColumnPanel) component).getColumn();
-				
-				if (currentColumn != null)
-					columns.add(currentColumn);
-			}
+		for (ColumnInfo column : columns) {
+			Column currentColumn = column.getColumn();
+			
+			if (currentColumn != null)
+				allColumns.add(currentColumn);
 		}
-		return columns.toArray(new Column[columns.size()]);
+		return allColumns.toArray(new Column[allColumns.size()]);
 	}
 	
 	@Override
