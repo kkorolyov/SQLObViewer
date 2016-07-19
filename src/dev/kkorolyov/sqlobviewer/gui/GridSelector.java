@@ -20,29 +20,47 @@ import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 /**
  * Selects a span of cells in a grid.
  */
-public class GridSelector extends JPanel {	// TODO Encapsulate instead of extend
-	private static final long serialVersionUID = 1891318906413068180L;
-
+public class GridSelector implements Screen {
+	private JPanel panel;
 	private JButton[][] gridButtons;
 	
 	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
-	 * Constructs a new grid selector panel.
+	 * Constructs a new grid selector.
 	 * @param maxX number of grid cells along the X-axis
 	 * @param maxY number of grid cell along the Y-axis
 	 */
-	@SuppressWarnings("synthetic-access")
 	public GridSelector(int maxX, int maxY) {
 		gridButtons = new JButton[maxX][maxY];
 		
 		initComponents();
 		buildComponents();
-		
-		addComponentListener(new ResizeListener());
 	}
+	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
-		setLayout(new GridLayout(gridButtons.length, gridButtons[0].length, 0, 0));
+		panel = new JPanel(new GridLayout(gridButtons.length, gridButtons[0].length, 0, 0)) {
+			private static final long serialVersionUID = 7892116516791763651L;
+			
+			@Override
+			public Dimension getPreferredSize() {
+				Dimension preferred = super.getSize();
+				int length = (int) (preferred.getWidth() > preferred.getHeight() ? preferred.getWidth() : preferred.getHeight());
+				return new Dimension(length, length);
+			}
+			@Override
+			public void setPreferredSize(Dimension preferredSize) {
+				super.setPreferredSize(preferredSize);
+				super.setPreferredSize(getPreferredSize());
+			}
+		};
+		panel.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				panel.revalidate();
+				panel.repaint();
+			}
+		});
 	}
 	private void buildComponents() {
 		buildGridButtons();
@@ -51,7 +69,7 @@ public class GridSelector extends JPanel {	// TODO Encapsulate instead of extend
 		for (int i = 0; i < gridButtons.length; i++) {
 			for (int j = 0; j < gridButtons[i].length; j++) {
 				gridButtons[i][j] = buildGridButton(i, j);
-				add(gridButtons[i][j]);
+				panel.add(gridButtons[i][j]);
 			}
 		}
 		setGridSpanEnabled(Config.getInt(CURRENT_TABLES_X) - 1, Config.getInt(CURRENT_TABLES_Y) - 1, true);
@@ -95,15 +113,12 @@ public class GridSelector extends JPanel {	// TODO Encapsulate instead of extend
 	}
 	
 	@Override
-	public Dimension getPreferredSize() {
-		Dimension preferred = super.getSize();
-		int length = (int) (preferred.getWidth() > preferred.getHeight() ? preferred.getWidth() : preferred.getHeight());
-		return new Dimension(length, length);
+	public boolean focusDefaultComponent() {
+		return false;
 	}
 	@Override
-	public void setPreferredSize(Dimension preferredSize) {
-		super.setPreferredSize(preferredSize);
-		super.setPreferredSize(getPreferredSize());
+	public JPanel getPanel() {
+		return panel;
 	}
 	
 	private void fireStateChanged() {
@@ -118,13 +133,5 @@ public class GridSelector extends JPanel {	// TODO Encapsulate instead of extend
 	/** @param listener change listener to remove */
 	public void removeChangeListener(ChangeListener listener) {
 		changeListeners.remove(listener);
-	}
-	
-	private class ResizeListener extends ComponentAdapter {
-		@Override
-		public void componentResized(ComponentEvent e) {
-			revalidate();
-			repaint();
-		}
 	}
 }

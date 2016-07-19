@@ -1,8 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_REMOVE_COLUMN;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_NAME;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_TYPE;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_REMOVE_COLUMN;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -20,40 +20,35 @@ import dev.kkorolyov.swingplus.JPlaceholderTextField;
 /**
  * Contains editable info for a single column.
  */
-public class ColumnPanel extends JPanel {	// TODO Encapsulate instead of extend
-	private static final long serialVersionUID = 3309134424336942020L;
-
+public class ColumnInfo implements Screen {
+	private JPanel panel;
 	private JTextField columnNameField;
 	private JComboBox<SqlType> columnTypeComboBox;
 	private JPopupMenu deleteMenu;
-	private JMenuItem deleteMenuItem;
+	private JMenuItem deleteItem;
 	
 	/**
 	 * Constructs a new column panel.
 	 */
-	public ColumnPanel() {
-		GridLayout columnLayout = new GridLayout(2, 1);
-		setLayout(columnLayout);
-				
+	public ColumnInfo() {
 		initComponents();
-		addDeletePopupListeners();
-
-		add(columnNameField);
-		add(columnTypeComboBox);
-		
-		repaint();
-		revalidate();
-	}
-	private void addDeletePopupListeners() {
-		MouseListener popupListener = buildPopupListener();
-		
-		addMouseListener(popupListener);
-		columnNameField.addMouseListener(popupListener);
-		columnTypeComboBox.addMouseListener(popupListener);
+		buildComponents();
 	}
 	@SuppressWarnings("synthetic-access")
-	private MouseListener buildPopupListener() {
-		return new MouseAdapter() {
+	private void initComponents() {
+		panel = new JPanel(new GridLayout(2, 1));
+		
+		columnNameField = new JPlaceholderTextField(Lang.get(MESSAGE_TIP_COLUMN_NAME), 0);
+		columnNameField.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_NAME));
+		
+		columnTypeComboBox = new JComboBox<>(SqlType.values());
+		columnTypeComboBox.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_TYPE));
+		
+		deleteMenu = new JPopupMenu();
+		deleteItem = new JMenuItem(Lang.get(ACTION_REMOVE_COLUMN));
+		deleteMenu.add(deleteItem);
+		
+		MouseListener popupListener = new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				tryShowDeletePopup(e);
@@ -63,23 +58,18 @@ public class ColumnPanel extends JPanel {	// TODO Encapsulate instead of extend
 				tryShowDeletePopup(e);
 			}
 		};
+		panel.addMouseListener(popupListener);
+		columnNameField.addMouseListener(popupListener);
+		columnTypeComboBox.addMouseListener(popupListener);
 	}
-	
-	private void initComponents() {
-		columnNameField = new JPlaceholderTextField(Lang.get(MESSAGE_TIP_COLUMN_NAME), 0);
-		columnNameField.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_NAME));
-		
-		columnTypeComboBox = new JComboBox<>(SqlType.values());
-		columnTypeComboBox.setToolTipText(Lang.get(MESSAGE_TIP_COLUMN_TYPE));
-		
-		deleteMenu = new JPopupMenu();
-		deleteMenuItem = new JMenuItem(Lang.get(ACTION_REMOVE_COLUMN));
-		deleteMenu.add(deleteMenuItem);
+	private void buildComponents() {
+		panel.add(columnNameField);
+		panel.add(columnTypeComboBox);
 	}
 	
 	/** @param listener listener to notify when a deletion event is fired by this component */
 	public void addDeletionListener(ActionListener listener) {
-		deleteMenuItem.addActionListener(listener);
+		deleteItem.addActionListener(listener);
 	}
 	
 	/** @return	a {@code Column} matching the data specified in this panel, or {@code null} if not enough data */
@@ -96,5 +86,14 @@ public class ColumnPanel extends JPanel {	// TODO Encapsulate instead of extend
 	}
 	private void showDeletePopup(MouseEvent e) {
 		deleteMenu.show(e.getComponent(), e.getX(), e.getY());
+	}
+	
+	@Override
+	public boolean focusDefaultComponent() {
+		return false;
+	}
+	@Override
+	public JPanel getPanel() {
+		return panel;
 	}
 }
