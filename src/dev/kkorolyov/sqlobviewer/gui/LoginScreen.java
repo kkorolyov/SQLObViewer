@@ -89,8 +89,8 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		panel.add(userField);
 		panel.add(passwordLabel);
 		panel.add(passwordField);
-		panel.add(optionsButton, "span, split 2, align 25%, grow 0, sgx");
-		panel.add(loginButton, "align 75%, grow 0, sgx");
+		panel.add(optionsButton, "span, split 2, align 25%, grow 0");
+		panel.add(loginButton, "align 75%, grow 0");
 	}
 	
 	/** @return current text in host field */
