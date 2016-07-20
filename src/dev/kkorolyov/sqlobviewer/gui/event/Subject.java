@@ -1,4 +1,4 @@
-package dev.kkorolyov.sqlobviewer.gui;
+package dev.kkorolyov.sqlobviewer.gui.event;
 
 /**
  * Fires events noted by listeners.

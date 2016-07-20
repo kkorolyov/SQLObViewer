@@ -12,7 +12,7 @@ import dev.kkorolyov.simpleprops.Properties;
 /**
  * Centralized access to application properties.
  */
-@SuppressWarnings({"synthetic-access", "javadoc"})
+@SuppressWarnings("synthetic-access")
 public class Assets {
 	private static final Logger log = Logger.getLogger(Assets.class.getName());
 	
@@ -29,8 +29,7 @@ public class Assets {
 		initStrings();
 		
 		log.debug("Initialized assets");
-	}
-	
+	}	
 	private static void initConfig() {
 		config = new EncryptedProperties(new File(Defaults.CONFIG_FILENAME), Defaults.buildConfig(), key);
 		save(config);
@@ -42,6 +41,11 @@ public class Assets {
 		save(strings);
 		
 		log.debug("Initialized strings file");
+	}
+	
+	/** @return config properties */
+	public static Properties getConfig() {
+		return config;
 	}
 	
 	private static String get(String key, Properties props) {
@@ -70,6 +74,7 @@ public class Assets {
 	/**
 	 * All configuration and string keys.
 	 */
+	@SuppressWarnings("javadoc")
 	public static class Keys {
 		public static final String	WINDOW_WIDTH = "WINDOW_WIDTH",	// Config keys
 																WINDOW_HEIGHT = "WINDOW_HEIGHT",
@@ -124,6 +129,11 @@ public class Assets {
 																ACTION_CANCEL = "ACTION_CANCEL",
 																
 																ACTION_COPY = "ACTION_COPY",
+																
+																ACTION_OPTIONS = "ACTION_OPTIONS",
+																ACTION_OPTIONS_BACK = "ACTION_OPTIONS_BACK",
+																ACTION_OPTIONS_SAVE = "ACTION_OPTIONS_SAVE",
+																ACTION_OPTIONS_DISCARD = "ACTION_OPTIONS_DISCARD",
 																
 																ACTION_LOG_IN = "ACTION_LOG_IN",
 																ACTION_LOG_OUT = "ACTION_LOG_OUT",
@@ -206,6 +216,11 @@ public class Assets {
 																ACTION_CANCEL = "Cancel",
 																
 																ACTION_COPY = "Copy",
+																
+																ACTION_OPTIONS = "Options",
+																ACTION_OPTIONS_BACK = "Back",
+																ACTION_OPTIONS_SAVE = "Save",
+																ACTION_OPTIONS_DISCARD = "Discard changes",
 																
 																ACTION_LOG_IN = "Log In",
 																ACTION_LOG_OUT = "Log Out",
@@ -293,6 +308,11 @@ public class Assets {
 			defaults.put(Keys.ACTION_CANCEL, ACTION_CANCEL);
 			
 			defaults.put(Keys.ACTION_COPY, ACTION_COPY);
+			
+			defaults.put(Keys.ACTION_OPTIONS, ACTION_OPTIONS);
+			defaults.put(Keys.ACTION_OPTIONS_BACK, ACTION_OPTIONS_BACK);
+			defaults.put(Keys.ACTION_OPTIONS_SAVE, ACTION_OPTIONS_SAVE);
+			defaults.put(Keys.ACTION_OPTIONS_DISCARD, ACTION_OPTIONS_DISCARD);
 			
 			defaults.put(Keys.ACTION_LOG_IN, ACTION_LOG_IN);
 			defaults.put(Keys.ACTION_LOG_OUT, ACTION_LOG_OUT);

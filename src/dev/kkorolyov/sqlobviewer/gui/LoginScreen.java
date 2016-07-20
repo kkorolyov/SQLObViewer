@@ -12,6 +12,8 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.gui.event.OptionsListener;
+import dev.kkorolyov.sqlobviewer.gui.event.OptionsSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitSubject;
 import net.miginfocom.swing.MigLayout;
@@ -19,7 +21,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The login screen.
  */
-public class LoginScreen implements Screen, SubmitSubject {
+public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 	private static final int DEFAULT_FIELD_COLUMNS = 15;
 	
 	private JPanel panel;
@@ -31,9 +33,11 @@ public class LoginScreen implements Screen, SubmitSubject {
 											databaseField,
 											userField,
 											passwordField;
-	private JButton loginButton;
+	private JButton loginButton,
+									optionsButton;
 
 	private Set<SubmitListener> submitListeners = new CopyOnWriteArraySet<>();
+	private Set<OptionsListener> optionsListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new login screen.
@@ -60,6 +64,9 @@ public class LoginScreen implements Screen, SubmitSubject {
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());
 		
+		optionsButton = new JButton(Lang.get(ACTION_OPTIONS));
+		optionsButton.addActionListener(e -> fireOptions());
+		
 		KeyListener submitKeyListener = new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -82,7 +89,8 @@ public class LoginScreen implements Screen, SubmitSubject {
 		panel.add(userField);
 		panel.add(passwordLabel);
 		panel.add(passwordField);
-		panel.add(loginButton, "span, align 75%, grow 0");
+		panel.add(optionsButton, "span, split 2, align 25%, grow 0, sgx");
+		panel.add(loginButton, "align 75%, grow 0, sgx");
 	}
 	
 	/** @return current text in host field */
@@ -116,6 +124,11 @@ public class LoginScreen implements Screen, SubmitSubject {
 			listener.submitted(this);
 	}
 	
+	private void fireOptions() {
+		for (OptionsListener listener : optionsListeners)
+			listener.optionsRequested(this);
+	}
+	
 	@Override
 	public void addSubmitListener(SubmitListener listener) {
 		submitListeners.add(listener);
@@ -126,7 +139,17 @@ public class LoginScreen implements Screen, SubmitSubject {
 	}
 	
 	@Override
+	public void addOptionsListener(OptionsListener listener) {
+		optionsListeners.add(listener);
+	}
+	@Override
+	public void removeOptionsListener(OptionsListener listener) {
+		optionsListeners.remove(listener);
+	}
+	
+	@Override
 	public void clearListeners() {
 		submitListeners.clear();
+		optionsListeners.clear();
 	}
 }

@@ -24,6 +24,7 @@ import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
+import dev.kkorolyov.sqlobviewer.gui.OptionsScreen;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
@@ -31,7 +32,7 @@ import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements SubmitListener, CancelListener, SqlRequestListener {
+public class Controller implements SubmitListener, CancelListener, OptionsListener, SqlRequestListener {
 	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
@@ -137,8 +138,19 @@ public class Controller implements SubmitListener, CancelListener, SqlRequestLis
 	private LoginScreen buildLoginScreen() {
 		LoginScreen loginScreen = new LoginScreen();
 		loginScreen.addSubmitListener(this);
+		loginScreen.addOptionsListener(this);
 		
 		return loginScreen;
+	}
+	
+	private void goToOptionsScreen() {
+		window.setScreen(buildOptionsScreen(), true);
+	}
+	private OptionsScreen buildOptionsScreen() {
+		OptionsScreen optionsScreen = new OptionsScreen();
+		optionsScreen.addCancelListener(this);
+		
+		return optionsScreen;
 	}
 	
 	private void goToMainScreen() {
@@ -224,7 +236,19 @@ public class Controller implements SubmitListener, CancelListener, SqlRequestLis
 			setDatabaseConnection(null);
 			
 			goToLoginScreen();
+		} else if (source instanceof OptionsScreen) {
+			((OptionsScreen) source).clearListeners();
+			
+			goToLoginScreen();
 		}
+	}
+	
+	@Override
+	public void optionsRequested(OptionsSubject source) {
+		log.debug("Received OPTIONS REQUESTED event from " + source);
+		
+		if (source instanceof LoginScreen)
+			goToOptionsScreen();
 	}
 	
 	@Override

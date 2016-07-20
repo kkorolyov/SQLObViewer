@@ -1,7 +1,5 @@
 package dev.kkorolyov.sqlobviewer.gui.event;
 
-import dev.kkorolyov.sqlobviewer.gui.Subject;
-
 /**
  * Fires cancellation events.
  */
