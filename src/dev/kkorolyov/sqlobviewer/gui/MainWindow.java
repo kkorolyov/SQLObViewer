@@ -1,11 +1,12 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_APPLICATION_CLOSING;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_EXPAND_ERROR;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_ERROR;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_EXCEPTION;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_EXPAND_ERROR;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -57,6 +58,8 @@ public class MainWindow implements Window {
 	
 	@Override
 	public void setScreen(Screen screen, boolean fitToScreen) {
+		Point lastCenter = frame.isVisible() ? translateToCenter(frame.getLocation()) : null;
+		
 		frame.getContentPane().removeAll();
 		frame.add(screen.getPanel());
 		screen.focusDefaultComponent();
@@ -64,8 +67,21 @@ public class MainWindow implements Window {
 		frame.setPreferredSize(fitToScreen ? null : new Dimension(width, height));
 		frame.pack();
 		
-		frame.setLocationRelativeTo(null);
+		if (lastCenter == null) 
+			frame.setLocationRelativeTo(null);
+		else
+			frame.setLocation(translateToCorner(lastCenter));
+		
 		frame.setVisible(true);
+	}
+	
+	private Point translateToCenter(Point original) {
+		original.translate(frame.getWidth() / 2, frame.getHeight() / 2);
+		return original;
+	}
+	private Point translateToCorner(Point initial) {
+		initial.translate(-1 * (frame.getWidth() / 2), -1 * (frame.getHeight() / 2));
+		return initial;
 	}
 	
 	/**

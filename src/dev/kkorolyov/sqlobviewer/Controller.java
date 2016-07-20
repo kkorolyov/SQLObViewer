@@ -1,9 +1,6 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_DATABASE;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_HOST;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_PASSWORD;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.SAVED_USER;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -239,6 +236,11 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		} else if (source instanceof OptionsScreen) {
 			((OptionsScreen) source).clearListeners();
 			
+			window.setSize(Config.getInt(WINDOW_WIDTH), Config.getInt(WINDOW_HEIGHT));
+			if (mainScreen != null) {
+				mainScreen.clearListeners();
+				mainScreen = null;
+			}
 			goToLoginScreen();
 		}
 	}
