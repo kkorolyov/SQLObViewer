@@ -32,7 +32,7 @@ public class GridSelector implements Screen {
 	 * @param maxY number of grid cell along the Y-axis
 	 */
 	public GridSelector(int maxX, int maxY) {
-		gridButtons = new JButton[maxX][maxY];
+		gridButtons = new JButton[maxY][maxX];
 		
 		initComponents();
 		buildComponents();
