@@ -97,7 +97,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 		});
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
-		undoItem.addActionListener(e -> fireRevertStatement(""));
+		undoItem.addActionListener(e -> fireRevertStatement(lastStatement.getText()));
 		lastStatementPopup.add(undoItem);
 		
 		tableComboBox = new JComboBox<String>();

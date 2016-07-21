@@ -277,7 +277,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	
 	@Override
 	public void revertStatement(String statement, SqlRequestSubject source) {
-		log.debug("Received REVERT STATEMENT event from: " + source);
+		log.debug("Received REVERT STATEMENT event from: " + source + "; statement = " + statement);
 
 		undoLastStatement();
 	}
