@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 
 import dev.kkorolyov.simplepropseditor.model.PropsModel;
 import dev.kkorolyov.simplepropseditor.view.PropsScreen;
-import dev.kkorolyov.sqlobviewer.assets.Assets;
+import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
@@ -38,7 +38,7 @@ public class OptionsScreen implements Screen, CancelSubject {
 	private void initComponents() {
 		panel = new JPanel(new MigLayout("insets 0, gap 4px, flowy", "grow", "[fill, grow][]"));
 		
-		propsEditor = new PropsScreen(new PropsModel(Assets.getConfig()), null, null, null, Lang.get(ACTION_OPTIONS_SAVE), Lang.get(ACTION_OPTIONS_DISCARD), false);
+		propsEditor = new PropsScreen(new PropsModel(Config.getProperties()), null, null, null, Lang.get(ACTION_OPTIONS_SAVE), Lang.get(ACTION_OPTIONS_DISCARD), false);
 		
 		cancelButton = new JButton(Lang.get(ACTION_OPTIONS_BACK));
 		cancelButton.addActionListener(e -> fireCanceled());

@@ -12,40 +12,33 @@ import dev.kkorolyov.simpleprops.Properties;
 /**
  * Centralized access to application properties.
  */
-@SuppressWarnings("synthetic-access")
 public class Assets {
 	private static final Logger log = Logger.getLogger(Assets.class.getName());
 	
 	private static Properties config,
 														strings;
 	private static byte[] key = {2};
-
-	/**
-	 * Loads assets.
-	 * Creates necessary asset files if needed.
-	 */
-	public static void init() {
+	
+	static {	// Should only be initialized once
 		initConfig();
 		initStrings();
 		
 		log.debug("Initialized assets");
-	}	
+	}
+
+	@SuppressWarnings("synthetic-access")
 	private static void initConfig() {
 		config = new EncryptedProperties(new File(Defaults.CONFIG_FILENAME), Defaults.buildConfig(), key);
 		save(config);
 		
 		log.debug("Initialized config file");
 	}
+	@SuppressWarnings("synthetic-access")
 	private static void initStrings() {
 		strings = new Properties(new File(Config.get(Keys.STRINGS_FILENAME)), Defaults.buildStrings());
 		save(strings);
 		
 		log.debug("Initialized strings file");
-	}
-	
-	/** @return config properties */
-	public static Properties getConfig() {
-		return config;
 	}
 	
 	private static String get(String key, Properties props) {
@@ -352,6 +345,7 @@ public class Assets {
 	/**
 	 * Provides access to configuration properties.
 	 */
+	@SuppressWarnings("synthetic-access")
 	public static class Config {
 		/**
 		 * Retrieves the configuration value of a key.
@@ -386,10 +380,16 @@ public class Assets {
 		public static void save() {
 			Assets.save(config);
 		}
+		
+		/** @return backing {@code Properties} object */
+		public static Properties getProperties() {
+			return config;
+		}
 	}
 	/**
 	 * Provides access to language-specific strings.
 	 */
+	@SuppressWarnings("synthetic-access")
 	public static class Lang {		
 		/**
 		 * Retrieves the loaded language file's value of a key.

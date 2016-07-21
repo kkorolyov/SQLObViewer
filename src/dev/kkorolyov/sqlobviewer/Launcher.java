@@ -1,16 +1,13 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_HEIGHT;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_WINDOW;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_HEIGHT;
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_WIDTH;
-
-import java.sql.SQLException;
 
 import javax.swing.SwingUtilities;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
-import dev.kkorolyov.sqlobviewer.assets.Assets;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
@@ -25,35 +22,19 @@ public class Launcher {
 	/**
 	 * Main method.
 	 * @param args arguments
-	 * @throws SQLException if a database connection error occurs
 	 */
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		Logger.setGlobalLevel(LEVEL);
 		log.severe("Logging at level=" + LEVEL);
 		
-		Assets.init();
-		
 		MainWindow window = buildWindow();
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {	// Display application errors + terminate
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				log.severe("Error caught by default ExceptionHandler");
-				log.exception((Exception) e, Level.SEVERE);
-				
-				window.displayError(e, true);
-				
-				log.severe("Terminated gracefully");
-			}
-		});
-		SwingUtilities.invokeLater(new Runnable() {			
-			@Override
-			public void run() {
-				new Controller(window);
-			}
-		});
+		setExceptionHandler(window);	// Will display uncaught exceptions in this window
+		
+		log.info("Launching GUI");
+		SwingUtilities.invokeLater(() -> new Controller(window));
 	}
+	
 	private static MainWindow buildWindow() {
 		String title = Lang.get(TITLE_WINDOW);
 		int width = Config.getInt(WINDOW_WIDTH),
@@ -62,5 +43,20 @@ public class Launcher {
 		log.debug("Built application window with title=" + title + ", width=" + width + ", height=" + height);
 		
 		return new MainWindow(title, width, height);
+	}
+	
+	private static void setExceptionHandler(MainWindow window) {
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {	// Display application errors + terminate
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				log.severe("Error caught by default ExceptionHandler");
+				log.exception((Exception) e, Level.SEVERE);
+				
+				log.severe("Terminating application");
+				window.displayError(e, true);
+				log.severe("Terminated application successfully");
+			}
+		});
 	}
 }
