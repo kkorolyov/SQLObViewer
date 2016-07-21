@@ -5,6 +5,8 @@ package dev.kkorolyov.sqlobviewer.gui;
  * @see Screen
  */
 public interface Window {
+	/** @return displayed screen, or {@code null} if no screen is displayed */
+	Screen getScreen();
 	/**
 	 * Displays a {@code Screen}.
 	 * @param screen screen to show

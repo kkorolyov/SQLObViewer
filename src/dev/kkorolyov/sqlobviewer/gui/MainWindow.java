@@ -25,6 +25,7 @@ public class MainWindow implements Window {
 							height;
 	
 	private JFrame frame;
+	private Screen currentScreen;
 
 	/**
 	 * Constructs a new main application window.
@@ -57,7 +58,13 @@ public class MainWindow implements Window {
 	}
 	
 	@Override
+	public Screen getScreen() {
+		return currentScreen;
+	}
+	@Override
 	public void setScreen(Screen screen, boolean fitToScreen) {
+		currentScreen = screen;
+		
 		Point lastCenter = frame.isVisible() ? translateToCenter(frame.getLocation()) : null;
 		
 		frame.getContentPane().removeAll();

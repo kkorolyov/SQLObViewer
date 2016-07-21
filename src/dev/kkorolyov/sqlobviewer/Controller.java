@@ -18,10 +18,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
-import dev.kkorolyov.sqlobviewer.gui.MainScreen;
-import dev.kkorolyov.sqlobviewer.gui.MainWindow;
-import dev.kkorolyov.sqlobviewer.gui.OptionsScreen;
+import dev.kkorolyov.sqlobviewer.gui.*;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
@@ -39,7 +36,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	private Stack<UndoStatement> undoStatements;
 	
 	private MainWindow window;	// View
-	private MainScreen mainScreen;
 	
 	/**
 	 * Constructs a new controller for the specified window
@@ -151,7 +147,18 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	}
 	
 	private void goToMainScreen() {
-		window.setScreen(updateMainScreen(), false);
+		window.setScreen(buildMainScreen(), false);
+	}
+	private MainScreen buildMainScreen() {
+		MainScreen mainScreen = new MainScreen();
+		mainScreen.addCancelListener(this);
+		mainScreen.addSqlRequestListener(this);
+		mainScreen.setTables(dbConn.getTables());
+		mainScreen.setTableModel(tableModel);
+		
+		dbConn.addStatementListener(mainScreen);
+
+		return mainScreen;
 	}
 	
 	private void updateTableModel() {
@@ -176,24 +183,13 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	private void updateView() {
 		log.debug("Updating view...");
 		
-		updateMainScreen();
-		
-		log.debug("Done updating view");
-	}
-	private MainScreen updateMainScreen() {
-		log.debug("Updating main screen...");
-		
-		if (mainScreen == null) {
-			mainScreen = new MainScreen();		
-			mainScreen.addCancelListener(this);
-			mainScreen.addSqlRequestListener(this);
+		Screen currentScreen = window.getScreen();
+		if (currentScreen instanceof MainScreen) {
+			MainScreen mainScreen = (MainScreen) currentScreen;
+			mainScreen.setTables(dbConn.getTables());
+			mainScreen.setTableModel(tableModel);
 		}
-		dbConn.addStatementListener(mainScreen);
-		mainScreen.setTables(dbConn.getTables());
-		mainScreen.setTableModel(tableModel);
-		
-		log.debug("Done updating main screen");
-		return mainScreen;
+		log.debug("Done updating view");
 	}
 	
 	@Override
@@ -238,10 +234,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			((OptionsScreen) source).clearListeners();
 			
 			window.setSize(Config.getInt(WINDOW_WIDTH), Config.getInt(WINDOW_HEIGHT));
-			if (mainScreen != null) {
-				mainScreen.clearListeners();
-				mainScreen = null;
-			}
+			
 			goToLoginScreen();
 		}
 	}
