@@ -60,7 +60,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	
 	private void setLastStatement(String statement) {
 		pushUndoStatement(new UndoStatement());
-		mainScreen.setLastStatement(statement);
+		//mainScreen.setLastStatement(statement);
 	}
 	/**
 	 * Pushes a new undo statement
@@ -188,6 +188,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			mainScreen.addCancelListener(this);
 			mainScreen.addSqlRequestListener(this);
 		}
+		dbConn.addStatementListener(mainScreen);
 		mainScreen.setTables(dbConn.getTables());
 		mainScreen.setTableModel(tableModel);
 		

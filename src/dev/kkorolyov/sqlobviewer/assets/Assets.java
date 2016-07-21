@@ -113,6 +113,8 @@ public class Assets {
 																
 																MESSAGE_TIP_CURRENT_FILTER = "MESSAGE_TIP_CURRENT_FILTER",
 																
+																MESSAGE_TIP_LAST_STATEMENT = "MESSAGE_TIP_LAST_STATEMENT",
+																
 																MESSAGE_CONFIRM_REMOVE_TABLE = "MESSAGE_CONFIRM_REMOVE_TABLE",
 																MESSAGE_CONFIRM_REMOVE_ROW = "MESSAGE_CONFIRM_REMOVE_ROW",
 																
@@ -199,6 +201,8 @@ public class Assets {
 																MESSAGE_TIP_COLUMN_TYPE = "Column type",
 																
 																MESSAGE_TIP_CURRENT_FILTER = "Current filter",
+																
+																MESSAGE_TIP_LAST_STATEMENT = "Last executed statement",
 																
 																MESSAGE_CONFIRM_REMOVE_TABLE = "Are you sure you want to drop the selected table?",
 																MESSAGE_CONFIRM_REMOVE_ROW = "Are you sure you want to drop the selected row(s)?",
@@ -291,6 +295,8 @@ public class Assets {
 			defaults.put(Keys.MESSAGE_TIP_COLUMN_TYPE, MESSAGE_TIP_COLUMN_TYPE);
 			
 			defaults.put(Keys.MESSAGE_TIP_CURRENT_FILTER, MESSAGE_TIP_CURRENT_FILTER);
+			
+			defaults.put(Keys.MESSAGE_TIP_LAST_STATEMENT, MESSAGE_TIP_LAST_STATEMENT);
 			
 			defaults.put(Keys.MESSAGE_CONFIRM_REMOVE_TABLE, MESSAGE_CONFIRM_REMOVE_TABLE);
 			defaults.put(Keys.MESSAGE_CONFIRM_REMOVE_ROW, MESSAGE_CONFIRM_REMOVE_ROW);

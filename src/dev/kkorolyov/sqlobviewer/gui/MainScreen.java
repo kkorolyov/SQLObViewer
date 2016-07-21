@@ -12,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.swing.*;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.sqlob.connection.DatabaseConnection;
+import dev.kkorolyov.sqlob.connection.StatementListener;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
@@ -30,7 +32,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
+public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, StatementListener {
 	private static final Logger log = Logger.getLogger(MainScreen.class.getName());
 	
 	private JPanel panel;
@@ -45,8 +47,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 									removeTableButton,
 									addRowButton,
 									removeRowButton;
-	private JLabel 	selectedRowsCounter,
-									lastStatementLabel;
+	private JLabel selectedRowsCounter;
+	private JTextArea lastStatement;
 	private JPopupMenu lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
@@ -77,8 +79,13 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		
 		selectedRowsCounter = new JLabel();
 		
-		lastStatementLabel = new JLabel();
-		lastStatementLabel.addMouseListener(new MouseAdapter() {
+		lastStatement = new JTextArea();
+		lastStatement.setOpaque(false);
+		lastStatement.setEditable(false);
+		lastStatement.setLineWrap(true);
+		lastStatement.setWrapStyleWord(true);
+		lastStatement.setToolTipText(Lang.get(MESSAGE_TIP_LAST_STATEMENT));
+		lastStatement.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				tryShowLastStatementPopup(e);
@@ -146,7 +153,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
 		panel.add(tableGridSelector.getPanel(), "gap 0");
 		panel.add(selectedRowsCounter, "spanx");
-		panel.add(lastStatementLabel, "spanx");
+		panel.add(lastStatement, "spanx 2, wrap");
 		panel.add(backButton, "span, center, grow 0");
 	}
 	
@@ -197,7 +204,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	
 	/** @param statement new statement to display */
 	public void setLastStatement(String statement) {		
-		lastStatementLabel.setText(statement);
+		lastStatement.setText(statement);
 	}
 	
 	private void syncTableGrid() {
@@ -311,6 +318,11 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	@Override
+	public void statementPrepared(String statement, DatabaseConnection source) {
+		setLastStatement(statement);
 	}
 	
 	private void fireCanceled() {
