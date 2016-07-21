@@ -7,7 +7,6 @@ import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
@@ -21,19 +20,16 @@ import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
 import dev.kkorolyov.sqlobviewer.gui.*;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
-import dev.kkorolyov.sqlobviewer.statement.UndoStatement;
 
 /**
  * Centralized SQLObViewer application control.
  */
 public class Controller implements SubmitListener, CancelListener, OptionsListener, SqlRequestListener {
-	private static final int MAX_UNDO_STATEMENTS = Integer.MAX_VALUE;
 	private static final Logger log = Logger.getLogger(Controller.class.getName());
 	
 	private DatabaseConnection dbConn;	// Model
 	private TableConnection tableConn;
 	private SQLObTableModel tableModel;
-	private Stack<UndoStatement> undoStatements;
 	
 	private MainWindow window;	// View
 	
@@ -54,38 +50,11 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		goToLoginScreen();
 	}
 	
-	private void setLastStatement(String statement) {
-		pushUndoStatement(new UndoStatement());
-		//mainScreen.setLastStatement(statement);
-	}
-	/**
-	 * Pushes a new undo statement
-	 * @param statement undo statement to push
-	 */
-	public void pushUndoStatement(UndoStatement statement) {
-		if (undoStatements == null) {
-			undoStatements = new Stack<>();
-			
-			log.debug("Created new undo statements Stack");
-		}
-		if (undoStatements.size() >= MAX_UNDO_STATEMENTS) {
-			log.debug("Number of undo statements (" + undoStatements.size() + ") has reached MAX_UNDO_STATEMENTS=" + MAX_UNDO_STATEMENTS + "; removing oldest undo statement");
-			
-			undoStatements.remove(0);
-		}
-		undoStatements.push(statement);
-		
-		log.debug("Pushed new undo statement = '" + statement + "'");
-	}
 	/**
 	 * Undoes the last SQL statement.
 	 */
 	public void undoLastStatement() {
-		if (undoStatements != null && undoStatements.size() > 0) {
-			UndoStatement statement = undoStatements.pop();
-			
-			// TODO
-		}
+		// TODO
 	}
 	
 	private Column[] getTableColumns() {
@@ -288,8 +257,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.update(newValues, criteria);
 		if (result > 1)
 			updateTableModel();
-						
-		setLastStatement(String.valueOf(result));
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
@@ -298,8 +265,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.insert(rowValues);
 		if (result > 1)
 			updateTableModel();
-		
-		setLastStatement(String.valueOf(result));
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
@@ -308,8 +273,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.delete(criteria);
 		if (result > 1)
 			updateTableModel();
-				
-		setLastStatement(String.valueOf(result));
 	}
 	
 	@Override
