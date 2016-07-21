@@ -61,7 +61,12 @@ public class SQLObTable extends JTable implements ChangeListener {
 			getSelectionModel().addListSelectionListener(e -> {
 				if (selectionListenerActive) {
 					lastSelectedRow = getSelectedRow();
+					if (lastSelectedRow >= 0)
+						lastSelectedRow = lastSelectedRow < getRowCount() ? convertRowIndexToModel(lastSelectedRow) : -1;
+					
 					lastSelectedColumn = getSelectedColumn();
+					if (lastSelectedColumn >= 0)
+						lastSelectedColumn = lastSelectedColumn < getColumnCount() ? convertColumnIndexToModel(lastSelectedColumn) : -1;
 				}
 			});
 		}
@@ -112,13 +117,8 @@ public class SQLObTable extends JTable implements ChangeListener {
 				selectedColumn = getSelectedColumn();
 		
 		if (selectedRow >= 0 || selectedColumn >= 0) {	// Something is selected
-			boolean oldSelectionListenerActive = selectionListenerActive;
-			selectionListenerActive = false;
-			
 			changeSelection(getRowCount(), getColumnCount(), false, false);	// Moves focus to nonexistent cell
 			clearSelection();
-			
-			selectionListenerActive = oldSelectionListenerActive;
 			
 			if (getCellEditor() != null)
 				getCellEditor().cancelCellEditing();
@@ -345,10 +345,16 @@ public class SQLObTable extends JTable implements ChangeListener {
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {	// Invoked by backing model
+		boolean oldSelectionListenerActive = selectionListenerActive;
+		selectionListenerActive = false;	// Ignore selection changes during update
+		
 		deselect();
 		sort();
 		
-		changeSelection(lastSelectedRow, lastSelectedColumn, false, false);
+		selectionListenerActive = oldSelectionListenerActive;	// Ok to listen to selection changes again
+
+		if (lastSelectedRow >= 0 && lastSelectedColumn >= 0)
+			changeSelection(convertRowIndexToView(lastSelectedRow), convertColumnIndexToView(lastSelectedColumn), false, false);
 		
 		revalidate();
 		repaint();
