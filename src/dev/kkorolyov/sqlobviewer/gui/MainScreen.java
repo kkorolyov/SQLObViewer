@@ -153,7 +153,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
 		panel.add(tableGridSelector.getPanel(), "gap 0");
 		panel.add(selectedRowsCounter, "spanx");
-		panel.add(lastStatement, "spanx 2, wrap");
+		panel.add(lastStatement, "spanx 2, wmin 0, wrap");
 		panel.add(backButton, "span, center, grow 0");
 	}
 	
