@@ -14,6 +14,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlobviewer.assets.Assets.Images;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 
 /**
@@ -43,6 +44,7 @@ public class MainWindow implements Window {
 		frame = new JFrame(title);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.setIconImages(Images.getMainIcons());
 	}
 	
 	/** @param listener window listener to add */
