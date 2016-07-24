@@ -3,6 +3,7 @@ package dev.kkorolyov.sqlobviewer.assets;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import javax.swing.ImageIcon;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.simpleprops.EncryptedProperties;
 import dev.kkorolyov.simpleprops.Properties;
 
@@ -18,7 +20,7 @@ import dev.kkorolyov.simpleprops.Properties;
  * Centralized access to application properties.
  */
 public class Assets {
-	private static final Logger log = Logger.getLogger(Assets.class.getName());
+	private static final Logger log = Logger.getLogger(Assets.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private static Properties config,
 														strings;

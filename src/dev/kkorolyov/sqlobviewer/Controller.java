@@ -4,6 +4,7 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,7 @@ import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
  * Centralized SQLObViewer application control.
  */
 public class Controller implements SubmitListener, CancelListener, OptionsListener, SqlRequestListener {
-	private static final Logger log = Logger.getLogger(Controller.class.getName());
+	private static final Logger log = Logger.getLogger(Controller.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private DatabaseConnection dbConn;	// Model
 	private TableConnection tableConn;

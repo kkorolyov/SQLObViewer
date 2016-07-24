@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import javax.swing.table.*;
 import javax.swing.text.JTextComponent;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
 import dev.kkorolyov.swingplus.JScrollablePopupMenu;
@@ -37,7 +39,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 	private static final long serialVersionUID = 899876032885503098L;
 	private static final int DEFAULT_POPUP_HEIGHT = 32;
 	private static final String FILTER_MARKER = "*";
-	private static final Logger log = Logger.getLogger(SQLObTable.class.getName());
+	private static final Logger log = Logger.getLogger(SQLObTable.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 
 	private int lastSelectedRow,
 							lastSelectedColumn;

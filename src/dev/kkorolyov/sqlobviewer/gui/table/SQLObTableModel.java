@@ -1,5 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui.table;
 
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -8,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.MismatchedTypeException;
 import dev.kkorolyov.sqlob.construct.RowEntry;
@@ -19,7 +21,7 @@ import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestSubject;
  */
 public class SQLObTableModel extends AbstractTableModel implements SqlRequestSubject {
 	private static final long serialVersionUID = 8155987048579413913L;
-	private static final Logger log = Logger.getLogger(SQLObTableModel.class.getName());
+	private static final Logger log = Logger.getLogger(SQLObTableModel.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 
 	private List<Column> columns = new LinkedList<>();
 	private List<RowEntry[]> data = new LinkedList<>();

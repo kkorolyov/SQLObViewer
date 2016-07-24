@@ -4,6 +4,7 @@ import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.swing.*;
 
 import dev.kkorolyov.simplelogs.Logger;
+import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.StatementListener;
 import dev.kkorolyov.sqlob.construct.Column;
@@ -33,7 +35,7 @@ import net.miginfocom.swing.MigLayout;
  * The main application screen.
  */
 public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, StatementListener {
-	private static final Logger log = Logger.getLogger(MainScreen.class.getName());
+	private static final Logger log = Logger.getLogger(MainScreen.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private JPanel panel;
 	private TableGrid tableGrid;

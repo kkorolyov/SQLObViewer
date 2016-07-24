@@ -17,7 +17,7 @@ import dev.kkorolyov.sqlobviewer.gui.MainWindow;
  * Launcher SQLObViewer
  */
 public class Launcher {
-	private static final Logger log = Logger.getLogger(Launcher.class.getName());
+	private static final Logger log = Logger.getLogger(Launcher.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	/**
 	 * Main method.
