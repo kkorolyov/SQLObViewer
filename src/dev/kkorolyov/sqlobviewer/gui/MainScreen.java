@@ -51,7 +51,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 									removeRowButton;
 	private JLabel selectedRowsCounter;
 	private JTextArea lastStatement;
-	private JPopupMenu lastStatementPopup;
+	//private JPopupMenu lastStatementPopup;	TODO Enable
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
 	private Set<SqlRequestListener> sqlRequestListeners = new CopyOnWriteArraySet<>();
@@ -97,10 +97,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 				tryShowLastStatementPopup(e);
 			}
 		});
-		lastStatementPopup = new JPopupMenu();
+		/*lastStatementPopup = new JPopupMenu();	TODO Enable
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e -> fireRevertStatement(lastStatement.getText()));
-		lastStatementPopup.add(undoItem);
+		lastStatementPopup.add(undoItem);*/
 		
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> {
@@ -244,7 +244,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 			showLastStatementPopup(e);
 	}
 	private void showLastStatementPopup(MouseEvent e) {
-		lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());
+		//lastStatementPopup.show(e.getComponent(), e.getX(), e.getY());	TODO Enable
 	}
 	
 	private void displayAddTableDialog() {
@@ -351,10 +351,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 			listener.dropTable(name, this);
 	}
 	
-	private void fireRevertStatement(String statement) {		
+	/*private void fireRevertStatement(String statement) {	TODO Enable
 		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.revertStatement(statement, this);
-	}
+	}*/
 	
 	@Override
 	public void addCancelListener(CancelListener listener) {
