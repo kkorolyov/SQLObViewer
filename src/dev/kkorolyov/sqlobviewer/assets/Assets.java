@@ -215,7 +215,7 @@ public class Assets {
 																MESSAGE_TIP_LAST_STATEMENT = "Last executed statement",
 																
 																MESSAGE_CONFIRM_REMOVE_TABLE = "Are you sure you want to drop the selected table?",
-																MESSAGE_CONFIRM_REMOVE_ROW = "Are you sure you want to drop the selected row(s)?",
+																MESSAGE_CONFIRM_REMOVE_ROW = "Are you sure you want to delete the selected row(s)?",
 																
 																OPTION_SUBMIT = "OK",
 																OPTION_CANCEL = "Cancel",
