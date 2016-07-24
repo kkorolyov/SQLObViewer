@@ -1,12 +1,23 @@
 # SQLObViewer
 A Java-based graphical database viewer utilizing the SQLOb API.
 
+## Table of Contents
+* [Screenshots] (#screenshots)
+* [Dependencies] (#dependencies)
+* [Installation] (#installation)
+* [Usage] (#usage)
+  * [Login Screen] (#login-screen)
+  * [Options Screen] (#options-screen)
+  * [Main Screen] (#main-screen)
+    * [Table Actions] (#table-actions)
+    * [Row Actions] (#row-actions)
+    * [Grid Selector] (#grid-selector)
+* [License] (#license)
+
 ## Screenshots
 ![Main table view](screenshots/table.png?raw=true)
 
-![Editing a cell](screenshots/editing.png?raw=true)
-
-![Adding a row](screenshots/adding.png?raw=true)
+![Editing a cell](screenshots/edit.png?raw=true)
 
 ## Dependencies
 * [SQLOb](https://github.com/kkorolyov/SQLOb) - Database communication
@@ -17,16 +28,54 @@ A Java-based graphical database viewer utilizing the SQLOb API.
 
 ## Installation
 * Download the [latest release](https://github.com/kkorolyov/SQLObViewer/releases/latest).
-* If using the provided .jar file, move it to your directory of choice.
+* If using the packaged release, move all files and folders in the root .zip to your directory of choice.
 * If building from source, make sure all [dependencies] (#dependencies) are in your classpath.
 
 ## Usage
-* At the initial login prompt, input appropriate database connection information, then press "Log In" to connect to the database.
- * Input information is saved to the created .ini file found in the application directory, and prepopulates the login screen on subsequent application runs.
+
+### Login Screen
+![Login Screen] (screenshots/login.png?raw=true)
+* Input IP address or hostname of the database server.
+* Input database name.
+* Input user credentials for database access.
+* Press "Log In" to connect.
+  * Upon pressing "Log In", input information is saved to the config file and prepopulates the login screen on subsequent application runs.
+
+### Options Screen
+![Options Screen] (screenshots/options.png?raw=true)
+* All "Value" cells may be edited.
+* Edited, unsaved options turn red.
+* "Save" writes current changes to file.
+* "Discard changes" discards all changes since the last save.
+* Changes requiring an application restart to take effect:
+  * File or folder locations
+  * Logging preferences
+
+### Main Screen
+![Main Screen](screenshots/table.png?raw=true)
 * Select a table to view from the dropdown at the top.
-* Select any cell, change its value, and press the "Enter" key to update the respective cell in the backing database.
-* Select the "Add Row" button on the right, input new values into the popup, then press "OK" to add the row to the backing database.
-* Select a row (Use "Shift" and "Ctrl" modifiers to select multiple rows), then press the "Delete Row" button on the right to delete the selected row(s) from the backing database.
+* Select any cell, change its value, and press the "Enter" key (or click on any other cell) to update the respective cell in the backing database.
+  * Pressing "Escape" cancels any current editing.
+
+#### Table Actions
+![Table Actions](screenshots/create-table-button.png?raw=true)
+![Table Create](screenshots/create-table.png?raw=true)
+![Table Drop](screenshots/drop-table.png?raw=true)
+* Hover over the "Table" button on the top right and select from one of the possible actions.
+* Follow the prompts on the popup.
+
+#### Row Actions
+![Row Actions](screenshots/add-row-button.png?raw=true)
+![Row Add](screenshots/add-row.png?raw=true)
+![Row Delete](screenshots/delete-row.png?raw=true)
+* Hover over the "Row" button on the top right and select from one of the possible actions.
+* Follow the prompts on the popup.
+
+#### Grid Selector
+![Grid Selector](screenshots/grid-selector.png?raw=true)
+![Grid Selector 3x3](screenshots/grid-selector-3x3.png?raw=true)
+* The grid of buttons below the "Table" and "Row" buttons controls the number of displayed tables.
+* Each table provides a view to the same data, but may be interacted with independently of the others.
 
 ## License
 BSD-new license.  
