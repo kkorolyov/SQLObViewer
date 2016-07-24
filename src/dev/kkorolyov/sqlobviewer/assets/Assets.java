@@ -87,7 +87,10 @@ public class Assets {
 																SAVED_USER = "SAVED_USER",
 																SAVED_PASSWORD = "SAVED_PASSWORD",
 																
-																STRINGS_FILENAME = "LANG_FILE";
+																STRINGS_FILENAME = "LANG_FILE",
+																
+																LOGGING_ENABLED = "LOGGING_ENABLED",
+																LOGGING_LEVEL = "LOGGING_LEVEL";
 		
 		public static final String 	TITLE_WINDOW = "TITLE_WINDOW",	// Lang keys
 				
@@ -176,7 +179,10 @@ public class Assets {
 																SAVED_PASSWORD = "",
 																
 																CONFIG_FILENAME = "assets/config.ini",
-																STRINGS_FILENAME = "assets/lang/en.lang";
+																STRINGS_FILENAME = "assets/lang/en.lang",
+																
+																LOGGING_ENABLED = "true",
+																LOGGING_LEVEL = "SEVERE";
 		
 		private static final String TITLE_WINDOW = "SQLObViewer",	// Lang defaults
 																
@@ -266,6 +272,9 @@ public class Assets {
 			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
 			
 			defaults.put(Keys.STRINGS_FILENAME, STRINGS_FILENAME);
+			
+			defaults.put(Keys.LOGGING_ENABLED, LOGGING_ENABLED);
+			defaults.put(Keys.LOGGING_LEVEL, LOGGING_LEVEL);
 			
 			return defaults;
 		}

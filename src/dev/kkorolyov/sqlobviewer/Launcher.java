@@ -1,8 +1,6 @@
 package dev.kkorolyov.sqlobviewer;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_WINDOW;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_HEIGHT;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.WINDOW_WIDTH;
+import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
 import javax.swing.SwingUtilities;
 
@@ -17,15 +15,13 @@ import dev.kkorolyov.sqlobviewer.gui.MainWindow;
  */
 public class Launcher {
 	private static final Logger log = Logger.getLogger(Launcher.class.getName());
-	private static final Level LEVEL = Level.DEBUG;
 	
 	/**
 	 * Main method.
 	 * @param args arguments
 	 */
 	public static void main(String[] args) {
-		Logger.setGlobalLevel(LEVEL);
-		log.severe("Logging at level=" + LEVEL);
+		setLogging();
 		
 		MainWindow window = buildWindow();
 
@@ -43,6 +39,24 @@ public class Launcher {
 		log.debug("Built application window with title=" + title + ", width=" + width + ", height=" + height);
 		
 		return new MainWindow(title, width, height);
+	}
+	
+	private static void setLogging() {
+		Level loggingLevel = Level.SEVERE;
+		boolean loggingEnabled = Config.get(LOGGING_ENABLED).equalsIgnoreCase(Boolean.TRUE.toString());
+
+		String loggingLevelString = Config.get(LOGGING_LEVEL);
+		for (Level level : Level.values()) {
+			if (loggingLevelString.equalsIgnoreCase(level.toString())) {
+				loggingLevel = level;
+				break;
+			}
+		}
+		Logger rootLogger = Logger.getLogger("");
+		rootLogger.setLevel(loggingLevel);
+		rootLogger.setEnabled(loggingEnabled);
+		
+		log.severe("Logging at level=" + loggingLevel);
 	}
 	
 	private static void setExceptionHandler(MainWindow window) {
