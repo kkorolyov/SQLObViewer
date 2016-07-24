@@ -24,7 +24,7 @@ public class Assets {
 	
 	private static Properties config,
 														strings;
-	private static byte[] key = {2};
+	private static byte[] key = {99, 47, 68, 0, 14};	// TODO Randomized key for new configs
 	
 	static {	// Should only be initialized once
 		initConfig();
@@ -35,14 +35,14 @@ public class Assets {
 
 	@SuppressWarnings("synthetic-access")
 	private static void initConfig() {
-		config = new EncryptedProperties(new File(Defaults.CONFIG_FILENAME), Defaults.buildConfig(), key);
+		config = new EncryptedProperties(new File(Defaults.CONFIG_FILE), Defaults.buildConfig(), key);
 		save(config);
 		
 		log.debug("Initialized config file");
 	}
 	@SuppressWarnings("synthetic-access")
 	private static void initStrings() {
-		strings = new Properties(new File(Config.get(Keys.STRINGS_FILENAME)), Defaults.buildStrings());
+		strings = new Properties(new File(Config.get(Keys.LANG_FILE)), Defaults.buildStrings());
 		save(strings);
 		
 		log.debug("Initialized strings file");
@@ -89,11 +89,12 @@ public class Assets {
 																SAVED_USER = "SAVED_USER",
 																SAVED_PASSWORD = "SAVED_PASSWORD",
 																
-																STRINGS_FILENAME = "LANG_FILE",
+																LANG_FILE = "LANG_FILE",
+																IMAGES_FOLDER = "IMAGES_FOLDER",
+																LOG_FILE = "LOG_FILE",
 																
 																LOGGING_ENABLED = "LOGGING_ENABLED",
-																LOGGING_LEVEL = "LOGGING_LEVEL",
-																LOG_FILE = "LOG_FILE";
+																LOGGING_LEVEL = "LOGGING_LEVEL";
 		
 		public static final String 	TITLE_WINDOW = "TITLE_WINDOW",	// Lang keys
 				
@@ -181,12 +182,13 @@ public class Assets {
 																SAVED_USER = "",
 																SAVED_PASSWORD = "",
 																
-																CONFIG_FILENAME = "assets/config.ini",
-																STRINGS_FILENAME = "assets/lang/en.lang",
+																CONFIG_FILE = "assets/config.ini",
+																LANG_FILE = "assets/lang/en.lang",
+																IMAGES_FOLDER = "assets/images/",
+																LOG_FILE = "sqlobviewer.log",
 																
 																LOGGING_ENABLED = "true",
-																LOGGING_LEVEL = "SEVERE",
-																LOG_FILE = "sqlobviewer.log";
+																LOGGING_LEVEL = "SEVERE";
 		
 		private static final String TITLE_WINDOW = "SQLObViewer",	// Lang defaults
 																
@@ -275,11 +277,12 @@ public class Assets {
 			defaults.put(Keys.SAVED_USER, SAVED_USER);
 			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
 			
-			defaults.put(Keys.STRINGS_FILENAME, STRINGS_FILENAME);
-			
+			defaults.put(Keys.LANG_FILE, LANG_FILE);
+			defaults.put(Keys.IMAGES_FOLDER, IMAGES_FOLDER);
+			defaults.put(Keys.LOG_FILE, LOG_FILE);
+
 			defaults.put(Keys.LOGGING_ENABLED, LOGGING_ENABLED);
 			defaults.put(Keys.LOGGING_LEVEL, LOGGING_LEVEL);
-			defaults.put(Keys.LOG_FILE, LOG_FILE);
 			
 			return defaults;
 		}
@@ -424,17 +427,18 @@ public class Assets {
 	 * Provides access to all application images and icons.
 	 */
 	public static class Images {
-		private static final String MAIN_ICON_LOCATION = "assets/images/main-icon/";
+		private static final String SUBFOLDER_MAIN_ICON = "main-icon/";
 		
 		/** @return all main application icons, for use by the application frame */
 		public static List<Image> getMainIcons() {
 			List<Image> mainIcons = new LinkedList<>();
 			
-			File mainIconFolder = new File(MAIN_ICON_LOCATION);
+			File mainIconFolder = new File(Config.get(Keys.IMAGES_FOLDER) + SUBFOLDER_MAIN_ICON);
 			
-			for (File mainIconFile : mainIconFolder.listFiles())
-				mainIcons.add(new ImageIcon(mainIconFile.getAbsolutePath()).getImage());
-			
+			if (mainIconFolder.exists()) {
+				for (File mainIconFile : mainIconFolder.listFiles())
+					mainIcons.add(new ImageIcon(mainIconFile.getAbsolutePath()).getImage());
+			}
 			return mainIcons;
 		}
 	}
