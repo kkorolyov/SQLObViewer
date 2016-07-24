@@ -90,7 +90,8 @@ public class Assets {
 																STRINGS_FILENAME = "LANG_FILE",
 																
 																LOGGING_ENABLED = "LOGGING_ENABLED",
-																LOGGING_LEVEL = "LOGGING_LEVEL";
+																LOGGING_LEVEL = "LOGGING_LEVEL",
+																LOG_FILE = "LOG_FILE";
 		
 		public static final String 	TITLE_WINDOW = "TITLE_WINDOW",	// Lang keys
 				
@@ -182,7 +183,8 @@ public class Assets {
 																STRINGS_FILENAME = "assets/lang/en.lang",
 																
 																LOGGING_ENABLED = "true",
-																LOGGING_LEVEL = "SEVERE";
+																LOGGING_LEVEL = "SEVERE",
+																LOG_FILE = "sqlobviewer.log";
 		
 		private static final String TITLE_WINDOW = "SQLObViewer",	// Lang defaults
 																
@@ -275,6 +277,7 @@ public class Assets {
 			
 			defaults.put(Keys.LOGGING_ENABLED, LOGGING_ENABLED);
 			defaults.put(Keys.LOGGING_LEVEL, LOGGING_LEVEL);
+			defaults.put(Keys.LOG_FILE, LOG_FILE);
 			
 			return defaults;
 		}

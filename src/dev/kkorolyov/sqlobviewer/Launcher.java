@@ -2,6 +2,9 @@ package dev.kkorolyov.sqlobviewer;
 
 import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 import javax.swing.SwingUtilities;
 
 import dev.kkorolyov.simplelogs.Logger;
@@ -27,8 +30,9 @@ public class Launcher {
 
 		setExceptionHandler(window);	// Will display uncaught exceptions in this window
 		
-		log.info("Launching GUI");
+		log.info("Launching GUI...");
 		SwingUtilities.invokeLater(() -> new Controller(window));
+		log.info("GUI launched");
 	}
 	
 	private static MainWindow buildWindow() {
@@ -44,7 +48,8 @@ public class Launcher {
 	private static void setLogging() {
 		Level loggingLevel = Level.SEVERE;
 		boolean loggingEnabled = Config.get(LOGGING_ENABLED).equalsIgnoreCase(Boolean.TRUE.toString());
-
+		String loggingFile = Config.get(LOG_FILE);
+		
 		String loggingLevelString = Config.get(LOGGING_LEVEL);
 		for (Level level : Level.values()) {
 			if (loggingLevelString.equalsIgnoreCase(level.toString())) {
@@ -52,7 +57,14 @@ public class Launcher {
 				break;
 			}
 		}
-		Logger rootLogger = Logger.getLogger("");
+		Logger rootLogger = Logger.getLogger("", loggingLevel, (PrintWriter[]) null);
+		rootLogger.addWriter(new PrintWriter(System.err));
+		try {
+			rootLogger.addWriter(new PrintWriter(loggingFile));
+		} catch (FileNotFoundException e) {
+			log.severe("Cannot create log file, will not log to file");
+			log.exception(e);
+		}
 		rootLogger.setLevel(loggingLevel);
 		rootLogger.setEnabled(loggingEnabled);
 		

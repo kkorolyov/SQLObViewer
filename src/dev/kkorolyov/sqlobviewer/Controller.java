@@ -96,27 +96,32 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	
 	private void goToLoginScreen() {
 		window.setScreen(buildLoginScreen(), true);
+		log.debug("Swapped to login screen");
 	}
 	private LoginScreen buildLoginScreen() {
 		LoginScreen loginScreen = new LoginScreen();
 		loginScreen.addSubmitListener(this);
 		loginScreen.addOptionsListener(this);
-		
+		log.debug("Built new login screen = " + loginScreen);
+
 		return loginScreen;
 	}
 	
 	private void goToOptionsScreen() {
 		window.setScreen(buildOptionsScreen(), true);
+		log.debug("Swapped to options screen");
 	}
 	private OptionsScreen buildOptionsScreen() {
 		OptionsScreen optionsScreen = new OptionsScreen();
 		optionsScreen.addCancelListener(this);
-		
+		log.debug("Built new options screen = " + optionsScreen);
+
 		return optionsScreen;
 	}
 	
 	private void goToMainScreen() {
 		window.setScreen(buildMainScreen(), false);
+		log.debug("Swapped to main screen");
 	}
 	private MainScreen buildMainScreen() {
 		MainScreen mainScreen = new MainScreen();
@@ -126,6 +131,8 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		mainScreen.setTableModel(tableModel);
 		
 		dbConn.addStatementListener(mainScreen);
+		
+		log.debug("Built new main screen = " + mainScreen);
 
 		return mainScreen;
 	}
