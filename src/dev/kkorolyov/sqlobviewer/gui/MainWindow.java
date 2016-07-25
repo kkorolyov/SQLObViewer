@@ -14,8 +14,8 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets.Images;
 import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.Images;
 
 /**
  * Main SQLObViewer application window.

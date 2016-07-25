@@ -1,4 +1,5 @@
 # Bin Files
+/bin/
 *.class
 
 # Eclipse Files
@@ -18,5 +19,5 @@
 hs_err_pid*
 
 # Project Files
-assets/
+/assets/
 *.log
