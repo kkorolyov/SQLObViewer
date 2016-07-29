@@ -1,8 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_OPTIONS_BACK;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_OPTIONS_DISCARD;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_OPTIONS_SAVE;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_OPTIONS_BACK;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_OPTIONS_DISCARD;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_OPTIONS_SAVE;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -12,8 +12,8 @@ import javax.swing.JPanel;
 
 import dev.kkorolyov.simplepropseditor.model.PropsModel;
 import dev.kkorolyov.simplepropseditor.view.PropsScreen;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
 import net.miginfocom.swing.MigLayout;

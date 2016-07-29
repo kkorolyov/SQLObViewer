@@ -11,13 +11,11 @@ import javax.swing.ImageIcon;
  * Provides access to all application images and icons.
  */
 public class Images {
-	private static final String SUBFOLDER_MAIN_ICON = "icons/main-icon/";
-	
 	/** @return all main application icons, for use by the application frame */
 	public static List<Image> getMainIcons() {
 		List<Image> mainIcons = new LinkedList<>();
 		
-		File mainIconFolder = FileLocator.locateFile(SUBFOLDER_MAIN_ICON);
+		File mainIconFolder = FileLocator.locateFile(FileLocator.MAIN_ICON);
 		
 		if (mainIconFolder != null && mainIconFolder.exists()) {
 			for (File mainIconFile : mainIconFolder.listFiles())

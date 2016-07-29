@@ -1,9 +1,9 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_APPLICATION_CLOSING;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_EXPAND_ERROR;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_ERROR;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.TITLE_EXCEPTION;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.MESSAGE_APPLICATION_CLOSING;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.MESSAGE_EXPAND_ERROR;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.TITLE_ERROR;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.TITLE_EXCEPTION;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -14,7 +14,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.assets.Images;
 
 /**

@@ -1,8 +1,8 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_REMOVE_COLUMN;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_NAME;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_COLUMN_TYPE;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_REMOVE_COLUMN;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.MESSAGE_TIP_COLUMN_NAME;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.MESSAGE_TIP_COLUMN_TYPE;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.SqlType;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.swingplus.JPlaceholderTextField;
 
 /**

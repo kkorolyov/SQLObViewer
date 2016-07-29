@@ -1,6 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.*;
 
 import java.awt.Component;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import javax.swing.Box.Filler;
 
 import dev.kkorolyov.sqlob.construct.Column;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;

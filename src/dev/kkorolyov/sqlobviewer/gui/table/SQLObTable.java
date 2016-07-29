@@ -1,9 +1,9 @@
 package dev.kkorolyov.sqlobviewer.gui.table;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_COPY;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_TIP_ADD_FILTER;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.ACTION_TIP_REMOVE_FILTER;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.MESSAGE_TIP_CURRENT_FILTER;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_COPY;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_TIP_ADD_FILTER;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ACTION_TIP_REMOVE_FILTER;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.MESSAGE_TIP_CURRENT_FILTER;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -29,7 +29,7 @@ import javax.swing.text.JTextComponent;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.construct.RowEntry;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.swingplus.JScrollablePopupMenu;
 
 /**

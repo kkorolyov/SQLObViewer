@@ -1,7 +1,7 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.CURRENT_TABLES_X;
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.CURRENT_TABLES_Y;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.CURRENT_TABLES_X;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.CURRENT_TABLES_Y;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 
 /**
  * Selects a span of cells in a grid.

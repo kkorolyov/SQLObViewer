@@ -1,6 +1,6 @@
 package dev.kkorolyov.sqlobviewer.assets;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.IMAGES_FOLDER;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.ASSETS_FOLDER;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,25 +11,28 @@ import java.util.jar.JarFile;
 import dev.kkorolyov.randomutils.extractor.ResourceExtractor;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 
 /**
  * Provides methods for locating application files from various sources.
  */
 public class FileLocator {
-	private static final String EXTERNAL_ASSETS_FOLDER = Config.get(IMAGES_FOLDER),
+	/** Relative path to the folder containing various sizes of the main application icon. */
+	public static final String MAIN_ICON = "icons/main-icon/";
+
+	private static final String EXTERNAL_ASSETS_FOLDER = Config.get(ASSETS_FOLDER),
 															BUNDLED_ASSETS_FOLDER = getBundledAssetsFolder();
 	private static final String JAR_PATH = getJarPath();
 	
 	private static final Logger log = Logger.getLogger(FileLocator.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	/**
-	 * Locates a file by sequentially checking:
-	 * <ul>
+	 * Locates a file by sequentially checking in listed order:
+	 * <ol>
 	 * <li>The external assets folder</li>
 	 * <li>The application .jar (if application launched from a .jar file)</li>
 	 * <li>The loose-bundled assets folder (if application launched from a loose collection of files)</li>
-	 * </ul>
+	 * </ol>
 	 * @param filename name of file to locate
 	 * @return appropriate file
 	 */

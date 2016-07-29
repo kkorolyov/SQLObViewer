@@ -14,8 +14,8 @@ import dev.kkorolyov.simpleprops.Properties;
 /**
  * Centralized access to application properties.
  */
-public class Assets {
-	private static final Logger log = Logger.getLogger(Assets.class.getName(), Level.DEBUG, (PrintWriter[]) null);
+public class ApplicationProperties {
+	private static final Logger log = Logger.getLogger(ApplicationProperties.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private static Properties config,
 														strings;
@@ -25,7 +25,7 @@ public class Assets {
 		initConfig();
 		initStrings();
 		
-		log.debug("Initialized assets");
+		log.debug("Initialized application properties");
 	}
 
 	@SuppressWarnings("synthetic-access")
@@ -85,7 +85,7 @@ public class Assets {
 																SAVED_PASSWORD = "SAVED_PASSWORD",
 																
 																LANG_FILE = "LANG_FILE",
-																IMAGES_FOLDER = "IMAGES_FOLDER",
+																ASSETS_FOLDER = "ASSETS_FOLDER",
 																LOG_FILE = "LOG_FILE",
 																
 																LOGGING_ENABLED = "LOGGING_ENABLED",
@@ -179,7 +179,7 @@ public class Assets {
 																
 																CONFIG_FILE = "assets/config.ini",
 																LANG_FILE = "assets/lang/en.lang",
-																IMAGES_FOLDER = "assets/images/",
+																ASSETS_FOLDER = "assets/",
 																LOG_FILE = "sqlobviewer.log",
 																
 																LOGGING_ENABLED = "true",
@@ -273,7 +273,7 @@ public class Assets {
 			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
 			
 			defaults.put(Keys.LANG_FILE, LANG_FILE);
-			defaults.put(Keys.IMAGES_FOLDER, IMAGES_FOLDER);
+			defaults.put(Keys.ASSETS_FOLDER, ASSETS_FOLDER);
 			defaults.put(Keys.LOG_FILE, LOG_FILE);
 
 			defaults.put(Keys.LOGGING_ENABLED, LOGGING_ENABLED);
@@ -370,7 +370,7 @@ public class Assets {
 		 * @return value of the specified key.
 		 */
 		public static String get(String key) {
-			return Assets.get(key, config);
+			return ApplicationProperties.get(key, config);
 		}
 		/**
 		 * Retrieves the integer value of a key.
@@ -388,14 +388,14 @@ public class Assets {
 		 * @return {@code true} if invoking this method results in a change to the backing properties
 		 */
 		public static boolean set(String key, String value) {
-			return Assets.set(key, value, config);
+			return ApplicationProperties.set(key, value, config);
 		}
 		
 		/**
 		 * Saves current configuration.
 		 */
 		public static void save() {
-			Assets.save(config);
+			ApplicationProperties.save(config);
 		}
 		
 		/** @return backing {@code Properties} object */
@@ -414,7 +414,7 @@ public class Assets {
 		 * @return value for the specified key.
 		 */
 		public static String get(String key) {
-			return Assets.get(key, strings);
+			return ApplicationProperties.get(key, strings);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package dev.kkorolyov.sqlobviewer.gui;
 
-import static dev.kkorolyov.sqlobviewer.assets.Assets.Keys.*;
+import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.*;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -10,8 +10,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 
-import dev.kkorolyov.sqlobviewer.assets.Assets.Config;
-import dev.kkorolyov.sqlobviewer.assets.Assets.Lang;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.gui.event.OptionsListener;
 import dev.kkorolyov.sqlobviewer.gui.event.OptionsSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
