@@ -182,8 +182,8 @@ public class ApplicationProperties {
 																ASSETS_FOLDER = "assets/",
 																LOG_FILE = "sqlobviewer.log",
 																
-																LOGGING_ENABLED = "true",
-																LOGGING_LEVEL = "SEVERE";
+																LOGGING_ENABLED = "false",
+																LOGGING_LEVEL = "INFO";
 		
 		private static final String TITLE_WINDOW = "SQLObViewer",	// Lang defaults
 																
