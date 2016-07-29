@@ -17,9 +17,6 @@ import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
  * Provides methods for locating application files from various sources.
  */
 public class FileLocator {
-	/** Relative path to the folder containing various sizes of the main application icon. */
-	public static final String MAIN_ICON = "icons/main-icon/";
-
 	private static final String EXTERNAL_ASSETS_FOLDER = Config.get(ASSETS_FOLDER),
 															BUNDLED_ASSETS_FOLDER = getBundledAssetsFolder();
 	private static final String JAR_PATH = getJarPath();
@@ -90,7 +87,7 @@ public class FileLocator {
 	}
 	
 	private static String getBundledAssetsFolder() {
-		return FileLocator.class.getPackage().getName().replaceAll("\\.", "/") + "/";
+		return FileLocator.class.getPackage().getName().replaceAll("\\.", "/") + "/";	// Replace package delimeters with directory delimeters
 	}
 	private static String getJarPath() {
 		String jarPath = FileLocator.class.getProtectionDomain().getCodeSource().getLocation().getPath();

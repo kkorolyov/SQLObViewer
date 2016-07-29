@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
+import dev.kkorolyov.sqlobviewer.assets.Asset;
 import dev.kkorolyov.sqlobviewer.gui.event.OptionsListener;
 import dev.kkorolyov.sqlobviewer.gui.event.OptionsSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SubmitListener;
@@ -64,7 +65,8 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());
 		
-		optionsButton = new JButton(Lang.get(ACTION_OPTIONS));
+		optionsButton = new JButton(Asset.OPTIONS_ICON.asIcon());
+		optionsButton.setToolTipText(Lang.get(ACTION_OPTIONS));
 		optionsButton.addActionListener(e -> fireOptions());
 		
 		KeyListener submitKeyListener = new KeyAdapter() {

@@ -84,8 +84,8 @@ public class ApplicationProperties {
 																SAVED_USER = "SAVED_USER",
 																SAVED_PASSWORD = "SAVED_PASSWORD",
 																
-																LANG_FILE = "LANG_FILE",
 																ASSETS_FOLDER = "ASSETS_FOLDER",
+																LANG_FILE = "LANG_FILE",
 																LOG_FILE = "LOG_FILE",
 																
 																LOGGING_ENABLED = "LOGGING_ENABLED",
@@ -177,9 +177,9 @@ public class ApplicationProperties {
 																SAVED_USER = "",
 																SAVED_PASSWORD = "",
 																
-																CONFIG_FILE = "assets/config.ini",
-																LANG_FILE = "assets/lang/en.lang",
 																ASSETS_FOLDER = "assets/",
+																CONFIG_FILE = ASSETS_FOLDER + "config.ini",
+																LANG_FILE = ASSETS_FOLDER + "lang/en.lang",
 																LOG_FILE = "sqlobviewer.log",
 																
 																LOGGING_ENABLED = "false",
@@ -272,8 +272,8 @@ public class ApplicationProperties {
 			defaults.put(Keys.SAVED_USER, SAVED_USER);
 			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
 			
-			defaults.put(Keys.LANG_FILE, LANG_FILE);
 			defaults.put(Keys.ASSETS_FOLDER, ASSETS_FOLDER);
+			defaults.put(Keys.LANG_FILE, LANG_FILE);
 			defaults.put(Keys.LOG_FILE, LOG_FILE);
 
 			defaults.put(Keys.LOGGING_ENABLED, LOGGING_ENABLED);
