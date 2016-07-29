@@ -46,29 +46,35 @@ public class Launcher {
 	}
 	
 	private static void setLogging() {
+		Logger rootLogger = Logger.getLogger("", parseLoggingLevel(), (PrintWriter[]) null);
+		rootLogger.setEnabled(parseLoggingEnabled());
+
+		if (rootLogger.isEnabled()) {	// Avoid adding useless loggers
+			rootLogger.addWriter(new PrintWriter(System.err));
+			try {
+				rootLogger.addWriter(new PrintWriter(Config.get(LOG_FILE)));
+			} catch (FileNotFoundException e) {
+				log.severe("Cannot create log file, will not log to file");
+				log.exception(e);
+			}
+		}
+		log.severe("Logging at level=" + rootLogger.getLevel());
+	}
+	private static Level parseLoggingLevel() {
 		Level loggingLevel = Level.SEVERE;
-		boolean loggingEnabled = Config.get(LOGGING_ENABLED).equalsIgnoreCase(Boolean.TRUE.toString());
-		String loggingFile = Config.get(LOG_FILE);
 		
 		String loggingLevelString = Config.get(LOGGING_LEVEL);
+
 		for (Level level : Level.values()) {
 			if (loggingLevelString.equalsIgnoreCase(level.toString())) {
 				loggingLevel = level;
 				break;
 			}
 		}
-		Logger rootLogger = Logger.getLogger("", loggingLevel, (PrintWriter[]) null);
-		rootLogger.addWriter(new PrintWriter(System.err));
-		try {
-			rootLogger.addWriter(new PrintWriter(loggingFile));
-		} catch (FileNotFoundException e) {
-			log.severe("Cannot create log file, will not log to file");
-			log.exception(e);
-		}
-		rootLogger.setLevel(loggingLevel);
-		rootLogger.setEnabled(loggingEnabled);
-		
-		log.severe("Logging at level=" + loggingLevel);
+		return loggingLevel;
+	}
+	private static boolean parseLoggingEnabled() {
+		return Config.get(LOGGING_ENABLED).equalsIgnoreCase(Boolean.TRUE.toString());
 	}
 	
 	private static void setExceptionHandler(MainWindow window) {
