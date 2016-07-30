@@ -22,7 +22,9 @@ public enum Asset {
 	/** Main application icons directory */
 	MAIN_ICON("icons/main-icon/"),
 	/** Options icon file */
-	OPTIONS_ICON("icons/gear.png");
+	OPTIONS_ICON("icons/gear.png"),
+	/** Refresh icon file */
+	REFRESH_ICON("icons/refresh.png");
 	
 	private String path;
 	private boolean directory;

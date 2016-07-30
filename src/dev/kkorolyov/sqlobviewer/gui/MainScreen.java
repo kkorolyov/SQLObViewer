@@ -20,6 +20,7 @@ import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
+import dev.kkorolyov.sqlobviewer.assets.Asset;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelListener;
 import dev.kkorolyov.sqlobviewer.gui.event.CancelSubject;
 import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestListener;
@@ -109,9 +110,9 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 			if (selectedTable != null)
 				fireSelectTable(selectedTable);
 		});
-		refreshTableButton = new JButton(Lang.get(ACTION_REFRESH_TABLE));
-		refreshTableButton.addActionListener(e -> fireUpdate());
+		refreshTableButton = new JButton(Asset.REFRESH_ICON.asIcon());
 		refreshTableButton.setToolTipText(Lang.get(ACTION_TIP_REFRESH_TABLE));
+		refreshTableButton.addActionListener(e -> fireUpdate());
 		
 		initTableButtons();
 		initRowButtons();
