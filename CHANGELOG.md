@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.1] - 2016-07-30
+### Changes
+* Added some custom button icons.
+* All assets automatically extract from .jar if required.
+	* Full application packaged as a .jar again instead of a .zip file.
+* Default logging config changed to INFO level, disabled.
+
+### Fixes
+* Fixed more wonkiness related to automatic table row reselection on data refresh.
+* A log file will no longer be created when logging is disabled.
+
+
 ## [1.0] - 2016-07-24
 ### Changes
 * Custom application icon added.
@@ -112,6 +124,7 @@
 * Add rows
 
 
+[1.1]: https://github.com/kkorolyov/SQLObViewer/releases/tag/v1.1
 [1.0]: https://github.com/kkorolyov/SQLObViewer/releases/tag/v1.0
 [0.8]: https://github.com/kkorolyov/SQLObViewer/releases/tag/v0.8
 [0.7.2]: https://github.com/kkorolyov/SQLObViewer/releases/tag/v0.7.2

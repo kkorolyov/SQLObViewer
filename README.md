@@ -28,7 +28,7 @@ A Java-based graphical database viewer utilizing the SQLOb API.
 
 ## Installation
 * Download the [latest release](https://github.com/kkorolyov/SQLObViewer/releases/latest).
-* If using the packaged release, move all files and folders in the root .zip to your directory of choice.
+* If using the provided .jar file, move it to your directory of choice.
 * If building from source, make sure all [dependencies] (#dependencies) are in your classpath.
 
 ## Usage
