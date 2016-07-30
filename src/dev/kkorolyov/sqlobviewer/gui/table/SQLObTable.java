@@ -41,8 +41,8 @@ public class SQLObTable extends JTable implements ChangeListener {
 	private static final String FILTER_MARKER = "*";
 	private static final Logger log = Logger.getLogger(SQLObTable.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 
-	private int lastSelectedRow,
-							lastSelectedColumn;
+	private int lastSelectedRow = -1,
+							lastSelectedColumn = -1;
 	private boolean selectionListenerActive = true;
 	private Map<Integer, RowFilter<SQLObTableModel, Integer>> filters = new HashMap<>();
 	private Map<Integer, String> filterStrings = new HashMap<>();
@@ -119,7 +119,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 				selectedColumn = getSelectedColumn();
 		
 		if (selectedRow >= 0 || selectedColumn >= 0) {	// Something is selected
-			changeSelection(getRowCount(), getColumnCount(), false, false);	// Moves focus to nonexistent cell
+			changeSelection(selectedRow, getColumnCount(), false, false);	// Moves focus to nonexistent cell
 			clearSelection();
 			
 			if (getCellEditor() != null)
