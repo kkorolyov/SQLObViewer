@@ -55,7 +55,9 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	 * Undoes the last SQL statement.
 	 */
 	public void undoLastStatement() {
-		// TODO
+		dbConn.revertLastStatement();
+		
+		updateTableModel();
 	}
 	
 	private Column[] getTableColumns() {

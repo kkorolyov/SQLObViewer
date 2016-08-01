@@ -207,7 +207,7 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 			} catch (MismatchedTypeException e) {
 				throw new RuntimeException(e);
 			}
-			RowEntry[] newValues = new RowEntry[]{data.get(rowIndex)[columnIndex]};	// New values after updating table value
+			RowEntry[] newValues = saveRow(rowIndex);	// New values after updating table value
 			
 			fireTableRowsUpdated(rowIndex, rowIndex);
 			requestUpdateRow(newValues, criteria);
