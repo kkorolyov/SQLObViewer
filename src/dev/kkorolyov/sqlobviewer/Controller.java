@@ -133,8 +133,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		mainScreen.setTables(dbConn.getTables());
 		mainScreen.setTableModel(tableModel);
 		
-		dbConn.addStatementListener(mainScreen);
-		
 		log.debug("Built new main screen = " + mainScreen);
 
 		return mainScreen;

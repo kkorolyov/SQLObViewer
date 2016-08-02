@@ -14,8 +14,6 @@ import javax.swing.*;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
-import dev.kkorolyov.sqlob.connection.DatabaseConnection;
-import dev.kkorolyov.sqlob.connection.StatementListener;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
@@ -35,7 +33,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, StatementListener {
+public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private static final Logger log = Logger.getLogger(MainScreen.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private JPanel panel;
@@ -321,11 +319,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Sta
 	@Override
 	public JPanel getPanel() {
 		return panel;
-	}
-	
-	@Override
-	public void statementPrepared(String statement, DatabaseConnection source) {
-		setLastStatement(statement);
 	}
 	
 	private void fireCanceled() {
