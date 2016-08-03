@@ -81,6 +81,7 @@ public class ApplicationProperties {
 																
 																SAVED_HOST = "SAVED_HOST",
 																SAVED_DATABASE = "SAVED_DATABASE",
+																SAVED_DATABASE_TYPE = "SAVED_DATABASE_TYPE",
 																SAVED_USER = "SAVED_USER",
 																SAVED_PASSWORD = "SAVED_PASSWORD",
 																
@@ -174,6 +175,7 @@ public class ApplicationProperties {
 																
 																SAVED_HOST = "",
 																SAVED_DATABASE = "",
+																SAVED_DATABASE_TYPE = "",
 																SAVED_USER = "",
 																SAVED_PASSWORD = "",
 																
@@ -269,6 +271,7 @@ public class ApplicationProperties {
 			
 			defaults.put(Keys.SAVED_HOST, SAVED_HOST);
 			defaults.put(Keys.SAVED_DATABASE, SAVED_DATABASE);
+			defaults.put(Keys.SAVED_DATABASE_TYPE, SAVED_DATABASE_TYPE);
 			defaults.put(Keys.SAVED_USER, SAVED_USER);
 			defaults.put(Keys.SAVED_PASSWORD, SAVED_PASSWORD);
 			

@@ -16,6 +16,7 @@ import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.assets.Asset;
@@ -36,6 +37,8 @@ import net.miginfocom.swing.MigLayout;
 public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	private static final Logger log = Logger.getLogger(MainScreen.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
+	private StatementCommand lastStatement;
+	
 	private JPanel panel;
 	private TableGrid tableGrid;
 	private GridSelector tableGridSelector;
@@ -49,7 +52,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 									addRowButton,
 									removeRowButton;
 	private JLabel selectedRowsCounter;
-	private JTextArea lastStatement;
+	private JTextArea lastStatementText;
 	private JPopupMenu lastStatementPopup;
 	
 	private Set<CancelListener> cancelListeners = new CopyOnWriteArraySet<>();
@@ -80,13 +83,13 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		
 		selectedRowsCounter = new JLabel();
 		
-		lastStatement = new JTextArea();
-		lastStatement.setOpaque(false);
-		lastStatement.setEditable(false);
-		lastStatement.setLineWrap(true);
-		lastStatement.setWrapStyleWord(true);
-		lastStatement.setToolTipText(Lang.get(MESSAGE_TIP_LAST_STATEMENT));
-		lastStatement.addMouseListener(new MouseAdapter() {
+		lastStatementText = new JTextArea();
+		lastStatementText.setOpaque(false);
+		lastStatementText.setEditable(false);
+		lastStatementText.setLineWrap(true);
+		lastStatementText.setWrapStyleWord(true);
+		lastStatementText.setToolTipText(Lang.get(MESSAGE_TIP_LAST_STATEMENT));
+		lastStatementText.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				tryShowLastStatementPopup(e);
@@ -98,7 +101,10 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		});
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
-		undoItem.addActionListener(e -> fireRevertStatement(lastStatement.getText()));
+		undoItem.addActionListener(e ->  {
+			if (lastStatement != null)
+				fireRevertStatement(lastStatement);
+		});
 		lastStatementPopup.add(undoItem);
 		
 		tableComboBox = new JComboBox<String>();
@@ -154,7 +160,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
 		panel.add(tableGridSelector.getPanel(), "gap 0");
 		panel.add(selectedRowsCounter, "spanx");
-		panel.add(lastStatement, "spanx 2, wmin 0, wrap");
+		panel.add(lastStatementText, "spanx 2, wmin 0, wrap");
 		panel.add(backButton, "span, center, grow 0");
 	}
 	
@@ -204,8 +210,9 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	}
 	
 	/** @param statement new statement to display */
-	public void setLastStatement(String statement) {		
-		lastStatement.setText(statement);
+	public void setLastStatement(StatementCommand statement) {
+		lastStatement = statement;
+		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
 	}
 	
 	private void syncTableGrid() {
@@ -345,7 +352,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 			listener.dropTable(name, this);
 	}
 	
-	private void fireRevertStatement(String statement) {
+	private void fireRevertStatement(StatementCommand statement) {
 		for (SqlRequestListener listener : sqlRequestListeners)
 			listener.revertStatement(statement, this);
 	}

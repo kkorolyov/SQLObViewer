@@ -12,11 +12,13 @@ import java.util.List;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
-import dev.kkorolyov.sqlob.connection.PostgresDatabaseConnection;
+import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
+import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.gui.*;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
@@ -52,10 +54,10 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	}
 	
 	/**
-	 * Undoes the last SQL statement.
+	 * Reverts a SQL statement.
 	 */
-	public void undoLastStatement() {
-		dbConn.revertLastStatement();
+	public void undoStatement(StatementCommand statement) {
+		dbConn.getStatementLog().revert((UpdateStatement) statement, true);
 		
 		updateTableModel();
 	}
@@ -76,6 +78,20 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			data.add(currentRow);
 			
 		return data.toArray(new RowEntry[data.size()][]);
+	}
+	private UpdateStatement getLastStatement() {
+		UpdateStatement lastStatement = null;
+		
+		if (dbConn != null) {
+			for (int i = dbConn.getStatementLog().size() - 1; i >= 0; i--) {
+				StatementCommand currentStatement = dbConn.getStatementLog().get(i);
+				if (currentStatement instanceof UpdateStatement) {
+					lastStatement = (UpdateStatement) currentStatement;
+					break;
+				}
+			}
+		}
+		return lastStatement;
 	}
 	
 	/** @param newDatabaseConnection new database connection */
@@ -130,8 +146,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		MainScreen mainScreen = new MainScreen();
 		mainScreen.addCancelListener(this);
 		mainScreen.addSqlRequestListener(this);
-		mainScreen.setTables(dbConn.getTables());
-		mainScreen.setTableModel(tableModel);
 		
 		log.debug("Built new main screen = " + mainScreen);
 
@@ -157,7 +171,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Done updating table model");
 	}
 	
-	private void updateView() {
+	private void updateView() {	// TODO Betterifiy
 		log.debug("Updating view...");
 		
 		Screen currentScreen = window.getScreen();
@@ -165,8 +179,17 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			MainScreen mainScreen = (MainScreen) currentScreen;
 			mainScreen.setTables(dbConn.getTables());
 			mainScreen.setTableModel(tableModel);
+			mainScreen.setLastStatement(getLastStatement());
 		}
 		log.debug("Done updating view");
+	}
+	
+	private static DatabaseType parseDatabaseType(String stringType) {
+		for (DatabaseType type : DatabaseType.values()) {
+			if (type.toString().equalsIgnoreCase(stringType))
+				return type;
+		}
+		return null;
 	}
 	
 	@Override
@@ -178,16 +201,18 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			String 	host = loginContext.getHost(),
 							database = loginContext.getDatabase(),
 							user = loginContext.getUser(),
-							password = loginContext.getPassword();
+							password = loginContext.getPassword(),
+							databaseType = DatabaseType.POSTGRESQL.toString();	// TODO Get from login
 			
 			Config.set(SAVED_HOST, host);
 			Config.set(SAVED_DATABASE, database);
+			Config.set(SAVED_DATABASE_TYPE, databaseType);
 			Config.set(SAVED_USER, user);
 			Config.set(SAVED_PASSWORD, password);
 	
 			Config.save();
 			try {
-				setDatabaseConnection(new PostgresDatabaseConnection(host, database, user, password));
+				setDatabaseConnection(new DatabaseConnection(host, database, parseDatabaseType(databaseType), user, password));
 			} catch (SQLException e) {
 				log.exception(e, Level.WARNING);
 				window.displayException(e);
@@ -197,6 +222,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			loginContext.removeSubmitListener(this);
 
 			goToMainScreen();
+			updateView();
 		}
 	}
 	@Override
@@ -229,6 +255,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Received UPDATE event from: " + source);
 
 		updateTableModel();
+		updateView();
 	}
 	
 	@Override
@@ -236,6 +263,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Received SELECT TABLE event from: " + source);
 
 		setTableConnection(dbConn.connect(table));
+		updateView();
 	}
 	
 	@Override
@@ -265,6 +293,8 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.update(newValues, criteria);
 		if (result > 1)
 			updateTableModel();
+		
+		updateView();
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
@@ -273,6 +303,8 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.insert(rowValues);
 		if (result > 1)
 			updateTableModel();
+		
+		updateView();
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
@@ -281,12 +313,16 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		int result = tableConn.delete(criteria);
 		if (result > 1)
 			updateTableModel();
+		
+		updateView();
 	}
 	
 	@Override
-	public void revertStatement(String statement, SqlRequestSubject source) {
+	public void revertStatement(StatementCommand statement, SqlRequestSubject source) {
 		log.debug("Received REVERT STATEMENT event from: " + source + "; statement = " + statement);
 
-		undoLastStatement();
+		undoStatement(statement);
+		
+		updateView();
 	}
 }

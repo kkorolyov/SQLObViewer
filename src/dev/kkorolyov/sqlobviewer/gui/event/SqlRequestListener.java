@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer.gui.event;
 
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
+import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
 
 /**
  * Listens for SQL operation requests.
@@ -59,5 +60,5 @@ public interface SqlRequestListener {
 	 * @param statement statement to revert
 	 * @param source entity requesting this operation
 	 */
-	void revertStatement(String statement, SqlRequestSubject source);
+	void revertStatement(StatementCommand statement, SqlRequestSubject source);
 }
