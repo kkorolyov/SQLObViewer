@@ -5,6 +5,7 @@ import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +46,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	private JPanel panel;
 	private TableGrid tableGrid;
 	private GridSelector tableGridSelector;
-	private JComboBox<String> tableComboBox;
-	private boolean comboBoxListenerEnabled;
+	private JComboBox<String> tableSelector;
+	private boolean tableSelectorEnabled;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
 	private JButton	backButton,
@@ -83,7 +84,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 					tableGrid.deselect();
 			}
 		});
-		tableGrid = new TableGrid(null, Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+		tableGrid = new TableGrid(dbModel.getTableModel(), Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 		tableGrid.addChangeListener(e -> syncSelectedRowsCounter());
 		
 		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
@@ -110,15 +111,15 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e ->  {
-			if (lastStatementText.getText().length() > 0)	// Something
+			if (lastStatementText.getText().length() > 0)	// Check for some statement
 				fireRevertStatement(dbModel.getLastStatement());
 		});
 		lastStatementPopup.add(undoItem);
 		
-		tableComboBox = new JComboBox<String>();
-		tableComboBox.addActionListener(e -> {
-			if (comboBoxListenerEnabled) {
-				String selectedTable = (String) tableComboBox.getSelectedItem();
+		tableSelector = new JComboBox<String>();
+		tableSelector.addActionListener(e -> {
+			if (tableSelectorEnabled) {
+				String selectedTable = (String) tableSelector.getSelectedItem();
 				
 				if (selectedTable != null)
 					fireSelectTable(selectedTable);
@@ -164,7 +165,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	}
 	private void buildComponents() {
 		panel.add(refreshTableButton);
-		panel.add(tableComboBox);
+		panel.add(tableSelector);
 		panel.add(tableButtonPanel, "gap 0");
 		panel.add(tableGrid.getPanel(), "spanx 2, grow");
 		panel.add(rowButtonPanel, "split 2, flowy, top, gap 0");
@@ -174,33 +175,48 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		panel.add(backButton, "span, center, grow 0");
 	}
 	
+	private void update() {
+		setTables(dbModel.getTables());
+		
+		StatementCommand lastStatement = dbModel.getLastStatement();
+		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : null);
+	}
+	
 	/** @return name of currently-selected table */
 	public String getTable() {
-		return (String) tableComboBox.getSelectedItem();
+		return (String) tableSelector.getSelectedItem();
 	}
 	/** @param name name of table to add to table selector */
 	public void addTable(String name) {
-		tableComboBox.addItem(name);
+		tableSelector.addItem(name);
 	}
 	/** @param name name of table to remove from table selector */
 	public void removeTable(String name) {
-		tableComboBox.removeItem(name);
+		tableSelector.removeItem(name);
 	}
 	
 	/** @return names of all tables in table selector */
 	public String[] getTables() {
-		String[] tables = new String[tableComboBox.getItemCount()];
+		String[] tables = new String[tableSelector.getItemCount()];
 		
 		for (int i = 0; i < tables.length; i++)
-			tables[i] = tableComboBox.getItemAt(i);
+			tables[i] = tableSelector.getItemAt(i);
 		
 		return tables;
 	}
 	/** @param tableNames new table names to display in table selector */
 	public void setTables(String[] tableNames) {
-		comboBoxListenerEnabled = false;	// Avoid selection event
+		log.debug("Setting new table names...");
+		
+		Arrays.sort(tableNames);
+		
+		if (Arrays.equals(getTables(), tableNames)) {
+			log.debug("No change in table names, aborting");
+			return;
+		}
+		tableSelectorEnabled = false;	// Avoid selection event
 
-		String lastSelectedTable = (String) tableComboBox.getSelectedItem();
+		String lastSelectedTable = (String) tableSelector.getSelectedItem();
 
 		clearTables();
 		
@@ -208,15 +224,17 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 			addTable(table);
 		
 		if (lastSelectedTable != null)
-			tableComboBox.setSelectedItem(lastSelectedTable);
+			tableSelector.setSelectedItem(lastSelectedTable);
 
-		comboBoxListenerEnabled = true;
+		tableSelectorEnabled = true;
+		
+		log.debug("Set new tables of length = " + tableSelector.getItemCount());
 	}
 	/**
 	 * Clears all tables from table selector.
 	 */
 	public void clearTables() {
-		tableComboBox.removeAllItems();
+		tableSelector.removeAllItems();
 	}
 	
 	/** @return table model backing all displayed tables */
@@ -345,13 +363,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == dbModel)
 			update();
-	}
-	private void update() {
-		setTables(dbModel.getTables());
-		setTableModel(dbModel.getTableModel());
-		StatementCommand lastStatement = dbModel.getLastStatement();
-
-		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
 	}
 	
 	private void fireCanceled() {

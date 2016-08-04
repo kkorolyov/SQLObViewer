@@ -18,6 +18,7 @@ import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
 import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
+import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestListener;
 import dev.kkorolyov.sqlobviewer.gui.event.Subject;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 
@@ -32,6 +33,24 @@ public class DatabaseModel implements Subject {
 	private SQLObTableModel tableModel;
 	
 	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
+	
+	/**
+	 * Constructs a new database model.
+	 * @param controller controller to attach to any {@code SqlRequestSubjects} found in this model
+	 */
+	public DatabaseModel(SqlRequestListener controller) {
+		tableModel = new SQLObTableModel(new Column[0], new RowEntry[0][0], true);
+		tableModel.addSqlRequestListener(controller);
+	}
+	/**
+	 * Closes this model and releases all resources.
+	 */
+	public void close() {
+		clearListeners();
+
+		setTableModel(null);
+		setDatabaseConnection(null);
+	}
 	
 	public void selectTable(String table) {
 		setTableConnection(dbConn.connect(table));
@@ -161,7 +180,8 @@ public class DatabaseModel implements Subject {
 		tableModel = newModel;
 		log.debug("Set new table model = " + tableModel);
 		
-		updateTableModel();
+		if (tableModel != null)
+			updateTableModel();
 		
 		fireStateChanged();
 	}
@@ -171,10 +191,7 @@ public class DatabaseModel implements Subject {
 	 */
 	public void updateTableModel() {
 		log.debug("Updating table model...");
-		
-		if (tableModel != null)
-			tableModel.setData(getTableColumns(), getTableData());
-		
+		tableModel.setData(getTableColumns(), getTableData());
 		log.debug("Done updating table model");
 	}
 	

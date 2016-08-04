@@ -73,9 +73,6 @@ public class TableGrid implements Screen {
 	}
 	/** @param newModel new table model */
 	public void setModel(SQLObTableModel newModel) {
-		if (Objects.equals(model, newModel))
-			return;
-		
 		model = newModel;
 		applyModel();
 	}

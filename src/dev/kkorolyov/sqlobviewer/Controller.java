@@ -20,7 +20,6 @@ import dev.kkorolyov.sqlobviewer.gui.MainScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
 import dev.kkorolyov.sqlobviewer.gui.OptionsScreen;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
-import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.sqlobviewer.model.DatabaseModel;
 
 /**
@@ -37,11 +36,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	 * @param window application window
 	 */
 	public Controller(MainWindow window) {
-		dbModel = new DatabaseModel();
-		SQLObTableModel tableModel = new SQLObTableModel(new Column[0], new RowEntry[0][0], true);
-		tableModel.addSqlRequestListener(this);
-		dbModel.setTableModel(tableModel);
-		
+		dbModel = new DatabaseModel(this);
 		this.window = window;
 		this.window.addWindowListener(new WindowAdapter() {
 			@SuppressWarnings("synthetic-access")
@@ -49,8 +44,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			public void windowClosing(WindowEvent e) {
 				log.debug("Received WINDOW CLOSING event from: " + e.getSource());
 				
-				dbModel.clearListeners();
-				dbModel.setDatabaseConnection(null);
+				dbModel.close();
 			}
 		});
 		goToLoginScreen();
