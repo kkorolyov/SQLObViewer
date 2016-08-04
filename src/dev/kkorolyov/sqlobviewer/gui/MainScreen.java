@@ -26,6 +26,7 @@ import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestListener;
 import dev.kkorolyov.sqlobviewer.gui.event.SqlRequestSubject;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTable;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
+import dev.kkorolyov.sqlobviewer.model.DatabaseModel;
 import dev.kkorolyov.swingplus.JHoverButtonPanel;
 import dev.kkorolyov.swingplus.JHoverButtonPanel.ExpandTrigger;
 import dev.kkorolyov.swingplus.JHoverButtonPanel.Orientation;
@@ -213,6 +214,24 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	public void setLastStatement(StatementCommand statement) {
 		lastStatement = statement;
 		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
+	}
+	
+	/**
+	 * Updates this screen.
+	 * @param dbModel model used for update
+	 */
+	public void update(DatabaseModel dbModel) {
+		setTables(dbModel.getTables());
+		setTableModel(dbModel.getTableModel());
+		
+		partialUpdate(dbModel);
+	}
+	/**
+	 * Partially updates this screen.
+	 * @param dbModel model used for update
+	 */
+	public void partialUpdate(DatabaseModel dbModel) {
+		setLastStatement(dbModel.getLastStatement());
 	}
 	
 	private void syncTableGrid() {
