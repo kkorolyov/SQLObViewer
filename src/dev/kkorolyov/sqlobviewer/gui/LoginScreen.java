@@ -2,6 +2,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.*;
 
+import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
 
+import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.assets.Asset;
@@ -28,12 +30,14 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 	private JPanel panel;
 	private JLabel 	hostLabel,
 									databaseLabel,
+									databaseTypeLabel,
 									userLabel,
 									passwordLabel;
 	private JTextField	hostField,
 											databaseField,
 											userField,
 											passwordField;
+	private JComboBox<DatabaseType> databaseTypeComboBox;
 	private JButton loginButton,
 									optionsButton;
 
@@ -50,10 +54,11 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 	}
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
-		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][]8px push[]"));
+		panel = new JPanel(new MigLayout("insets 4px, wrap 2", "[fill][fill, grow]", "[][][][][]8px push[]"));
 		
 		hostLabel = new JLabel(Lang.get(MESSAGE_HOST));
 		databaseLabel = new JLabel(Lang.get(MESSAGE_DATABASE));
+		databaseTypeLabel = new JLabel(Lang.get(MESSAGE_DATABASE_TYPE));
 		userLabel = new JLabel(Lang.get(MESSAGE_USER));
 		passwordLabel = new JLabel(Lang.get(MESSAGE_PASSWORD));
 		
@@ -61,6 +66,9 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		databaseField = new JTextField(Config.get(SAVED_DATABASE), DEFAULT_FIELD_COLUMNS);
 		userField = new JTextField(Config.get(SAVED_USER), DEFAULT_FIELD_COLUMNS);
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
+		
+		databaseTypeComboBox = new JComboBox<>(DatabaseType.values());
+		databaseTypeComboBox.setBackground(Color.WHITE);
 		
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());
@@ -87,6 +95,8 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		panel.add(hostField);
 		panel.add(databaseLabel);
 		panel.add(databaseField);
+		panel.add(databaseTypeLabel);
+		panel.add(databaseTypeComboBox);
 		panel.add(userLabel);
 		panel.add(userField);
 		panel.add(passwordLabel);
@@ -110,6 +120,11 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 	/** @return current text in password field */
 	public String getPassword() {
 		return passwordField.getText();
+	}
+	
+	/** @return selected item in database type combo box */
+	public DatabaseType getDatabaseType() {
+		return (DatabaseType) databaseTypeComboBox.getSelectedItem();
 	}
 	
 	@Override

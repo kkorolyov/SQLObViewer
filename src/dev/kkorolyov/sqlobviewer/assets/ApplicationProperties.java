@@ -102,6 +102,7 @@ public class ApplicationProperties {
 																
 																MESSAGE_HOST = "MESSAGE_HOST",
 																MESSAGE_DATABASE = "MESSAGE_DATABASE",
+																MESSAGE_DATABASE_TYPE = "MESSAGE_DATABASE_TYPE",
 																MESSAGE_USER = "MESSAGE_USER",
 																MESSAGE_PASSWORD = "MESSAGE_PASSWORD",
 																
@@ -197,6 +198,7 @@ public class ApplicationProperties {
 																
 																MESSAGE_HOST = "Host",
 																MESSAGE_DATABASE = "Database",
+																MESSAGE_DATABASE_TYPE = "Database Type",
 																MESSAGE_USER = "User",
 																MESSAGE_PASSWORD = "Password",
 																
@@ -298,6 +300,7 @@ public class ApplicationProperties {
 			defaults.put(Keys.MESSAGE_HOST, MESSAGE_HOST);
 			defaults.put(Keys.MESSAGE_USER, MESSAGE_USER);
 			defaults.put(Keys.MESSAGE_DATABASE, MESSAGE_DATABASE);
+			defaults.put(Keys.MESSAGE_DATABASE_TYPE, MESSAGE_DATABASE_TYPE);
 			defaults.put(Keys.MESSAGE_PASSWORD, MESSAGE_PASSWORD);
 			
 			defaults.put(Keys.MESSAGE_ROWS_SELECTED, MESSAGE_ROWS_SELECTED);
