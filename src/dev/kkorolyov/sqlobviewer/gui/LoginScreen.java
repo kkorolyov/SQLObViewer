@@ -68,7 +68,7 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
 		
 		databaseTypeComboBox = new JComboBox<>(DatabaseType.values());
-		databaseTypeComboBox.setBackground(Color.WHITE);
+		databaseTypeComboBox.setBackground(databaseField.getBackground());
 		
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
 		loginButton.addActionListener(e -> fireSubmitted());

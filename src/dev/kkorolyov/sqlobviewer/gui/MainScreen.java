@@ -46,6 +46,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	private TableGrid tableGrid;
 	private GridSelector tableGridSelector;
 	private JComboBox<String> tableComboBox;
+	private boolean comboBoxListenerEnabled;
 	private JHoverButtonPanel 	tableButtonPanel,
 															rowButtonPanel;
 	private JButton	backButton,
@@ -71,8 +72,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		
 		initComponents();
 		buildComponents();
-		
-		update();
 	}
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
@@ -118,10 +117,12 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		
 		tableComboBox = new JComboBox<String>();
 		tableComboBox.addActionListener(e -> {
-			String selectedTable = (String) tableComboBox.getSelectedItem();
-			
-			if (selectedTable != null)
-				fireSelectTable(selectedTable);
+			if (comboBoxListenerEnabled) {
+				String selectedTable = (String) tableComboBox.getSelectedItem();
+				
+				if (selectedTable != null)
+					fireSelectTable(selectedTable);
+			}
 		});
 		refreshTableButton = new JButton(Asset.REFRESH_ICON.asIcon());
 		refreshTableButton.setToolTipText(Lang.get(ACTION_TIP_REFRESH_TABLE));
@@ -197,6 +198,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	}
 	/** @param tableNames new table names to display in table selector */
 	public void setTables(String[] tableNames) {
+		comboBoxListenerEnabled = false;	// Avoid selection event
+
 		String lastSelectedTable = (String) tableComboBox.getSelectedItem();
 
 		clearTables();
@@ -206,6 +209,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		
 		if (lastSelectedTable != null)
 			tableComboBox.setSelectedItem(lastSelectedTable);
+
+		comboBoxListenerEnabled = true;
 	}
 	/**
 	 * Clears all tables from table selector.
@@ -345,6 +350,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		setTables(dbModel.getTables());
 		setTableModel(dbModel.getTableModel());
 		StatementCommand lastStatement = dbModel.getLastStatement();
+
 		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
 	}
 	

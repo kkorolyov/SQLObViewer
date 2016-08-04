@@ -14,9 +14,11 @@ import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
-import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
-import dev.kkorolyov.sqlobviewer.gui.*;
+import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
+import dev.kkorolyov.sqlobviewer.gui.MainScreen;
+import dev.kkorolyov.sqlobviewer.gui.MainWindow;
+import dev.kkorolyov.sqlobviewer.gui.OptionsScreen;
 import dev.kkorolyov.sqlobviewer.gui.event.*;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 import dev.kkorolyov.sqlobviewer.model.DatabaseModel;
@@ -53,21 +55,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		});
 		goToLoginScreen();
 	}
-	
-	/**
-	 * Reverts a SQL statement.
-	 */
-	public void undoStatement(StatementCommand statement) {
-		int formerNumTables = dbModel.getTables().length;
-		dbModel.getDatabaseConnection().getStatementLog().revert((UpdateStatement) statement, true);
-		int newNumTables = dbModel.getTables().length;
 		
-		dbModel.updateTableModel();
-		
-		if (formerNumTables != newNumTables)
-			dbModel.fireStateChanged();
-	}
-	
 	private void goToLoginScreen() {
 		window.setScreen(buildLoginScreen(), true);
 		log.debug("Swapped to login screen");
@@ -101,6 +89,9 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		MainScreen mainScreen = new MainScreen(dbModel);
 		mainScreen.addCancelListener(this);
 		mainScreen.addSqlRequestListener(this);
+		String[] tables = dbModel.getTables();
+		if (tables.length > 0)
+			dbModel.selectTable(tables[0]);
 		
 		log.debug("Built new main screen = " + mainScreen);
 
@@ -169,74 +160,51 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Received UPDATE event from: " + source);
 
 		dbModel.updateTableModel();
-		dbModel.fireStateChanged();
 	}
 	
 	@Override
 	public void selectTable(String table, SqlRequestSubject source) {
 		log.debug("Received SELECT TABLE (" + table + ") event from: " + source);
 
-		dbModel.setTableConnection(dbModel.getDatabaseConnection().connect(table));
+		dbModel.selectTable(table);
 	}
 	
 	@Override
 	public void createTable(String table, Column[] columns, SqlRequestSubject source) {
 		log.debug("Received CREATE TABLE event from: " + source);
 
-		dbModel.getDatabaseConnection().createTable(table, columns);
-		
-		dbModel.fireStateChanged();
+		dbModel.createTable(table, columns);
 	}
 	@Override
 	public void dropTable(String table, SqlRequestSubject source) {
 		log.debug("Received DROP TABLE event from: " + source);
 
-		dbModel.getDatabaseConnection().dropTable(table);
-		
-		if (dbModel.getTableConnection().getTableName().equals(table)) {
-			dbModel.setTableModel(null);
-			dbModel.setTableConnection(null);
-		}
-		dbModel.fireStateChanged();
+		dbModel.dropTable(table);
 	}
 	
 	@Override
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received UPDATE ROW event from: " + source);
 
-		int result = dbModel.getTableConnection().update(newValues, criteria);
-		if (result > 1)
-			dbModel.updateTableModel();
-		
-		dbModel.fireStateChanged();
+		dbModel.updateRow(newValues, criteria);
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
 		log.debug("Received INSERT ROW event from: " + source);
 
-		int result = dbModel.getTableConnection().insert(rowValues);
-		if (result > 1)
-			dbModel.updateTableModel();
-		
-		dbModel.fireStateChanged();
+		dbModel.insertRow(rowValues);
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received DELETE ROW event from: " + source);
 
-		int result = dbModel.getTableConnection().delete(criteria);
-		if (result > 1)
-			dbModel.updateTableModel();
-		
-		dbModel.fireStateChanged();
+		dbModel.deleteRow(criteria);
 	}
 	
 	@Override
 	public void revertStatement(StatementCommand statement, SqlRequestSubject source) {
 		log.debug("Received REVERT STATEMENT event from: " + source + "; statement = " + statement);
 
-		undoStatement(statement);
-		
-		dbModel.fireStateChanged();
+		dbModel.undoStatement(statement);
 	}
 }

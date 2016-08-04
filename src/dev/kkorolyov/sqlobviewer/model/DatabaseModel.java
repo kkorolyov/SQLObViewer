@@ -33,6 +33,51 @@ public class DatabaseModel implements Subject {
 	
 	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
+	public void selectTable(String table) {
+		setTableConnection(dbConn.connect(table));
+	}
+	public void createTable(String table, Column[] columns) {
+		setTableConnection(dbConn.createTable(table, columns));
+	}
+	public void dropTable(String table) {
+		dbConn.dropTable(table);
+		
+		if (tableConn.getTableName().equals(table))
+			setTableConnection(null);
+		else
+			fireStateChanged();
+	}
+	
+	public void updateRow(RowEntry[] newValues, RowEntry[] criteria) {
+		int result = tableConn.update(newValues, criteria);
+		if (result > 1)
+			updateTableModel();
+		
+		fireStateChanged();
+	}
+	public void insertRow(RowEntry[] rowValues) {
+		int result = tableConn.insert(rowValues);
+		if (result > 1)
+			updateTableModel();
+		
+		fireStateChanged();
+	}
+	public void deleteRow(RowEntry[] criteria) {
+		int result = tableConn.delete(criteria);
+		if (result > 1)
+			updateTableModel();
+		
+		fireStateChanged();
+	}
+	
+	public void undoStatement(StatementCommand statement) {
+		dbConn.getStatementLog().revert((UpdateStatement) statement, true);
+		
+		updateTableModel();
+		
+		fireStateChanged();
+	}
+	
 	/** @return tables under current database connection */
 	public String[] getTables() {
 		return dbConn.getTables();
@@ -133,7 +178,7 @@ public class DatabaseModel implements Subject {
 		log.debug("Done updating table model");
 	}
 	
-	public void fireStateChanged() {
+	private void fireStateChanged() {
 		for (ChangeListener listener : changeListeners)
 			listener.stateChanged(new ChangeEvent(this));
 	}
