@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
@@ -35,10 +37,10 @@ import net.miginfocom.swing.MigLayout;
 /**
  * The main application screen.
  */
-public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
+public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, ChangeListener {
 	private static final Logger log = Logger.getLogger(MainScreen.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
-	private StatementCommand lastStatement;
+	private DatabaseModel dbModel;
 	
 	private JPanel panel;
 	private TableGrid tableGrid;
@@ -61,10 +63,16 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	
 	/**
 	 * Constructs a new view screen.
+	 * @param dbModel backing database model
 	 */
-	public MainScreen() {
-		initComponents();		
+	public MainScreen(DatabaseModel dbModel) {
+		this.dbModel = dbModel;
+		this.dbModel.addChangeListener(this);
+		
+		initComponents();
 		buildComponents();
+		
+		update();
 	}
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
@@ -103,8 +111,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 		lastStatementPopup = new JPopupMenu();
 		JMenuItem undoItem = new JMenuItem(Lang.get(ACTION_UNDO_STATEMENT));
 		undoItem.addActionListener(e ->  {
-			if (lastStatement != null)
-				fireRevertStatement(lastStatement);
+			if (lastStatementText.getText().length() > 0)	// Something
+				fireRevertStatement(dbModel.getLastStatement());
 		});
 		lastStatementPopup.add(undoItem);
 		
@@ -189,10 +197,15 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	}
 	/** @param tableNames new table names to display in table selector */
 	public void setTables(String[] tableNames) {
+		String lastSelectedTable = (String) tableComboBox.getSelectedItem();
+
 		clearTables();
 		
 		for (String table : tableNames)
 			addTable(table);
+		
+		if (lastSelectedTable != null)
+			tableComboBox.setSelectedItem(lastSelectedTable);
 	}
 	/**
 	 * Clears all tables from table selector.
@@ -209,31 +222,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	public void setTableModel(SQLObTableModel newModel) {
 		tableGrid.setModel(newModel);
 	}
-	
-	/** @param statement new statement to display */
-	public void setLastStatement(StatementCommand statement) {
-		lastStatement = statement;
-		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
-	}
-	
-	/**
-	 * Updates this screen.
-	 * @param dbModel model used for update
-	 */
-	public void update(DatabaseModel dbModel) {
-		setTables(dbModel.getTables());
-		setTableModel(dbModel.getTableModel());
 		
-		partialUpdate(dbModel);
-	}
-	/**
-	 * Partially updates this screen.
-	 * @param dbModel model used for update
-	 */
-	public void partialUpdate(DatabaseModel dbModel) {
-		setLastStatement(dbModel.getLastStatement());
-	}
-	
 	private void syncTableGrid() {
 		tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 	}
@@ -345,6 +334,18 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject {
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if (e.getSource() == dbModel)
+			update();
+	}
+	private void update() {
+		setTables(dbModel.getTables());
+		setTableModel(dbModel.getTableModel());
+		StatementCommand lastStatement = dbModel.getLastStatement();
+		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : "");
 	}
 	
 	private void fireCanceled() {

@@ -2,10 +2,7 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.JPanel;
@@ -76,6 +73,9 @@ public class TableGrid implements Screen {
 	}
 	/** @param newModel new table model */
 	public void setModel(SQLObTableModel newModel) {
+		if (Objects.equals(model, newModel))
+			return;
+		
 		model = newModel;
 		applyModel();
 	}

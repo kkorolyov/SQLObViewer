@@ -36,12 +36,18 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	 */
 	public Controller(MainWindow window) {
 		dbModel = new DatabaseModel();
+		SQLObTableModel tableModel = new SQLObTableModel(new Column[0], new RowEntry[0][0], true);
+		tableModel.addSqlRequestListener(this);
+		dbModel.setTableModel(tableModel);
+		
 		this.window = window;
 		this.window.addWindowListener(new WindowAdapter() {
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public void windowClosing(WindowEvent e) {
 				log.debug("Received WINDOW CLOSING event from: " + e.getSource());
+				
+				dbModel.clearListeners();
 				dbModel.setDatabaseConnection(null);
 			}
 		});
@@ -59,7 +65,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		dbModel.updateTableModel();
 		
 		if (formerNumTables != newNumTables)
-			partialUpdateView();
+			dbModel.fireStateChanged();
 	}
 	
 	private void goToLoginScreen() {
@@ -92,7 +98,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Swapped to main screen");
 	}
 	private MainScreen buildMainScreen() {
-		MainScreen mainScreen = new MainScreen();
+		MainScreen mainScreen = new MainScreen(dbModel);
 		mainScreen.addCancelListener(this);
 		mainScreen.addSqlRequestListener(this);
 		
@@ -101,25 +107,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		return mainScreen;
 	}
 	
-	private void updateView() {
-		log.debug("Updating view...");
-		
-		Screen currentScreen = window.getScreen();
-		if (currentScreen instanceof MainScreen)
-			((MainScreen) currentScreen).update(dbModel);
-		
-		log.debug("Done updating view");
-	}
-	private void partialUpdateView() {
-		log.debug("Partially updating view...");
-		
-		Screen currentScreen = window.getScreen();
-		if (currentScreen instanceof MainScreen)
-			((MainScreen) currentScreen).partialUpdate(dbModel);
-		
-		log.debug("Done partially updating view");
-	}
-		
 	@Override
 	public void submitted(SubmitSubject source) {
 		log.debug("Received SUBMITTED event from: " + source);
@@ -150,7 +137,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			loginContext.removeSubmitListener(this);
 
 			goToMainScreen();
-			updateView();
 		}
 	}
 	@Override
@@ -183,19 +169,14 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Received UPDATE event from: " + source);
 
 		dbModel.updateTableModel();
-		partialUpdateView();
+		dbModel.fireStateChanged();
 	}
 	
 	@Override
 	public void selectTable(String table, SqlRequestSubject source) {
-		log.debug("Received SELECT TABLE event from: " + source);
+		log.debug("Received SELECT TABLE (" + table + ") event from: " + source);
 
-		SQLObTableModel tableModel = new SQLObTableModel(new Column[0], new RowEntry[0][0], true);
-		tableModel.addSqlRequestListener(this);
-		
-		dbModel.setTableModel(tableModel);
 		dbModel.setTableConnection(dbModel.getDatabaseConnection().connect(table));
-		partialUpdateView();
 	}
 	
 	@Override
@@ -204,7 +185,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 
 		dbModel.getDatabaseConnection().createTable(table, columns);
 		
-		updateView();
+		dbModel.fireStateChanged();
 	}
 	@Override
 	public void dropTable(String table, SqlRequestSubject source) {
@@ -216,7 +197,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			dbModel.setTableModel(null);
 			dbModel.setTableConnection(null);
 		}
-		updateView();
+		dbModel.fireStateChanged();
 	}
 	
 	@Override
@@ -227,7 +208,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		if (result > 1)
 			dbModel.updateTableModel();
 		
-		partialUpdateView();
+		dbModel.fireStateChanged();
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
@@ -237,7 +218,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		if (result > 1)
 			dbModel.updateTableModel();
 		
-		partialUpdateView();
+		dbModel.fireStateChanged();
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
@@ -247,7 +228,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		if (result > 1)
 			dbModel.updateTableModel();
 		
-		partialUpdateView();
+		dbModel.fireStateChanged();
 	}
 	
 	@Override
@@ -256,6 +237,6 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 
 		undoStatement(statement);
 		
-		partialUpdateView();
+		dbModel.fireStateChanged();
 	}
 }

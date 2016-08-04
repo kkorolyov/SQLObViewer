@@ -3,6 +3,11 @@ package dev.kkorolyov.sqlobviewer.model;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
@@ -13,17 +18,20 @@ import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
 import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
+import dev.kkorolyov.sqlobviewer.gui.event.Subject;
 import dev.kkorolyov.sqlobviewer.gui.table.SQLObTableModel;
 
 /**
  * Maintains the main model for the {@code SQLObViewer} application.
  */
-public class DatabaseModel {
+public class DatabaseModel implements Subject {
 	private static final Logger log = Logger.getLogger(DatabaseModel.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
 	private DatabaseConnection dbConn;
 	private TableConnection tableConn;
 	private SQLObTableModel tableModel;
+	
+	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/** @return tables under current database connection */
 	public String[] getTables() {
@@ -78,6 +86,8 @@ public class DatabaseModel {
 		
 		dbConn = newDatabaseConnection;
 		log.debug("Set new database connection = " + dbConn);
+		
+		fireStateChanged();
 	}
 	
 	/** @return current table connection */
@@ -90,6 +100,8 @@ public class DatabaseModel {
 		log.debug("Set new table connection = " + tableConn);
 		
 		updateTableModel();
+		
+		fireStateChanged();
 	}
 	
 	/** @return current table model */
@@ -105,6 +117,8 @@ public class DatabaseModel {
 		log.debug("Set new table model = " + tableModel);
 		
 		updateTableModel();
+		
+		fireStateChanged();
 	}
 	
 	/**
@@ -117,5 +131,24 @@ public class DatabaseModel {
 			tableModel.setData(getTableColumns(), getTableData());
 		
 		log.debug("Done updating table model");
+	}
+	
+	public void fireStateChanged() {
+		for (ChangeListener listener : changeListeners)
+			listener.stateChanged(new ChangeEvent(this));
+	}
+	
+	/** @param listener change listener to add */
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+	}
+	/** @param listener change listener to remove */
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+	
+	@Override
+	public void clearListeners() {
+		changeListeners.clear();
 	}
 }
