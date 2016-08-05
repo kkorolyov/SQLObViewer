@@ -266,6 +266,7 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 		try {
 			setTableConnection(dbConn.createTable(table, columns));
 		} catch (UncheckedSQLException e) {
+			log.exception(e, Level.WARNING);
 			window.displayException(e);
 		}
 	}
