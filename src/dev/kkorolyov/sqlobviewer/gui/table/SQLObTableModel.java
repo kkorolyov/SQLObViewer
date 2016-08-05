@@ -70,6 +70,18 @@ public class SQLObTableModel extends AbstractTableModel implements SqlRequestSub
 	 * @param newData new data
 	 */
 	public void setData(Column[] newColumns, RowEntry[][] newData) {
+		Arrays.sort(newData, new Comparator<RowEntry[]>() {
+			Comparator<RowEntry> innerComparator = new Comparator<RowEntry>() {
+				@Override
+				public int compare(RowEntry o1, RowEntry o2) {
+					return o1.getValue().toString().compareTo(o2.getValue().toString());
+				}
+			};
+			@Override
+			public int compare(RowEntry[] o1, RowEntry[] o2) {
+				return innerComparator.compare(o1[0], o2[0]);
+			}
+		});
 		boolean columnsChanged = !Arrays.equals(columns.toArray(), newColumns),
 						dataChanged = !Arrays.deepEquals(data.toArray(), newData);
 		

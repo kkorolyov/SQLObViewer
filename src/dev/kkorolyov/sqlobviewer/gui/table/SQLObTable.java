@@ -354,7 +354,7 @@ public class SQLObTable extends JTable implements ChangeListener {
 		sort();
 		
 		selectionListenerActive = oldSelectionListenerActive;	// Ok to listen to selection changes again
-
+		
 		if (lastSelectedRow >= 0 && lastSelectedColumn >= 0)
 			changeSelection(convertRowIndexToView(lastSelectedRow), convertColumnIndexToView(lastSelectedColumn), false, false);
 		
