@@ -279,23 +279,17 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received UPDATE ROW event from: " + source);
 
-		int result = tableConn.update(newValues, criteria);
-
 		fireStateChanged();
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
 		log.debug("Received INSERT ROW event from: " + source);
 
-		int result = tableConn.insert(rowValues);
-
 		fireStateChanged();
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received DELETE ROW event from: " + source);
-
-		int result = tableConn.delete(criteria);
 
 		fireStateChanged();
 	}
