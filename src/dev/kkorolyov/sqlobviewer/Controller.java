@@ -17,8 +17,9 @@ import javax.swing.event.ChangeListener;
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
-import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
+import dev.kkorolyov.sqlob.connection.TableConnection;
+import dev.kkorolyov.sqlob.connection.UncheckedSQLException;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
@@ -176,6 +177,8 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 		
 		if (tables.length > 0)
 			setTableConnection(dbConn.connect(tables[0]));
+		else
+			setTableConnection(null);
 	}
 	
 	private void applyOptions() {
@@ -303,7 +306,12 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 
 		dbConn.getStatementLog().revert((UpdateStatement) statement, true);
 		
+		try {
 		fireStateChanged();
+		} catch (UncheckedSQLException e) {
+			log.warning("Reversion dropped current table, setting to default table...");
+			setDefaultTableConnection();	// In case of revert deleting currently-displayed table
+		}
 	}
 	
 	private void fireStateChanged() {

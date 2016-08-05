@@ -2,7 +2,6 @@ package dev.kkorolyov.sqlobviewer.gui;
 
 import static dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Keys.*;
 
-import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -68,6 +67,7 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		passwordField = new JPasswordField(Config.get(SAVED_PASSWORD), DEFAULT_FIELD_COLUMNS);
 		
 		databaseTypeComboBox = new JComboBox<>(DatabaseType.values());
+		databaseTypeComboBox.setSelectedItem(databaseNameToType(Config.get(SAVED_DATABASE_TYPE)));
 		databaseTypeComboBox.setBackground(databaseField.getBackground());
 		
 		loginButton = new JButton(Lang.get(ACTION_LOG_IN));
@@ -103,6 +103,14 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 		panel.add(passwordField);
 		panel.add(optionsButton, "span, split 2, align 25%, grow 0");
 		panel.add(loginButton, "align 75%, grow 0");
+	}
+	
+	private static DatabaseType databaseNameToType(String databaseTypeName) {
+		for (DatabaseType type : DatabaseType.values()) {
+			if (type.toString().equalsIgnoreCase(databaseTypeName))
+				return type;
+		}
+		return null;
 	}
 	
 	/** @return current text in host field */

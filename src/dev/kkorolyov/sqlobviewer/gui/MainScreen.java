@@ -179,10 +179,25 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	
 	private void update() {
 		setTables(dbModel.getTables());
+		syncTable();
+		
 		getTableModel().setData(dbModel.getTableColumns(), dbModel.getTableData());
 		
 		StatementCommand lastStatement = dbModel.getLastStatement();
 		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : null);
+	}
+	private void syncTable() {
+		tableSelectorEnabled = false;
+		
+		tableSelector.setSelectedItem(dbModel.getTable());
+		
+		tableSelectorEnabled = true;
+	}
+	private void syncTableGrid() {
+		tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+	}
+	private void syncSelectedRowsCounter() {
+		selectedRowsCounter.setText(getNumSelectedRows() + " " + Lang.get(MESSAGE_ROWS_SELECTED));
 	}
 	
 	/** @return name of currently-selected table */
@@ -249,13 +264,6 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		tableGrid.setModel(newModel);
 	}
 		
-	private void syncTableGrid() {
-		tableGrid.setTables(Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
-	}
-	private void syncSelectedRowsCounter() {
-		selectedRowsCounter.setText(getNumSelectedRows() + " " + Lang.get(MESSAGE_ROWS_SELECTED));
-	}
-	
 	private int getNumSelectedRows() {
 		int totalSelected = 0;
 		
