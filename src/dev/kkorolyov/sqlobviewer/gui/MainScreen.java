@@ -93,6 +93,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		tableGridSelector.addChangeListener(e -> syncTableGrid());
 		
 		selectedRowsCounter = new JLabel();
+		syncSelectedRowsCounter();
 		
 		lastStatementText = new JTextArea();
 		lastStatementText.setOpaque(false);
