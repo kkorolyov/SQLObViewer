@@ -73,6 +73,8 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 		
 		initComponents();
 		buildComponents();
+		
+		update();
 	}
 	@SuppressWarnings("synthetic-access")
 	private void initComponents() {
@@ -84,7 +86,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 					tableGrid.deselect();
 			}
 		});
-		tableGrid = new TableGrid(dbModel.getTableModel(), Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
+		tableGrid = new TableGrid(new SQLObTableModel(dbModel.getTableColumns(), dbModel.getTableData(), true), Config.getInt(CURRENT_TABLES_X), Config.getInt(CURRENT_TABLES_Y));
 		tableGrid.addChangeListener(e -> syncSelectedRowsCounter());
 		
 		tableGridSelector = new GridSelector(Config.getInt(MAX_TABLES_X), Config.getInt(MAX_TABLES_Y));
@@ -177,6 +179,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	
 	private void update() {
 		setTables(dbModel.getTables());
+		getTableModel().setData(dbModel.getTableColumns(), dbModel.getTableData());
 		
 		StatementCommand lastStatement = dbModel.getLastStatement();
 		lastStatementText.setText(lastStatement != null ? lastStatement.toString() : null);
@@ -406,6 +409,7 @@ public class MainScreen implements Screen, CancelSubject, SqlRequestSubject, Cha
 	@Override
 	public void addSqlRequestListener(SqlRequestListener listener) {
 		sqlRequestListeners.add(listener);
+		getTableModel().addSqlRequestListener(listener);
 	}
 	@Override
 	public void removeSqlRequestListener(SqlRequestListener listener) {

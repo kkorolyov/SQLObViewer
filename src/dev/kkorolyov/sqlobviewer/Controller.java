@@ -6,14 +6,24 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import dev.kkorolyov.simplelogs.Logger;
 import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
+import dev.kkorolyov.sqlob.connection.TableConnection;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlob.construct.Column;
+import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
+import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainScreen;
@@ -25,18 +35,21 @@ import dev.kkorolyov.sqlobviewer.model.DatabaseModel;
 /**
  * Centralized SQLObViewer application control.
  */
-public class Controller implements SubmitListener, CancelListener, OptionsListener, SqlRequestListener {
+public class Controller implements DatabaseModel, SubmitListener, CancelListener, OptionsListener, SqlRequestListener {
 	private static final Logger log = Logger.getLogger(Controller.class.getName(), Level.DEBUG, (PrintWriter[]) null);
 	
-	private DatabaseModel dbModel;	// Model
+	private DatabaseConnection dbConn;
+	private TableConnection tableConn;
+	
 	private MainWindow window;	// View
+	
+	private Set<ChangeListener> changeListeners = new CopyOnWriteArraySet<>();
 	
 	/**
 	 * Constructs a new controller for the specified window
 	 * @param window application window
 	 */
 	public Controller(MainWindow window) {
-		dbModel = new DatabaseModel(this);
 		this.window = window;
 		this.window.addWindowListener(new WindowAdapter() {
 			@SuppressWarnings("synthetic-access")
@@ -44,7 +57,8 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 			public void windowClosing(WindowEvent e) {
 				log.debug("Received WINDOW CLOSING event from: " + e.getSource());
 				
-				dbModel.close();
+				clearListeners();
+				setDatabaseConnection(null);
 			}
 		});
 		goToLoginScreen();
@@ -80,16 +94,92 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 		log.debug("Swapped to main screen");
 	}
 	private MainScreen buildMainScreen() {
-		MainScreen mainScreen = new MainScreen(dbModel);
+		MainScreen mainScreen = new MainScreen(this);
 		mainScreen.addCancelListener(this);
 		mainScreen.addSqlRequestListener(this);
-		String[] tables = dbModel.getTables();
-		if (tables.length > 0)
-			dbModel.selectTable(tables[0]);
 		
 		log.debug("Built new main screen = " + mainScreen);
 
 		return mainScreen;
+	}
+	
+	@Override
+	public String getDatabase() {
+		return dbConn != null ? dbConn.getDatabaseName() : null;
+	}
+	@Override
+	public String getTable() {
+		return tableConn != null ? tableConn.getTableName() : null;
+	}
+	@Override
+	public String[] getTables() {
+		return dbConn.getTables();
+	}
+	
+	@Override
+	public Column[] getTableColumns() {
+		return tableConn != null ? tableConn.getColumns() : new Column[0];
+	}
+	@Override
+	public RowEntry[][] getTableData() {
+		if (tableConn == null)
+			return new RowEntry[0][0];
+		
+		List<RowEntry[]> data = new LinkedList<>();
+
+		Results allResults = tableConn.select(null);
+		
+		RowEntry[] currentRow;
+		while ((currentRow = allResults.getNextRow()) != null)				
+			data.add(currentRow);
+			
+		return data.toArray(new RowEntry[data.size()][]);
+	}
+	
+	@Override
+	public UpdateStatement getLastStatement() {
+		UpdateStatement lastStatement = null;
+		
+		if (dbConn != null) {
+			for (int i = dbConn.getStatementLog().size() - 1; i >= 0; i--) {
+				StatementCommand currentStatement = dbConn.getStatementLog().get(i);
+				if (currentStatement instanceof UpdateStatement) {
+					lastStatement = (UpdateStatement) currentStatement;
+					break;
+				}
+			}
+		}
+		return lastStatement;
+	}
+	
+	private void setDatabaseConnection(DatabaseConnection newDatabaseConnection) {
+		if (dbConn != null)
+			dbConn.close();
+		tableConn = null;
+		
+		dbConn = newDatabaseConnection;
+		log.debug("Set database connection = " + getDatabase());
+		
+		if (dbConn != null)
+			setDefaultTableConnection();
+		
+		fireStateChanged();
+	}
+	private void setTableConnection(TableConnection newTableConnection) {
+		tableConn = newTableConnection;
+		log.debug("Set table connection = " + getTable());
+		
+		fireStateChanged();
+	}
+	private void setDefaultTableConnection() {
+		String[] tables = getTables();
+		
+		if (tables.length > 0)
+			setTableConnection(dbConn.connect(tables[0]));
+	}
+	
+	private void applyOptions() {
+		window.setSize(Config.getInt(WINDOW_WIDTH), Config.getInt(WINDOW_HEIGHT));
 	}
 	
 	@Override
@@ -112,7 +202,7 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	
 			Config.save();
 			try {
-				dbModel.setDatabaseConnection(new DatabaseConnection(host, database, databaseType, user, password));
+				setDatabaseConnection(new DatabaseConnection(host, database, databaseType, user, password));
 			} catch (SQLException e) {
 				log.exception(e, Level.WARNING);
 				window.displayException(e);
@@ -128,14 +218,15 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	public void canceled(CancelSubject source) {
 		log.debug("Received CANCELED event from: " + source);
 
+		source.clearListeners();
+
 		if (source instanceof MainScreen) {
-			dbModel.setDatabaseConnection(null);
+			clearListeners();
+			setDatabaseConnection(null);
 			
 			goToLoginScreen();
 		} else if (source instanceof OptionsScreen) {
-			((OptionsScreen) source).clearListeners();
-			
-			window.setSize(Config.getInt(WINDOW_WIDTH), Config.getInt(WINDOW_HEIGHT));
+			applyOptions();
 			
 			goToLoginScreen();
 		}
@@ -153,52 +244,84 @@ public class Controller implements SubmitListener, CancelListener, OptionsListen
 	public void update(SqlRequestSubject source) {
 		log.debug("Received UPDATE event from: " + source);
 
-		dbModel.updateTableModel();
+		fireStateChanged();
 	}
 	
 	@Override
 	public void selectTable(String table, SqlRequestSubject source) {
 		log.debug("Received SELECT TABLE (" + table + ") event from: " + source);
 
-		dbModel.selectTable(table);
+		setTableConnection(dbConn.connect(table));
 	}
 	
 	@Override
 	public void createTable(String table, Column[] columns, SqlRequestSubject source) {
 		log.debug("Received CREATE TABLE event from: " + source);
 
-		dbModel.createTable(table, columns);
+		setTableConnection(dbConn.createTable(table, columns));
 	}
 	@Override
 	public void dropTable(String table, SqlRequestSubject source) {
 		log.debug("Received DROP TABLE event from: " + source);
 
-		dbModel.dropTable(table);
+		dbConn.dropTable(table);
+		
+		if (getTable().equals(table))
+			setTableConnection(null);
+		else
+			fireStateChanged();
 	}
 	
 	@Override
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received UPDATE ROW event from: " + source);
 
-		dbModel.updateRow(newValues, criteria);
+		int result = tableConn.update(newValues, criteria);
+
+		fireStateChanged();
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
 		log.debug("Received INSERT ROW event from: " + source);
 
-		dbModel.insertRow(rowValues);
+		int result = tableConn.insert(rowValues);
+
+		fireStateChanged();
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received DELETE ROW event from: " + source);
 
-		dbModel.deleteRow(criteria);
+		int result = tableConn.delete(criteria);
+
+		fireStateChanged();
 	}
 	
 	@Override
 	public void revertStatement(StatementCommand statement, SqlRequestSubject source) {
 		log.debug("Received REVERT STATEMENT event from: " + source + "; statement = " + statement);
 
-		dbModel.undoStatement(statement);
+		dbConn.getStatementLog().revert((UpdateStatement) statement, true);
+		
+		fireStateChanged();
+	}
+	
+	private void fireStateChanged() {
+		for (ChangeListener listener : changeListeners)
+			listener.stateChanged(new ChangeEvent(this));
+	}
+	
+	@Override
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+	}
+	@Override
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+	
+	@Override
+	public void clearListeners() {
+		changeListeners.clear();
 	}
 }
