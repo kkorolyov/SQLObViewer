@@ -19,7 +19,6 @@ import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlob.connection.TableConnection;
-import dev.kkorolyov.sqlob.connection.UncheckedSQLException;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
@@ -279,18 +278,24 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 	public void updateRow(RowEntry[] newValues, RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received UPDATE ROW event from: " + source);
 
+		tableConn.update(newValues, criteria);
+		
 		fireStateChanged();
 	}
 	@Override
 	public void insertRow(RowEntry[] rowValues, SqlRequestSubject source) {
 		log.debug("Received INSERT ROW event from: " + source);
 
+		tableConn.insert(rowValues);
+		
 		fireStateChanged();
 	}
 	@Override
 	public void deleteRow(RowEntry[] criteria, SqlRequestSubject source) {
 		log.debug("Received DELETE ROW event from: " + source);
 
+		tableConn.delete(criteria);
+		
 		fireStateChanged();
 	}
 	
@@ -300,12 +305,10 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 
 		dbConn.getStatementLog().revert((UpdateStatement) statement, true);
 		
-		try {
+		if (getTable() == null || !dbConn.containsTable(getTable()))
+			setDefaultTableConnection();
+
 		fireStateChanged();
-		} catch (UncheckedSQLException e) {
-			log.warning("Reversion dropped current table, setting to default table...");
-			setDefaultTableConnection();	// In case of revert deleting currently-displayed table
-		}
 	}
 	
 	private void fireStateChanged() {
