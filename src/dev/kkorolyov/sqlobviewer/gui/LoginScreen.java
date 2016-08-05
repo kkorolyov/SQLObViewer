@@ -110,7 +110,7 @@ public class LoginScreen implements Screen, SubmitSubject, OptionsSubject {
 			if (type.toString().equalsIgnoreCase(databaseTypeName))
 				return type;
 		}
-		return null;
+		return DatabaseType.values()[0];	// Default to first database type
 	}
 	
 	/** @return current text in host field */
