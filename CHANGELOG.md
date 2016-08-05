@@ -1,15 +1,19 @@
 # Change Log
 
-## [1.1] - 2016-07-30
+## [1.1] - 2016-08-05
 ### Changes
 * Added some custom button icons.
 * All assets automatically extract from .jar if required.
 	* Full application packaged as a .jar again instead of a .zip file.
 * Default logging config changed to INFO level, disabled.
+* Added option for database type selection on login screen.
+	* Currently only supports PostgreSQL.
+* Window title reflects currently-connected database name.
 
 ### Fixes
 * Fixed more wonkiness related to automatic table row reselection on data refresh.
 * A log file will no longer be created when logging is disabled.
+* Catch and display an exception when attempting to create a table with an illegal name or illegal column names.
 
 
 ## [1.0] - 2016-07-24
