@@ -152,6 +152,9 @@ public class MainWindow implements Window {
 	/** @param newTitle new title */
 	public void setTitle(String newTitle) {
 		title = newTitle;
+		
+		if (frame != null)
+			frame.setTitle(title);
 	}
 	/**
 	 * @param newWidth new width in pixels

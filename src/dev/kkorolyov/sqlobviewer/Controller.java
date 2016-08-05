@@ -25,6 +25,7 @@ import dev.kkorolyov.sqlob.construct.RowEntry;
 import dev.kkorolyov.sqlob.construct.statement.StatementCommand;
 import dev.kkorolyov.sqlob.construct.statement.UpdateStatement;
 import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Config;
+import dev.kkorolyov.sqlobviewer.assets.ApplicationProperties.Lang;
 import dev.kkorolyov.sqlobviewer.gui.LoginScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainScreen;
 import dev.kkorolyov.sqlobviewer.gui.MainWindow;
@@ -163,6 +164,7 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 		if (dbConn != null)
 			setDefaultTableConnection();
 		
+		window.setTitle(Lang.get(TITLE_WINDOW) + (getDatabase() == null ? "" : " - " + getDatabase()));
 		fireStateChanged();
 	}
 	private void setTableConnection(TableConnection newTableConnection) {
