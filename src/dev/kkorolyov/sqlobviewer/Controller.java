@@ -19,6 +19,7 @@ import dev.kkorolyov.simplelogs.Logger.Level;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection;
 import dev.kkorolyov.sqlob.connection.DatabaseConnection.DatabaseType;
 import dev.kkorolyov.sqlob.connection.TableConnection;
+import dev.kkorolyov.sqlob.connection.UncheckedSQLException;
 import dev.kkorolyov.sqlob.construct.Column;
 import dev.kkorolyov.sqlob.construct.Results;
 import dev.kkorolyov.sqlob.construct.RowEntry;
@@ -262,7 +263,11 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 	public void createTable(String table, Column[] columns, SqlRequestSubject source) {
 		log.debug("Received CREATE TABLE event from: " + source);
 
-		setTableConnection(dbConn.createTable(table, columns));
+		try {
+			setTableConnection(dbConn.createTable(table, columns));
+		} catch (UncheckedSQLException e) {
+			window.displayException(e);
+		}
 	}
 	@Override
 	public void dropTable(String table, SqlRequestSubject source) {
@@ -271,7 +276,7 @@ public class Controller implements DatabaseModel, SubmitListener, CancelListener
 		dbConn.dropTable(table);
 		
 		if (getTable().equals(table))
-			setTableConnection(null);
+			setDefaultTableConnection();
 		else
 			fireStateChanged();
 	}
