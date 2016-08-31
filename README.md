@@ -22,8 +22,11 @@ A Java-based graphical database viewer utilizing the SQLOb API.
 ## Dependencies
 * [SQLOb](https://github.com/kkorolyov/SQLOb) - Database communication
 * [PostgreSQL JDBC Driver](https://jdbc.postgresql.org/) - Database connection
+* [RandomUtils-ResourceExtractor](https://github.com/kkorolyov/RandomUtils) - Bundled asset extracting
 * [SimpleProps](https://github.com/kkorolyov/SimpleProps) - Configuration file management
+* [SimplePropsEditor](https://github.com/kkorolyov/SimplePropsEditor) - Configuration editing
 * [SimpleLogs](https://github.com/kkorolyov/SimpleLogs) - Application logging
+* [SwingPlus](https://github.com/kkorolyov/SwingPlus) - Additional Swing components
 * [MiGLayout](http://www.miglayout.com/) - GUI layout management
 
 ## Installation
